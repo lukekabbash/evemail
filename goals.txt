@@ -1,0 +1,145 @@
+# goals.txt for mail.eveos.space
+# Project: Eve OS Mail Extension with Market Browsing Tool
+# Author: Luke Kabbash (for Eve OS, www.eveos.space)
+# Date: April 11, 2025
+# Purpose: Guide Cursor AI IDE to build a web app for browsing Eve Online market items, creating a checklist, and mailing a shopping list in-game, using client-side ESI API calls.
+
+## Project Overview
+- Goal: Extend Eve OS with a web app at mail.eveos.space that allows users to:
+  - Authenticate via Eve Online SSO to access their in-game character.
+  - Browse all market items in Eve Online.
+  - Create a checklist of items with quantities.
+  - Mail themselves an in-game shopping list from the checklist.
+- Platform: Web-based single-page application (SPA).
+- Framework: React (preferred for dynamic UI and state management).
+- API: Eve Online ESI (EVE Swagger Interface) for all data interactions.
+- Constraint: All API calls must be client-side to avoid server bans with multiple users.
+
+## Key Features
+1. **SSO Authentication**:
+   - Redirect users to Eve Online SSO for login (implicit flow).
+   - Request scopes: esi-mail.send_mail.v1, esi-markets.read_character_markets.v1, esi-universe.read_universe.v1.
+   - Extract access token from URL fragment and store in browser (in-memory or localStorage).
+   - Decode token to get character ID for API calls.
+
+2. **Market Browsing**:
+   - Fetch and display all Eve Online items using /v1/universe/types/ endpoint.
+   - Implement pagination (fetch pages of ~1000 items) and search (via /v1/search/ endpoint).
+   - Organize items by categories and groups (using /v1/universe/categories/ and /v1/universe/groups/).
+   - Show item icons from https://images.evetech.net/types/{type_id}/icon.
+   - Allow viewing market orders for items in a selected region (e.g., The Forge) via /v1/markets/{region_id}/orders/.
+
+3. **Checklist Creation**:
+   - Provide a UI to add items from the browser to a checklist.
+   - Allow setting quantities for each item (e.g., input field).
+   - Support editing/removing items from the checklist.
+   - Store checklist in React state (local state or Context API).
+
+4. **Mail Shopping List**:
+   - Generate a plain text shopping list from the checklist (e.g., "Shopping List:\n- Tritanium: 10,000\n- Megatron: 5").
+   - Send the list as an in-game mail using /v1/characters/{character_id}/mail/ endpoint.
+   - Mail sent to the authenticated user’s character ID.
+
+## Technical Requirements
+- **Frontend**:
+  - Framework: React (create-react-app or Vite).
+  - UI Library: Material-UI for polished, responsive components.
+  - Styling: Responsive design for desktop and mobile.
+  - Features: Search bar, item grid/list, checklist table, mail composition UI.
+  - Routing: React Router for handling SSO callback and navigation.
+
+- **API Calls**:
+  - All ESI API calls made from the browser using fetch or Axios.
+  - Endpoints:
+    - /v1/universe/types/: List all items.
+    - /v1/search/: Search items by name.
+    - /v1/universe/categories/, /v1/universe/groups/: Organize items.
+    - /v1/markets/{region_id}/orders/: Fetch market orders.
+    - /v1/characters/{character_id}/mail/: Send mail.
+  - Authentication: Include Authorization: Bearer {access_token} in headers.
+  - Handle rate limits (e.g., 520 errors for mail) with user-friendly messages.
+
+- **Security**:
+  - Store access token securely (in-memory preferred; localStorage as fallback).
+  - Limit scopes to only what’s needed.
+  - Handle token expiration (prompt re-login if expired).
+
+- **No Server**:
+  - App is a static SPA (no backend for API calls).
+  - Host on Netlify, GitHub Pages, or similar.
+  - SSO callback handled client-side via JavaScript.
+
+## Design Goals
+- **Nice-Looking UI**:
+  - Clean, modern design with Material-UI components.
+  - Item grid with icons, names, and market data.
+  - Checklist as a table with editable quantities.
+  - Clear buttons for adding items, editing checklist, and sending mail.
+  - EVE Online 'themed'
+- **Usability**:
+  - Intuitive flow: Login → Browse → Add to Checklist → Send Mail.
+  - Search and filter items for quick access.
+  - Mobile-friendly layout.
+- **Performance**:
+  - Lazy-load item lists for pagination.
+  - Cache API responses where possible (e.g., item categories).
+
+## Constraints
+- **Client-Side Only**: No server-side proxy for ESI calls to prevent bans with multiple users.
+- **Compliance**: Follow CCP Games’ developer license (no spam, user consent for mail).
+- **Deadline Awareness**: Note ESI’s v1 token removal on May 13, 2025; use v2 OAuth endpoints (https://login.eveonline.com/v2/oauth/authorize, /v2/oauth/token).
+
+## Development Tasks
+1. **Setup**:
+   - Initialize React project.
+   - Install dependencies: Material-UI, Axios, jwt-decode, react-router-dom.
+   - Configure ESLint and Prettier for code quality.
+
+2. **Components**:
+   - Login: SSO redirect and token extraction.
+   - ItemBrowser: Paginated item list, search, category filters.
+   - Checklist: Table for selected items, quantity inputs.
+   - MailSender: Form to preview and send shopping list.
+
+3. **API Service**:
+   - Create a module for ESI calls with reusable fetch logic.
+   - Handle errors (e.g., rate limits, invalid tokens).
+
+4. **State Management**:
+   - Use React hooks (useState, useContext) for checklist and auth state.
+   - Avoid complex libraries like Redux unless needed.
+
+5. **Testing**:
+   - Test SSO flow locally.
+   - Verify item fetching, checklist updates, and mail sending.
+   - Ensure mobile responsiveness.
+
+6. **Deployment**:
+   - Deploy to Netlify or GitHub Pages.
+   - Configure redirect URI for SSO callback.
+
+## Success Criteria
+- Users can log in via SSO and see their character.
+- Browse all Eve Online items with search and market data.
+- Build a checklist and edit quantities.
+- Send a shopping list mail in-game successfully.
+- App is fast, responsive, and visually appealing.
+- No server-side API calls (all client-side).
+- Complies with ESI rate limits and CCP rules.
+
+## Notes for Cursor
+- Prioritize React with Material-UI for UI.
+- Generate modular code with clear component separation.
+- Include error handling for API failures and token issues.
+- Suggest optimizations (e.g., memoization for item lists).
+- Avoid server-side code unless explicitly requested.
+- Reference ESI docs: https://docs.esi.evetech.net/.
+- Account for JWT migration (use v2 endpoints per May 2025 change).
+
+## Example Workflow for User
+1. Visit mail.eveos.space.
+2. Click "Login with Eve Online" → SSO → Grant permissions.
+3. Browse items (e.g., search "Tritanium", view Jita prices).
+4. Add items to checklist (e.g., "Tritanium: 10,000").
+5. Review checklist, click "Send Mail".
+6. Receive in-game mail with shopping list.

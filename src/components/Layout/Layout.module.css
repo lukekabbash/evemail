@@ -1,0 +1,133 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--eve-primary);
+}
+
+.header {
+  background-color: var(--eve-secondary);
+  border-bottom: 1px solid var(--eve-border);
+}
+
+.headerContent {
+  padding: var(--spacing-md) 0;
+}
+
+.logo {
+  color: var(--eve-light);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.subtitle {
+  color: var(--eve-secondary);
+  font-size: 0.875rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.characterName {
+  color: var(--eve-light);
+  font-size: 0.875rem;
+}
+
+.logoutButton {
+  background-color: var(--eve-dark);
+  color: var(--eve-light);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--eve-border);
+}
+
+.logoutButton:hover {
+  background-color: var(--eve-secondary);
+}
+
+.nav {
+  background-color: var(--eve-secondary);
+  border-bottom: 1px solid var(--eve-border);
+}
+
+.navLinks {
+  display: flex;
+  gap: var(--spacing-xl);
+}
+
+.navLink {
+  padding: var(--spacing-md) var(--spacing-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  color: var(--eve-light);
+  transition: var(--transition-default);
+}
+
+.navLink:hover {
+  color: var(--eve-accent);
+}
+
+.navLinkActive {
+  border-bottom-color: var(--eve-accent);
+  color: var(--eve-accent);
+}
+
+.badge {
+  margin-left: var(--spacing-sm);
+  background-color: var(--eve-accent);
+  color: var(--eve-dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.main {
+  flex-grow: 1;
+  padding: var(--spacing-xl) 0;
+}
+
+.footer {
+  background-color: var(--eve-secondary);
+  border-top: 1px solid var(--eve-border);
+  padding: var(--spacing-xl) 0;
+}
+
+.footerContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.copyright {
+  color: var(--eve-secondary);
+  font-size: 0.875rem;
+}
+
+.footerLinks {
+  display: flex;
+  gap: var(--spacing-xl);
+}
+
+.footerLink {
+  color: var(--eve-secondary);
+  font-size: 0.875rem;
+  transition: var(--transition-default);
+}
+
+.footerLink:hover {
+  color: var(--eve-accent);
+}
+
+@media (min-width: 768px) {
+  .footerContent {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+} 

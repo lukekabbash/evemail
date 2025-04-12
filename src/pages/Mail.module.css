@@ -1,0 +1,144 @@
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: var(--spacing-xl);
+}
+
+.errorCard {
+  composes: eve-card from global;
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  background-color: rgba(255, 68, 68, 0.2);
+  border: 1px solid var(--eve-red);
+}
+
+.errorTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  color: var(--eve-light);
+}
+
+.errorText {
+  margin-bottom: var(--spacing-md);
+  color: var(--eve-light);
+}
+
+.successCard {
+  composes: eve-card from global;
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.successIcon {
+  color: var(--eve-accent);
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.successTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  color: var(--eve-light);
+}
+
+.successText {
+  margin-bottom: var(--spacing-xl);
+  color: var(--eve-secondary);
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.mailCard {
+  composes: eve-card from global;
+  margin-bottom: var(--spacing-xl);
+}
+
+.mailTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+  color: var(--eve-light);
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-md);
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--eve-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.input {
+  width: 100%;
+}
+
+.inputDisabled {
+  composes: input;
+  background-color: var(--eve-dark);
+}
+
+.helpText {
+  font-size: 0.75rem;
+  color: var(--eve-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+.shoppingList {
+  background-color: var(--eve-dark);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--eve-border);
+}
+
+.listItem {
+  color: var(--eve-light);
+  font-size: 0.875rem;
+  font-family: monospace;
+  white-space: pre-wrap;
+  margin-bottom: var(--spacing-xs);
+}
+
+.errorMessage {
+  background-color: rgba(255, 68, 68, 0.2);
+  border: 1px solid var(--eve-red);
+  color: var(--eve-light);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.backButton {
+  background-color: var(--eve-dark);
+  color: var(--eve-light);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--eve-border);
+}
+
+.sendButton {
+  background-color: var(--eve-accent);
+  color: var(--eve-dark);
+  padding: var(--spacing-sm) var(--spacing-xl);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.sendButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+} 

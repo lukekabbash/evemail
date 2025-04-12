@@ -1,46 +1,86 @@
-# Getting Started with Create React App
+# EVE OS Mail
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+EVE OS Mail is a web application that allows EVE Online players to browse market items, create a checklist of items with quantities, and mail the shopping list to themselves in-game.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Authentication via EVE Online SSO
+- Browse all market items in EVE Online
+- Search and filter items by categories and groups
+- See current market prices from major trade hubs
+- Add items to a shopping checklist with custom quantities
+- Send the shopping list as an in-game mail
 
-### `npm start`
+## Requirements
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Node.js (v14+)
+- NPM or Yarn
+- An EVE Online account
+- EVE Online Developer Application (for SSO)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Setup
 
-### `npm test`
+1. Clone this repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Create an EVE Online Developer Application at https://developers.eveonline.com/
+   - Set the callback URL to `http://localhost:3000/callback` (for local development)
+   - Request the following scopes:
+     - `esi-mail.send_mail.v1`
+     - `esi-markets.read_character_markets.v1`
+     - `esi-universe.read_universe.v1`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+4. Create a `.env` file in the root directory with the following content:
+   ```
+   REACT_APP_EVE_CLIENT_ID=your_client_id_here
+   REACT_APP_EVE_REDIRECT_URI=http://localhost:3000/callback
+   ```
+   Replace `your_client_id_here` with the Client ID from your EVE Developer Application.
 
-### `npm run build`
+5. Start the development server:
+   ```
+   npm start
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+6. Open your browser and navigate to http://localhost:3000
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Deployment
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The application is set up to be deployed as a static site on platforms like Netlify, GitHub Pages, or AWS S3.
 
-### `npm run eject`
+To build the production version:
+```
+npm run build
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+This will create a `build` directory with optimized static files ready for deployment.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Technical Stack
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- React (with TypeScript)
+- React Router for navigation
+- TailwindCSS for styling
+- Axios for API requests
+- JWT-decode for token handling
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Application Structure
 
-## Learn More
+- `/src/components` - Reusable UI components
+- `/src/contexts` - React contexts for authentication and checklist
+- `/src/pages` - Main application pages
+- `/src/services` - Services for API interactions
+- `/src/types` - TypeScript type definitions
+- `/src/utils` - Utility functions
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Important Notes
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- All API calls are made client-side directly to the EVE Online ESI API
+- No data is stored on any server; all user data is stored in the browser
+- The app requires EVE Online SSO authorization to access character data and send mail
+- This is not an official CCP/EVE Online application
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

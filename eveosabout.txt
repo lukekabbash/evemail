@@ -1,0 +1,22 @@
+EVE OS is a comprehensive, browser-based toolkit designed to enhance various aspects of EVE Online gameplay. Developed by EVE Online veteran Luke Kabbash, the platform offers a suite of tools to assist players in exploration, industry, combat, and more.​
+
+🔧 Key Features
+Wormhole Guide: An interactive guide for wormhole exploration, covering combat, relic, and data sites.​
+
+Price Checker: Allows users to paste item lists and receive market prices across different regions.​
+
+D-Scan Analyzer: Analyzes directional scan results to enhance situational awareness.​
+
+Local Intel Tool: Provides real-time analysis of local chat, assessing potential threats by checking player affiliations and killboard data.​
+
+Crafting Visualizer: Breaks down complex manufacturing processes into a visual tree, aiding in efficient planning of production chains.​
+
+EVE Chat Assistant: An AI-powered assistant that answers questions about EVE Online or the EVE OS platform.​
+
+🛡️ Privacy and Accessibility
+EVE OS emphasizes user privacy with a zero data collection policy, ensuring that your in-game data and activities remain confidential. The platform is free to use and does not require any installations or logins.​
+
+🌐 Community-Driven Development
+Luke Kabbash actively engages with the EVE Online community to gather feedback and implement new features. The platform is continually evolving based on user suggestions and needs.​
+
+You can explore EVE OS and its features by visiting www.eveos.space.
