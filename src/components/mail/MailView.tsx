@@ -71,14 +71,14 @@ const MailView: React.FC<MailViewProps> = ({
         }}
       >
         <Typography
-          variant="h4"
+          variant="h6"
           sx={{
             color: 'rgba(255,255,255,0.5)',
-            fontWeight: 700,
-            letterSpacing: 1,
+            fontWeight: 400,
+            letterSpacing: 0.5,
             textAlign: 'center',
-            textShadow: '0 2px 16px rgba(0,0,0,0.25)',
-            fontSize: { xs: '1.3rem', sm: '2rem', md: '2.5rem' },
+            textShadow: '0 2px 16px rgba(0,0,0,0.18)',
+            fontSize: { xs: '1rem', sm: '1.2rem', md: '1.5rem' },
           }}
         >
           Select an email to view

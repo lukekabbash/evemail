@@ -293,6 +293,9 @@ const Mail: React.FC = () => {
     }
   });
 
+  // Set sidebar width: 30% of viewport width on desktop, fallback to 312px, min 260, max 400
+  const computedSidebarWidth = isMobile ? 320 : 312;
+
   if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
     return (
       <Box sx={{ 
@@ -442,10 +445,87 @@ const Mail: React.FC = () => {
     }
   }
 
+  if (!isMobile) {
+    return (
+      <>
+        <MailLayout
+          sidebarWidth={computedSidebarWidth}
+          onComposeClick={() => {
+            setReplyData(undefined);
+            setIsComposeOpen(true);
+          }}
+          sidebar={
+            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
+              <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1 }} size="small">
+                <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)' }}>Folder</InputLabel>
+                <Select
+                  labelId="folder-select-label"
+                  id="folder-select"
+                  value={selectedFolder}
+                  label="Folder"
+                  onChange={e => setSelectedFolder(e.target.value)}
+                  sx={{
+                    color: 'rgba(255,255,255,0.9)',
+                    bgcolor: '#23243a',
+                    '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
+                    '.MuiSvgIcon-root': { color: '#00b4ff' },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: '#23243a',
+                        color: 'rgba(255,255,255,0.9)',
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="inbox">Inbox</MenuItem>
+                  <MenuItem value="sent">Sent</MenuItem>
+                  <MenuItem value="trash">Trash</MenuItem>
+                </Select>
+              </FormControl>
+              <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#888', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
+                <MailList
+                  mails={filteredMails}
+                  selectedMail={selectedMail}
+                  onMailSelect={handleMailSelect}
+                  onMailStar={id => setMails(mails.map(mail => mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail))}
+                  onMailDelete={handleMailDelete}
+                />
+              </Box>
+            </Box>
+          }
+          main={
+            <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', bgcolor: '#2a2a3e' }}>
+              <MailView
+                mail={selectedMailData}
+                onReply={handleReply}
+                onForward={handleForward}
+                onDelete={handleMailDelete}
+                onStar={id => setMails(mails.map(mail => mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail))}
+              />
+            </Box>
+          }
+        />
+        <ComposeDialog
+          open={isComposeOpen}
+          onClose={() => {
+            setIsComposeOpen(false);
+            setReplyData(undefined);
+          }}
+          onSend={handleSendMail}
+          replyData={replyData}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <MailLayout
-        sidebarWidth={sidebarWidth}
+        sidebarWidth={computedSidebarWidth}
         onComposeClick={() => {
           setReplyData(undefined);
           setIsComposeOpen(true);
@@ -482,7 +562,7 @@ const Mail: React.FC = () => {
                 <MenuItem value="trash">Trash</MenuItem>
               </Select>
             </FormControl>
-            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#00b4ff', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#888', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
               <MailList
                 mails={filteredMails}
                 selectedMail={selectedMail}

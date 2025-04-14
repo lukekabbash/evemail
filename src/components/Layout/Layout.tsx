@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, Link as RouterLink } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -53,6 +53,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       : []),
   ];
 
+  const hideHeader = location.pathname.startsWith('/mail');
+
   return (
     <Box sx={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Box 
@@ -81,116 +83,118 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
         <ParticleBackground />
       </Box>
-      <AppBar
-        position="sticky"
-        sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          backdropFilter: 'blur(10px)',
-          zIndex: 10,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-            <Box
-              component={Link}
-              to="/"
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
-              <img
-                src="/EVE MAIL.png"
-                alt="EVE Mail Logo"
-                style={{ height: '32px', marginRight: '12px' }}
-              />
-              <Typography
-                variant="h6"
+      {!hideHeader && (
+        <AppBar
+          position="sticky"
+          sx={{
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 10,
+          }}
+        >
+          <Container maxWidth="lg">
+            <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
+              <Box
+                component={Link}
+                to="/"
                 sx={{
-                  fontWeight: 'bold',
-                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  textDecoration: 'none',
+                  color: 'inherit',
                 }}
               >
-                EVE OS Mail
-              </Typography>
-            </Box>
-
-            {isMobile ? (
-              <>
-                <IconButton
-                  size="large"
-                  edge="end"
-                  color="inherit"
-                  aria-label="menu"
-                  onClick={handleMenu}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
+                <img
+                  src="/EVE MAIL.png"
+                  alt="EVE Mail Logo"
+                  style={{ height: '32px', marginRight: '12px' }}
+                />
+                <Typography
+                  variant="h6"
                   sx={{
-                    '& .MuiPaper-root': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                      backdropFilter: 'blur(10px)',
-                    },
+                    fontWeight: 'bold',
+                    color: '#fff',
                   }}
                 >
+                  EVE OS Mail
+                </Typography>
+              </Box>
+
+              {isMobile ? (
+                <>
+                  <IconButton
+                    size="large"
+                    edge="end"
+                    color="inherit"
+                    aria-label="menu"
+                    onClick={handleMenu}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                    sx={{
+                      '& .MuiPaper-root': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backdropFilter: 'blur(10px)',
+                      },
+                    }}
+                  >
+                    {navItems.map((item) => (
+                      <MenuItem
+                        key={item.path}
+                        onClick={() => handleNavigation(item.path)}
+                        selected={location.pathname === item.path}
+                      >
+                        {item.label}
+                      </MenuItem>
+                    ))}
+                    {auth.isAuthenticated && (
+                      <MenuItem onClick={logout}>Logout</MenuItem>
+                    )}
+                  </Menu>
+                </>
+              ) : (
+                <Box sx={{ display: 'flex', gap: 3 }}>
                   {navItems.map((item) => (
-                    <MenuItem
+                    <Button
                       key={item.path}
-                      onClick={() => handleNavigation(item.path)}
-                      selected={location.pathname === item.path}
+                      color="inherit"
+                      onClick={() => navigate(item.path)}
+                      sx={{
+                        color: location.pathname === item.path ? '#00b4ff' : '#fff',
+                        '&:hover': {
+                          color: '#00b4ff',
+                        },
+                      }}
                     >
                       {item.label}
-                    </MenuItem>
+                    </Button>
                   ))}
                   {auth.isAuthenticated && (
-                    <MenuItem onClick={logout}>Logout</MenuItem>
+                    <Button
+                      color="inherit"
+                      onClick={logout}
+                      sx={{
+                        color: '#fff',
+                        border: '1px solid',
+                        borderColor: '#00b4ff',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 180, 255, 0.1)',
+                        },
+                      }}
+                    >
+                      Logout
+                    </Button>
                   )}
-                </Menu>
-              </>
-            ) : (
-              <Box sx={{ display: 'flex', gap: 3 }}>
-                {navItems.map((item) => (
-                  <Button
-                    key={item.path}
-                    color="inherit"
-                    onClick={() => navigate(item.path)}
-                    sx={{
-                      color: location.pathname === item.path ? '#00b4ff' : '#fff',
-                      '&:hover': {
-                        color: '#00b4ff',
-                      },
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-                {auth.isAuthenticated && (
-                  <Button
-                    color="inherit"
-                    onClick={logout}
-                    sx={{
-                      color: '#fff',
-                      border: '1px solid',
-                      borderColor: '#00b4ff',
-                      '&:hover': {
-                        backgroundColor: 'rgba(0, 180, 255, 0.1)',
-                      },
-                    }}
-                  >
-                    Logout
-                  </Button>
-                )}
-              </Box>
-            )}
-          </Toolbar>
-        </Container>
-      </AppBar>
+                </Box>
+              )}
+            </Toolbar>
+          </Container>
+        </AppBar>
+      )}
 
       <Box 
         component="main" 
@@ -218,20 +222,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Grid container spacing={4}>
             <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <img
-                  src="/EVE MAIL.png"
-                  alt="EVE Mail Logo"
-                  style={{ height: '40px', marginRight: '12px' }}
-                />
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 'bold',
-                    color: '#fff',
-                  }}
-                >
-                  EVE OS Mail
-                </Typography>
+                <RouterLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                  <img
+                    src="/EVE MAIL.png"
+                    alt="EVE Mail Logo"
+                    style={{ height: '40px', marginRight: '12px' }}
+                  />
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 'bold',
+                      color: '#fff',
+                    }}
+                  >
+                    EVE OS Mail
+                  </Typography>
+                </RouterLink>
               </Box>
               <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
                 A third-party EVE Online tool for logistics and organization.
