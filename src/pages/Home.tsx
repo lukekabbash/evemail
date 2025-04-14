@@ -12,12 +12,12 @@ const Home: React.FC = () => {
   return (
     <Box
       sx={{
-        height: '100vh',
+        minHeight: 'calc(100vh - 64px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,20,40,0.8) 100%)',
-        py: 1,
+        py: 4,
       }}
     >
       <Container maxWidth="sm">
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 2,
-              mb: 2,
+              mb: 4,
             }}
           >
             <img
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
           <Typography
             variant="body2"
             sx={{
-              mb: 2,
+              mb: 4,
               color: 'rgba(255, 255, 255, 0.7)',
               maxWidth: '480px',
               mx: 'auto',
@@ -83,14 +83,14 @@ const Home: React.FC = () => {
           <Paper
             elevation={24}
             sx={{
-              p: 2.5,
+              p: 4,
               backgroundColor: 'rgba(13, 13, 13, 0.95)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(0, 180, 255, 0.2)',
               borderRadius: 2,
               position: 'relative',
               overflow: 'hidden',
-              mb: 2,
+              mb: 6,
               '&::before': {
                 content: '""',
                 position: 'absolute',
@@ -104,7 +104,7 @@ const Home: React.FC = () => {
           >
             {!auth.isAuthenticated ? (
               <>
-                <Typography variant="h5" sx={{ mb: 2, color: '#fff', fontWeight: 600, fontSize: '1.25rem' }}>
+                <Typography variant="h5" sx={{ mb: 4, color: '#fff', fontWeight: 600, fontSize: '1.25rem' }}>
                   Sign in to EVE OS Mail
                 </Typography>
                 <Button
@@ -114,8 +114,9 @@ const Home: React.FC = () => {
                   onClick={login}
                   startIcon={<LoginIcon />}
                   sx={{
-                    py: 1,
-                    fontSize: '1rem',
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                    mb: 3,
                   }}
                 >
                   Login with EVE Online
@@ -123,7 +124,7 @@ const Home: React.FC = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    mt: 1.5,
+                    mt: 2,
                     color: 'text.secondary',
                     textAlign: 'center',
                   }}
@@ -133,8 +134,8 @@ const Home: React.FC = () => {
               </>
             ) : (
               <>
-                <Typography variant="h5" sx={{ mb: 2, color: '#fff', fontWeight: 600, fontSize: '1.25rem' }}>
-                  Welcome back, Commander
+                <Typography variant="h5" sx={{ mb: 4, color: '#fff', fontWeight: 600, fontSize: '1.25rem' }}>
+                  Welcome back, capsuleer
                 </Typography>
                 <Button
                   variant="contained"
@@ -143,8 +144,9 @@ const Home: React.FC = () => {
                   onClick={() => navigate('/mail')}
                   startIcon={<MailIcon />}
                   sx={{
-                    py: 1,
-                    fontSize: '1rem',
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                    mb: 3,
                   }}
                 >
                   Open Mail Client
@@ -159,7 +161,7 @@ const Home: React.FC = () => {
               color: 'rgba(255, 255, 255, 0.7)',
               maxWidth: '480px',
               mx: 'auto',
-              mb: 2,
+              mb: 6,
             }}
           >
             Part of the EVE OS platform - your all-in-one toolkit for EVE Online. Featuring industry tools, wormhole guides, market analysis, and more. Zero data collection, maximum security, and seamless ESI integration for the best EVE Online experience.
@@ -171,7 +173,7 @@ const Home: React.FC = () => {
                 variant="body2"
                 sx={{
                   color: 'text.secondary',
-                  mb: 1,
+                  mb: 2.5,
                 }}
               >
                 New to EVE OS Mail?
@@ -186,6 +188,8 @@ const Home: React.FC = () => {
                     borderColor: '#00b4ff',
                     backgroundColor: 'rgba(0, 180, 255, 0.1)',
                   },
+                  py: 1.2,
+                  px: 3,
                 }}
               >
                 Learn More

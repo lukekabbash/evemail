@@ -16,6 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 export interface MailItem {
   id: string;
   from: string;
+  to: string;
   subject: string;
   preview: string;
   date: string;
@@ -57,41 +58,41 @@ const MailList: React.FC<MailListProps> = ({
   };
 
   return (
-    <List sx={{ p: 0, bgcolor: '#1a1a2e' }}>
-      {mails.map((mail) => (
-        <ListItem
-          key={mail.id}
-          sx={{
-            px: 2,
-            py: 1,
-            cursor: 'pointer',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-            bgcolor: selectedMail === mail.id ? 'rgba(0, 180, 255, 0.1)' : 'transparent',
-            '&:hover': {
-              bgcolor: 'rgba(0, 180, 255, 0.05)',
-            },
-          }}
-          onClick={() => onMailSelect(mail.id)}
-        >
-          <ListItemText
-            primary={
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
-              }}>
+    <List sx={{ p: 0, bgcolor: '#1a1a2e', pt: 2, height: '100%', overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#888', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
+      {mails.map((mail) => {
+        const isSent = mail.from === undefined || mail.from === null;
+        return (
+          <ListItem
+            key={mail.id}
+            sx={{
+              px: 2,
+              py: 1,
+              cursor: 'pointer',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+              bgcolor: selectedMail === mail.id ? 'rgba(0, 180, 255, 0.1)' : 'transparent',
+              '&:hover': {
+                bgcolor: 'rgba(0, 180, 255, 0.05)',
+              },
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 1,
+            }}
+            onClick={() => onMailSelect(mail.id)}
+          >
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
                 <Typography
                   sx={{
-                    fontWeight: mail.isRead ? 400 : 600,
-                    color: mail.isRead ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)',
-                    fontSize: '0.875rem',
+                    fontWeight: mail.isRead ? 400 : 700,
+                    color: mail.isRead ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.95)',
+                    fontSize: '0.95rem',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
+                    flex: 1,
                   }}
                 >
-                  {mail.from}
+                  {mail.subject}
                 </Typography>
                 <Typography
                   sx={{
@@ -99,99 +100,66 @@ const MailList: React.FC<MailListProps> = ({
                     fontSize: '0.75rem',
                     flexShrink: 0,
                     ml: 2,
+                    minWidth: 70,
+                    textAlign: 'right',
                   }}
                 >
-                  {new Date(mail.date).toLocaleDateString()}
+                  {formatDate(mail.date)}
                 </Typography>
               </Box>
-            }
-            secondary={
-              <Box sx={{ mt: 0.5 }}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  width: '100%',
-                  pr: '160px',
-                }}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 600,
-                      color: mail.isRead ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)',
-                      fontSize: '0.875rem',
-                      mb: 0.5,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      width: '100%',
-                    }}
-                  >
-                    {mail.subject}
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="body2"
-                  sx={{
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  fontSize: '0.82rem',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  mt: 0.25,
+                }}
+              >
+                {isSent ? mail.to : mail.from}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
+              <Tooltip title={mail.isStarred ? "Unstar" : "Star"}>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMailStar(mail.id);
+                  }}
+                  size="small"
+                  sx={{ 
+                    color: mail.isStarred ? '#00b4ff' : 'rgba(255, 255, 255, 0.5)',
+                    '&:hover': {
+                      color: mail.isStarred ? '#0099ff' : '#00b4ff',
+                    }
+                  }}
+                >
+                  {mail.isStarred ? <StarIcon /> : <StarBorderIcon />}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete">
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMailDelete(mail.id);
+                  }}
+                  size="small"
+                  sx={{ 
                     color: 'rgba(255, 255, 255, 0.5)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'pre-line',
-                    fontSize: '0.815rem',
-                    lineHeight: 1.4,
-                    pr: '160px',
-                    maxHeight: '2.8em',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
+                    '&:hover': {
+                      color: '#ff4444',
+                    }
                   }}
                 >
-                  {mail.preview.replace(/\n{2,}/g, '\n').replace(/\s+/g, ' ').trim()}
-                </Typography>
-              </Box>
-            }
-          />
-          <Box sx={{ 
-            display: 'flex',
-            alignItems: 'center',
-            ml: 2,
-          }}>
-            <Tooltip title={mail.isStarred ? "Unstar" : "Star"}>
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMailStar(mail.id);
-                }}
-                size="small"
-                sx={{ 
-                  color: mail.isStarred ? '#00b4ff' : 'rgba(255, 255, 255, 0.5)',
-                  '&:hover': {
-                    color: mail.isStarred ? '#0099ff' : '#00b4ff',
-                  }
-                }}
-              >
-                {mail.isStarred ? <StarIcon /> : <StarBorderIcon />}
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete">
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMailDelete(mail.id);
-                }}
-                size="small"
-                sx={{ 
-                  color: 'rgba(255, 255, 255, 0.5)',
-                  '&:hover': {
-                    color: '#ff4444',
-                  }
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </ListItem>
-      ))}
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </ListItem>
+        );
+      })}
     </List>
   );
 };

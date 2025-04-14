@@ -48,7 +48,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { label: 'About', path: '/about' },
     ...(auth.isAuthenticated
       ? [
-          { label: 'Checklist', path: '/checklist' },
           { label: 'Mail', path: '/mail' },
         ]
       : []),
