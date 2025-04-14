@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -14,11 +14,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 import EVEMailContent from './EVEMailContent';
+import { eveMailService } from '../../services/eveMailService';
 
 interface MailViewProps {
   mail: {
     id: string;
     from: string;
+    fromId?: number;
     to: string;
     subject: string;
     content: string;
@@ -43,6 +45,19 @@ const MailView: React.FC<MailViewProps> = ({
   onDelete,
   onStar,
 }) => {
+  const [fromPortrait, setFromPortrait] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPortrait = async () => {
+      if (mail?.fromId) {
+        const portrait = await eveMailService.getCharacterPortrait(mail.fromId);
+        setFromPortrait(portrait);
+      }
+    };
+
+    loadPortrait();
+  }, [mail?.fromId]);
+
   if (!mail) {
     return (
       <Box
@@ -97,8 +112,15 @@ const MailView: React.FC<MailViewProps> = ({
             {mail.subject}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-            <Avatar sx={{ bgcolor: '#00b4ff' }}>
-              {mail.from.charAt(0).toUpperCase()}
+            <Avatar 
+              src={fromPortrait || undefined}
+              sx={{ 
+                bgcolor: fromPortrait ? 'transparent' : '#00b4ff',
+                width: 40,
+                height: 40,
+              }}
+            >
+              {!fromPortrait && mail.from.charAt(0).toUpperCase()}
             </Avatar>
             <Box>
               <Typography variant="subtitle1" sx={{ color: '#000000' }}>

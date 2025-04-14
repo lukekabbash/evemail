@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -7,7 +7,13 @@ import {
   TextField,
   Button,
   Box,
+  Autocomplete,
+  Avatar,
+  Typography,
+  Paper,
 } from '@mui/material';
+import { eveMailService } from '../../services/eveMailService';
+import debounce from 'lodash/debounce';
 
 interface ComposeDialogProps {
   open: boolean;
@@ -15,23 +21,61 @@ interface ComposeDialogProps {
   onSend: (data: { to: string; subject: string; content: string }) => void;
 }
 
+interface CharacterOption {
+  character_id: number;
+  name: string;
+  portrait_url: string;
+}
+
 const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend }) => {
-  const [to, setTo] = useState('');
+  const [recipient, setRecipient] = useState<CharacterOption | null>(null);
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [options, setOptions] = useState<CharacterOption[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const searchCharacters = debounce(async (query: string) => {
+    if (!query) {
+      setOptions([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const results = await eveMailService.searchCharacters(query);
+      setOptions(results);
+    } catch (error) {
+      console.error('Failed to search characters:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, 300);
+
+  useEffect(() => {
+    searchCharacters(searchQuery);
+    return () => {
+      searchCharacters.cancel();
+    };
+  }, [searchQuery]);
 
   const handleSend = () => {
-    onSend({ to, subject, content });
-    setTo('');
-    setSubject('');
-    setContent('');
+    if (!recipient) return;
+    onSend({ 
+      to: recipient.character_id.toString(),
+      subject,
+      content
+    });
+    handleClose();
   };
 
   const handleClose = () => {
     onClose();
-    setTo('');
+    setRecipient(null);
     setSubject('');
     setContent('');
+    setSearchQuery('');
+    setOptions([]);
   };
 
   return (
@@ -44,21 +88,61 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend }) 
         sx: {
           height: '80vh',
           maxHeight: '800px',
+          backgroundColor: '#ffffff',
+          backgroundImage: 'none',
         }
       }}
     >
-      <DialogTitle>New Message</DialogTitle>
-      <DialogContent>
+      <DialogTitle sx={{ color: '#000000', borderBottom: '1px solid rgba(0, 0, 0, 0.1)' }}>
+        New Message
+      </DialogTitle>
+      <DialogContent sx={{ bgcolor: '#ffffff' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <TextField
-            label="Character ID"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            fullWidth
-            variant="outlined"
-            size="small"
-            type="number"
-            placeholder="Enter recipient's character ID"
+          <Autocomplete
+            value={recipient}
+            onChange={(_, newValue) => setRecipient(newValue)}
+            onInputChange={(_, newInputValue) => setSearchQuery(newInputValue)}
+            options={options}
+            loading={loading}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.character_id === value.character_id}
+            renderOption={(props, option) => (
+              <Box component="li" {...props} sx={{ 
+                '&:hover': { backgroundColor: 'rgba(0, 180, 255, 0.1)' }
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Avatar
+                    src={option.portrait_url}
+                    alt={option.name}
+                    sx={{ width: 32, height: 32 }}
+                  />
+                  <Typography sx={{ color: '#000000' }}>{option.name}</Typography>
+                </Box>
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="To"
+                placeholder="Search character name..."
+                variant="outlined"
+                size="small"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#ffffff',
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(0, 180, 255, 0.5)',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#00b4ff',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'rgba(0, 0, 0, 0.7)',
+                  },
+                }}
+              />
+            )}
           />
           <TextField
             label="Subject"
@@ -67,6 +151,20 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend }) 
             fullWidth
             variant="outlined"
             size="small"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#ffffff',
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'rgba(0, 180, 255, 0.5)',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#00b4ff',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(0, 0, 0, 0.7)',
+              },
+            }}
           />
           <TextField
             label="Message"
@@ -76,21 +174,50 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend }) 
             multiline
             rows={20}
             variant="outlined"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#ffffff',
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'rgba(0, 180, 255, 0.5)',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#00b4ff',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(0, 0, 0, 0.7)',
+              },
+            }}
           />
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="inherit">
+      <DialogActions sx={{ 
+        p: 2,
+        borderTop: '1px solid rgba(0, 0, 0, 0.1)',
+        bgcolor: '#ffffff'
+      }}>
+        <Button 
+          onClick={handleClose}
+          sx={{
+            color: 'rgba(0, 0, 0, 0.7)',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+            },
+          }}
+        >
           Cancel
         </Button>
         <Button 
           onClick={handleSend}
           variant="contained"
-          disabled={!to || !subject || !content}
+          disabled={!recipient || !subject || !content}
           sx={{
-            bgcolor: '#1976d2',
+            bgcolor: '#00b4ff',
             '&:hover': {
-              bgcolor: '#1565c0',
+              bgcolor: '#007db2',
+            },
+            '&.Mui-disabled': {
+              bgcolor: 'rgba(0, 180, 255, 0.3)',
             },
           }}
         >
