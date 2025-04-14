@@ -7,7 +7,6 @@
   background: #23243a;
   border-bottom: 1px solid rgba(255,255,255,0.08);
   box-sizing: border-box;
-  position: relative;
 }
 .left {
   display: flex;
@@ -28,14 +27,12 @@
   user-select: none;
 }
 .center {
-  position: absolute;
-  right: 320px;
-  width: 400px;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-left: 0;
-  margin-right: 0;
+  margin-left: 320px;
+  margin-right: 2rem;
 }
 .searchBox {
   display: flex;
@@ -98,8 +95,6 @@
 }
 @media (max-width: 900px) {
   .center {
-    position: static;
-    width: 100%;
     margin-left: 0;
     margin-right: 0.5rem;
   }
@@ -115,8 +110,6 @@
     justify-content: flex-start;
   }
   .center {
-    position: static;
-    width: 100%;
     margin: 0 0 0.5rem 0;
   }
   .right {
