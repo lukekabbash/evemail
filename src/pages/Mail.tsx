@@ -465,7 +465,7 @@ const Mail: React.FC = () => {
           }}
           sidebar={
             <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
-              <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1, minWidth: 0 }} size="small">
+              <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1 }} size="small">
                 <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'unset', left: 8, top: 2, background: 'transparent', px: 0.5 }}>
                   Folder
                 </InputLabel>
@@ -475,6 +475,7 @@ const Mail: React.FC = () => {
                   value={selectedFolder}
                   label="Folder"
                   onChange={e => setSelectedFolder(e.target.value)}
+                  fullWidth
                   sx={{
                     color: 'rgba(255,255,255,0.9)',
                     bgcolor: '#23243a',

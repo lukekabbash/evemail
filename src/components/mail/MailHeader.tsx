@@ -40,11 +40,16 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange }) 
         aria-label="Go to home"
         onKeyDown={e => { if (e.key === 'Enter') navigate('/'); }}
       >
+        <img
+          src="/EVE MAIL.png"
+          alt="EVE Mail Logo"
+          style={{ height: '28px', marginRight: '10px', verticalAlign: 'middle' }}
+        />
         <Typography
           variant="h6"
           sx={{
             fontWeight: 'bold',
-            color: '#00b4ff',
+            color: '#fff',
             letterSpacing: 1,
             fontSize: { xs: '1.1rem', sm: '1.3rem' },
             userSelect: 'none',
@@ -91,9 +96,12 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange }) 
         aria-label="SSO management"
       >
         <Avatar
-          src={`https://images.evetech.net/characters/${auth.characterId}/portrait?size=64`}
+          src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64` : undefined}
           alt={auth.characterName || 'Profile'}
           sx={{ width: 36, height: 36, bgcolor: '#00b4ff', color: '#fff', fontWeight: 700 }}
+          imgProps={{
+            onError: (e: any) => { e.target.onerror = null; e.target.src = undefined; },
+          }}
         >
           {auth.characterName ? auth.characterName[0] : '?'}
         </Avatar>
