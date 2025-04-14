@@ -113,7 +113,7 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
           />
         </Box>
       </Box>
-      {/* Right: Contacts Button + PFP */}
+      {/* Right: Contacts Button + EVE OS Button + PFP */}
       <Box className="flex items-center gap-2">
         <button
           type="button"
@@ -124,6 +124,20 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
         >
           <PersonIcon sx={{ verticalAlign: 'middle', fontSize: 22 }} />
           <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>Contacts</span>
+        </button>
+        <button
+          type="button"
+          className="ml-2 px-3 py-1 rounded bg-[#00b4ff] text-white font-semibold shadow hover:bg-[#0099cc] focus:outline-none focus:ring-2 focus:ring-[#00b4ff] focus:ring-offset-2 focus:ring-offset-[#23243a] transition-colors duration-150"
+          aria-label="Return to EVE OS"
+          tabIndex={0}
+          onClick={() => window.open('https://www.eveos.space', '_blank', 'noopener,noreferrer')}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              window.open('https://www.eveos.space', '_blank', 'noopener,noreferrer');
+            }
+          }}
+        >
+          Return to EVE OS
         </button>
         <Box sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
           onClick={() => setProfileModalOpen(true)}
