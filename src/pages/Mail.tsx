@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Resizable, ResizeCallback } from 're-resizable';
+import { Resizable } from 're-resizable';
 import MailLayout from '../components/mail/MailLayout';
 import MailList from '../components/mail/MailList';
 import MailView from '../components/mail/MailView';
@@ -45,7 +45,6 @@ const Mail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [replyData, setReplyData] = useState<ReplyData | undefined>(undefined);
   const [mailListWidth, setMailListWidth] = useState(400);
-  const [sidebarWidth, setSidebarWidth] = useState(240);
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -338,18 +337,16 @@ const Mail: React.FC = () => {
   return (
     <Box sx={{ 
       height: '100vh',
-      bgcolor: '#1a1a2e', // Deep EVE blue
+      bgcolor: '#1a1a2e',
       display: 'flex',
     }}>
       <MailLayout
         selectedFolder={selectedFolder}
         onFolderSelect={setSelectedFolder}
         onComposeClick={() => {
-          setReplyData(undefined);  // Clear any reply/forward data
+          setReplyData(undefined);
           setIsComposeOpen(true);
         }}
-        sidebarWidth={sidebarWidth}
-        onSidebarResize={(width: number) => setSidebarWidth(width)}
       >
         <Box sx={{ 
           display: 'flex',
@@ -386,7 +383,7 @@ const Mail: React.FC = () => {
             <Box sx={{ 
               height: '100%',
               borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-              bgcolor: '#1a1a2e', // Deep EVE blue
+              bgcolor: '#1a1a2e',
               overflow: 'auto'
             }}>
               <MailList
@@ -402,7 +399,7 @@ const Mail: React.FC = () => {
               />
             </Box>
           </Resizable>
-          <Box sx={{ flexGrow: 1, overflow: 'auto', bgcolor: '#2a2a3e' /* Darker grey for main content */ }}>
+          <Box sx={{ flexGrow: 1, overflow: 'auto', bgcolor: '#2a2a3e' }}>
             <MailView
               mail={selectedMailData}
               onReply={handleReply}
@@ -421,7 +418,7 @@ const Mail: React.FC = () => {
         open={isComposeOpen}
         onClose={() => {
           setIsComposeOpen(false);
-          setReplyData(undefined);  // Clear reply/forward data when closing
+          setReplyData(undefined);
         }}
         onSend={handleSendMail}
         replyData={replyData}
