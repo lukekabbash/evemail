@@ -15,7 +15,6 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 import EVEMailContent from './EVEMailContent';
 import { eveMailService } from '../../services/eveMailService';
-import './MailView.css';
 
 interface MailViewProps {
   mail: {
@@ -62,7 +61,7 @@ const MailView: React.FC<MailViewProps> = ({
   if (!mail) {
     return (
       <div
-        className="mailview-center bg-[#2a2a3e]"
+        className="flex flex-col items-center justify-center h-full w-full min-h-screen bg-[#2a2a3e]"
         role="region"
         aria-label="No mail selected"
       >

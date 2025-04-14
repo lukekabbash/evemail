@@ -567,7 +567,19 @@ const Mail: React.FC = () => {
             </Box>
           }
           main={
-            <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', bgcolor: '#2a2a3e' }}>
+            <Box
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                bgcolor: '#2a2a3e',
+                ...(selectedMailData === null && {
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }),
+              }}
+            >
               <MailView
                 mail={selectedMailData}
                 onReply={handleReply}
@@ -666,7 +678,19 @@ const Mail: React.FC = () => {
           </Box>
         }
         main={
-          <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', bgcolor: '#2a2a3e' }}>
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              bgcolor: '#2a2a3e',
+              ...(selectedMailData === null && {
+                alignItems: 'center',
+                justifyContent: 'center',
+              }),
+            }}
+          >
             <MailView
               mail={selectedMailData}
               onReply={handleReply}
