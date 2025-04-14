@@ -31,7 +31,67 @@ interface EVECharacterInfo {
   name: string;
 }
 
+interface EVECharacterSearchResult {
+  character_id: number;
+  name: string;
+  portrait_url: string;
+}
+
 export const eveMailService = {
+  async searchCharacters(query: string): Promise<EVECharacterSearchResult[]> {
+    if (!query) return [];
+
+    const response = await fetch(
+      `${ESI_BASE_URL}/search/?categories=character&search=${encodeURIComponent(query)}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to search characters: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (!data.character || !data.character.length) return [];
+
+    // Get character details and portraits for each result
+    const characterPromises = data.character.map(async (id: number) => {
+      const [infoResponse, portraitResponse] = await Promise.all([
+        fetch(`${ESI_BASE_URL}/characters/${id}/`),
+        fetch(`${ESI_BASE_URL}/characters/${id}/portrait/`),
+      ]);
+
+      if (!infoResponse.ok || !portraitResponse.ok) return null;
+
+      const info = await infoResponse.json();
+      const portrait = await portraitResponse.json();
+
+      return {
+        character_id: id,
+        name: info.name,
+        portrait_url: portrait.px64x64,
+      };
+    });
+
+    const results = await Promise.all(characterPromises);
+    return results.filter((result): result is EVECharacterSearchResult => result !== null);
+  },
+
+  async getCharacterPortrait(characterId: number): Promise<string | null> {
+    try {
+      const response = await fetch(`${ESI_BASE_URL}/characters/${characterId}/portrait/`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data.px64x64 || null;
+    } catch (error) {
+      console.error('Failed to fetch character portrait:', error);
+      return null;
+    }
+  },
+
   async getMailHeaders(characterId: string | null, accessToken: string | null): Promise<EVEMailHeader[]> {
     if (!characterId || !accessToken) {
       throw new Error('Character ID and access token are required');

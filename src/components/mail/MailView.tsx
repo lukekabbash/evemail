@@ -13,6 +13,7 @@ import ForwardIcon from '@mui/icons-material/Forward';
 import DeleteIcon from '@mui/icons-material/Delete';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
+import EVEMailContent from './EVEMailContent';
 
 interface MailViewProps {
   mail: {
@@ -50,10 +51,13 @@ const MailView: React.FC<MailViewProps> = ({
           alignItems: 'center',
           justifyContent: 'center',
           height: '100%',
-          color: 'rgba(255, 255, 255, 0.5)',
+          color: '#000000',
+          backgroundColor: '#ffffff',
         }}
       >
-        <Typography variant="h6">Select an email to view</Typography>
+        <Typography variant="h6" sx={{ color: '#000000' }}>
+          Select an email to view
+        </Typography>
       </Box>
     );
   }
@@ -71,17 +75,25 @@ const MailView: React.FC<MailViewProps> = ({
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box 
+      sx={{ 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column',
+        backgroundColor: '#ffffff',
+      }}
+    >
       <Box
         sx={{
           p: 2,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
         }}
       >
         <Box>
-          <Typography variant="h6" sx={{ mb: 1 }}>
+          <Typography variant="h6" sx={{ mb: 1, color: '#000000' }}>
             {mail.subject}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -89,11 +101,13 @@ const MailView: React.FC<MailViewProps> = ({
               {mail.from.charAt(0).toUpperCase()}
             </Avatar>
             <Box>
-              <Typography variant="subtitle1">{mail.from}</Typography>
-              <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
+              <Typography variant="subtitle1" sx={{ color: '#000000' }}>
+                {mail.from}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.7)' }}>
                 To: {mail.to}
               </Typography>
-              <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
+              <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.7)' }}>
                 {formatDate(mail.date)}
               </Typography>
             </Box>
@@ -103,7 +117,12 @@ const MailView: React.FC<MailViewProps> = ({
           <Tooltip title="Reply">
             <IconButton
               onClick={() => onReply(mail.id)}
-              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ 
+                color: 'rgba(0, 0, 0, 0.7)',
+                '&:hover': {
+                  color: '#00b4ff',
+                },
+              }}
             >
               <ReplyIcon />
             </IconButton>
@@ -111,7 +130,12 @@ const MailView: React.FC<MailViewProps> = ({
           <Tooltip title="Forward">
             <IconButton
               onClick={() => onForward(mail.id)}
-              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ 
+                color: 'rgba(0, 0, 0, 0.7)',
+                '&:hover': {
+                  color: '#00b4ff',
+                },
+              }}
             >
               <ForwardIcon />
             </IconButton>
@@ -119,7 +143,12 @@ const MailView: React.FC<MailViewProps> = ({
           <Tooltip title="Star">
             <IconButton
               onClick={() => onStar(mail.id)}
-              sx={{ color: mail.isStarred ? '#00b4ff' : 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ 
+                color: mail.isStarred ? '#00b4ff' : 'rgba(0, 0, 0, 0.7)',
+                '&:hover': {
+                  color: '#00b4ff',
+                },
+              }}
             >
               {mail.isStarred ? <StarIcon /> : <StarBorderIcon />}
             </IconButton>
@@ -127,27 +156,23 @@ const MailView: React.FC<MailViewProps> = ({
           <Tooltip title="Delete">
             <IconButton
               onClick={() => onDelete(mail.id)}
-              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ 
+                color: 'rgba(0, 0, 0, 0.7)',
+                '&:hover': {
+                  color: '#ff4444',
+                },
+              }}
             >
               <DeleteIcon />
             </IconButton>
           </Tooltip>
         </Box>
       </Box>
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
       <Box sx={{ p: 2, flexGrow: 1, overflowY: 'auto' }}>
-        <Typography
-          variant="body1"
-          sx={{
-            color: 'rgba(255, 255, 255, 0.9)',
-            whiteSpace: 'pre-wrap',
-          }}
-        >
-          {mail.content}
-        </Typography>
+        <EVEMailContent content={mail.content} />
         {mail.attachments && mail.attachments.length > 0 && (
           <Box sx={{ mt: 4 }}>
-            <Typography variant="subtitle2" sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 2, color: '#000000' }}>
               Attachments ({mail.attachments.length})
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -156,16 +181,18 @@ const MailView: React.FC<MailViewProps> = ({
                   key={index}
                   sx={{
                     p: 2,
-                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    bgcolor: '#f5f5f5',
                     borderRadius: 1,
                     cursor: 'pointer',
                     '&:hover': {
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
+                      bgcolor: '#e0e0e0',
                     },
                   }}
                 >
-                  <Typography variant="body2">{attachment.name}</Typography>
-                  <Typography variant="caption" color="rgba(255, 255, 255, 0.5)">
+                  <Typography variant="body2" sx={{ color: '#000000' }}>
+                    {attachment.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.7)' }}>
                     {attachment.size} • {attachment.type}
                   </Typography>
                 </Paper>
