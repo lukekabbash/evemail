@@ -457,7 +457,25 @@ const Mail: React.FC = () => {
   if (!isMobile) {
     return (
       <>
-        <MailHeader searchValue={searchValue} onSearchChange={setSearchValue} onContactsClick={() => setContactsModalOpen(true)} />
+        <MailHeader
+          searchValue={searchValue}
+          onSearchChange={setSearchValue}
+          onContactsClick={() => setContactsModalOpen(true)}
+          contacts={contacts}
+          onContactSelect={(contact) => {
+            setReplyData({
+              to: contact.name,
+              subject: '',
+              content: '',
+              recipientInfo: {
+                id: contact.contact_id,
+                name: contact.name,
+                portrait: contact.portrait,
+              },
+            });
+            setIsComposeOpen(true);
+          }}
+        />
         <MailLayout
           sidebarWidth={computedSidebarWidth}
           onComposeClick={() => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, InputBase, Avatar, IconButton, Button } from '@mui/material';
+import { Box, Typography, InputBase, Avatar, IconButton, Button, Autocomplete, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import { useAuth } from '../../contexts/AuthContext';
@@ -10,9 +10,11 @@ interface MailHeaderProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
   onContactsClick?: () => void;
+  contacts: { contact_id: number; name: string; portrait: string }[];
+  onContactSelect: (contact: { contact_id: number; name: string; portrait: string }) => void;
 }
 
-const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, onContactsClick }) => {
+const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, onContactsClick, contacts, onContactSelect }) => {
   const navigate = useNavigate();
   const { auth } = useAuth();
 
@@ -90,6 +92,27 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
             inputProps={{ 'aria-label': 'search mail' }}
           />
         </Box>
+        {/* Persistent Search Contacts Autocomplete */}
+        <Autocomplete
+          options={contacts}
+          getOptionLabel={option => option.name}
+          onChange={(_, value) => value && onContactSelect(value)}
+          renderOption={(props, option) => (
+            <Box component="li" {...props} className="flex items-center gap-2">
+              <Avatar src={option.portrait} alt={option.name} sx={{ width: 24, height: 24 }} />
+              <span>{option.name}</span>
+            </Box>
+          )}
+          renderInput={params => (
+            <TextField
+              {...params}
+              placeholder="Search contacts..."
+              size="small"
+              sx={{ ml: 2, bgcolor: '#23243a', minWidth: 180, input: { color: 'white' } }}
+            />
+          )}
+          sx={{ ml: 2, minWidth: 180, maxWidth: 240 }}
+        />
         {/* Contacts Button */}
         <button
           type="button"
