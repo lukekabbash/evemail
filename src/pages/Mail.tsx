@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Resizable } from 're-resizable';
+import { Resizable, ResizeCallback } from 're-resizable';
 import MailLayout from '../components/mail/MailLayout';
 import MailList from '../components/mail/MailList';
 import MailView from '../components/mail/MailView';
@@ -45,6 +45,7 @@ const Mail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [replyData, setReplyData] = useState<ReplyData | undefined>(undefined);
   const [mailListWidth, setMailListWidth] = useState(400);
+  const [sidebarWidth, setSidebarWidth] = useState(240);
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -347,71 +348,60 @@ const Mail: React.FC = () => {
           setReplyData(undefined);
           setIsComposeOpen(true);
         }}
+        sidebarWidth={sidebarWidth}
+        onSidebarResize={(width: number) => setSidebarWidth(width)}
       >
-        <Box sx={{ 
-          display: 'flex',
-          height: '100%',
-          borderLeft: '1px solid rgba(255, 255, 255, 0.1)'
-        }}>
-          <Resizable
-            size={{ width: mailListWidth, height: '100%' }}
-            onResizeStop={(_e: MouseEvent | TouchEvent, _direction: string, _ref: HTMLElement, d: { width: number; height: number }) => {
-              setMailListWidth(mailListWidth + d.width);
-            }}
-            minWidth={300}
-            maxWidth={600}
-            enable={{ right: true }}
-            handleComponent={{
-              right: (
-                <Box
-                  sx={{
-                    width: '4px',
-                    height: '100%',
-                    position: 'absolute',
-                    right: '-2px',
-                    cursor: 'col-resize',
-                    backgroundColor: 'transparent',
-                    transition: 'background-color 0.2s',
-                    '&:hover': {
-                      backgroundColor: '#00b4ff',
-                    },
-                  }}
-                />
-              ),
-            }}
-          >
-            <Box sx={{ 
-              height: '100%',
-              borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-              bgcolor: '#1a1a2e',
-              overflow: 'auto'
-            }}>
-              <MailList
-                mails={filteredMails}
-                selectedMail={selectedMail}
-                onMailSelect={handleMailSelect}
-                onMailStar={(id) => {
-                  setMails(mails.map(mail =>
-                    mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail
-                  ));
-                }}
-                onMailDelete={handleMailDelete}
-              />
-            </Box>
-          </Resizable>
-          <Box sx={{ flexGrow: 1, overflow: 'auto', bgcolor: '#2a2a3e' }}>
-            <MailView
-              mail={selectedMailData}
-              onReply={handleReply}
-              onForward={handleForward}
-              onDelete={handleMailDelete}
-              onStar={(id) => {
-                setMails(mails.map(mail =>
-                  mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail
-                ));
+        {/* Sidebar: Dropdown + MailList */}
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
+          <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1 }} size="small">
+            <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)' }}>Folder</InputLabel>
+            <Select
+              labelId="folder-select-label"
+              id="folder-select"
+              value={selectedFolder}
+              label="Folder"
+              onChange={e => setSelectedFolder(e.target.value)}
+              sx={{
+                color: 'rgba(255,255,255,0.9)',
+                bgcolor: '#23243a',
+                '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
+                '.MuiSvgIcon-root': { color: '#00b4ff' },
               }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: '#23243a',
+                    color: 'rgba(255,255,255,0.9)',
+                  },
+                },
+              }}
+            >
+              <MenuItem value="inbox">Inbox</MenuItem>
+              <MenuItem value="sent">Sent</MenuItem>
+              <MenuItem value="trash">Trash</MenuItem>
+            </Select>
+          </FormControl>
+          <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#00b4ff', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
+            <MailList
+              mails={filteredMails}
+              selectedMail={selectedMail}
+              onMailSelect={handleMailSelect}
+              onMailStar={id => setMails(mails.map(mail => mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail))}
+              onMailDelete={handleMailDelete}
             />
           </Box>
+        </Box>
+        {/* Main view area */}
+        <Box sx={{ flexGrow: 1, minHeight: 0, display: 'flex', flexDirection: 'column', bgcolor: '#2a2a3e' }}>
+          <MailView
+            mail={selectedMailData}
+            onReply={handleReply}
+            onForward={handleForward}
+            onDelete={handleMailDelete}
+            onStar={id => setMails(mails.map(mail => mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail))}
+          />
         </Box>
       </MailLayout>
       <ComposeDialog

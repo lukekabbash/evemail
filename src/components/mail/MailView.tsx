@@ -105,7 +105,6 @@ const MailView: React.FC<MailViewProps> = ({
           justifyContent: 'space-between',
           alignItems: 'flex-start',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          bgcolor: '#2a2a3e',
         }}
       >
         <Box>
@@ -191,52 +190,38 @@ const MailView: React.FC<MailViewProps> = ({
           </Tooltip>
         </Box>
       </Box>
-      <Box sx={{ 
-        flexGrow: 1, 
-        overflowY: 'auto',
-        bgcolor: '#2a2a3e',
-        minHeight: 0,
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        <Box sx={{ 
-          flexGrow: 1,
-          bgcolor: '#2a2a3e',
-          p: 2,
-          minHeight: '100%'
-        }}>
-          <EVEMailContent content={mail.content} />
-          {mail.attachments && mail.attachments.length > 0 && (
-            <Box sx={{ mt: 4 }}>
-              <Typography variant="subtitle2" sx={{ mb: 2, color: 'rgba(255, 255, 255, 0.9)' }}>
-                Attachments ({mail.attachments.length})
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                {mail.attachments.map((attachment, index) => (
-                  <Paper
-                    key={index}
-                    sx={{
-                      p: 2,
-                      bgcolor: '#1a1a2e',
-                      borderRadius: 1,
-                      cursor: 'pointer',
-                      '&:hover': {
-                        bgcolor: '#252540',
-                      },
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                      {attachment.name}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                      {attachment.size} • {attachment.type}
-                    </Typography>
-                  </Paper>
-                ))}
-              </Box>
+      <Box sx={{ p: 2, flexGrow: 1, overflowY: 'auto' }}>
+        <EVEMailContent content={mail.content} />
+        {mail.attachments && mail.attachments.length > 0 && (
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="subtitle2" sx={{ mb: 2, color: '#000000' }}>
+              Attachments ({mail.attachments.length})
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {mail.attachments.map((attachment, index) => (
+                <Paper
+                  key={index}
+                  sx={{
+                    p: 2,
+                    bgcolor: '#f5f5f5',
+                    borderRadius: 1,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: '#e0e0e0',
+                    },
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: '#000000' }}>
+                    {attachment.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.7)' }}>
+                    {attachment.size} • {attachment.type}
+                  </Typography>
+                </Paper>
+              ))}
             </Box>
-          )}
-        </Box>
+          </Box>
+        )}
       </Box>
     </Box>
   );
