@@ -37,7 +37,7 @@ export interface ReplyData {
 interface ComposeDialogProps {
   open: boolean;
   onClose: () => void;
-  onSend: (data: { to: string; subject: string; content: string }) => void;
+  onSend: (data: { to: string; subject: string; content: string; recipients: { recipient_id: number; recipient_type: string }[] }) => void;
   replyData?: ReplyData;
 }
 
@@ -180,7 +180,8 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     onSend({
       to: validatedRecipients.map(r => r.name).join(', '),
       subject: subject.trim(),
-      content: content.trim()
+      content: content.trim(),
+      recipients: validatedRecipients.map(r => ({ recipient_id: r.id, recipient_type: 'character' }))
     });
   };
 
@@ -325,11 +326,11 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                             key={recipient.id}
                             className="flex items-center bg-blue-900 text-white rounded-full px-3 py-1 text-sm mr-2 shadow"
                           >
-                            <Avatar src={recipient.portrait} alt={recipient.name} className="w-5 h-5 mr-1" />
+                            <Avatar src={recipient.portrait} alt={recipient.name} className="w-4 h-4 mr-1" />
                             {recipient.name}
                             <button
                               type="button"
-                              className="ml-2 text-white hover:text-red-400 focus:outline-none"
+                              className="ml-2 mr-1 px-2 py-0.5 text-xs bg-red-900 text-red-300 rounded-full hover:bg-red-800 focus:outline-none"
                               aria-label={`Remove ${recipient.name}`}
                               tabIndex={0}
                               onClick={() => setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}

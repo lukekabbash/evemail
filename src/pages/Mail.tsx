@@ -14,6 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import MailHeader from '../components/mail/MailHeader';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ContactsSidebar, { Contact } from '../components/mail/ContactsSidebar';
 
 // Add helper function to strip HTML and handle line breaks
 const formatPreview = (html: string): string => {
@@ -29,6 +30,7 @@ const formatPreview = (html: string): string => {
 interface Mail {
   id: string;
   from: string;
+  fromId: number;
   subject: string;
   preview: string;
   content: string;
@@ -113,6 +115,7 @@ const Mail: React.FC = () => {
             return {
               id: header.mail_id.toString(),
               from: characterNames.get(header.from) || `Character #${header.from}`,
+              fromId: header.from,
               subject: header.subject,
               preview: formatPreview(content.body).substring(0, 100) + '...',
               content: content.body,
@@ -226,37 +229,32 @@ const Mail: React.FC = () => {
     logEvent('forward_mail', 'mail', 'Forward mail dialog opened');
   };
 
-  const handleSendMail = async (data: { to: string; subject: string; content: string }) => {
+  const handleSendMail = async (data: { to: string; subject: string; content: string; recipients: { recipient_id: number; recipient_type: string }[] }) => {
     if (!auth.characterId || !auth.accessToken) {
       alert('You must be logged in to send mail.');
       return;
     }
 
     try {
-      // Get recipient ID from character search
-      const searchResults = await eveMailService.searchCharacters(data.to);
-      const recipient = searchResults.find(char => char.name.toLowerCase() === data.to.toLowerCase());
-      
-      if (!recipient) {
-        throw new Error('Recipient not found');
+      if (!data.recipients || data.recipients.length === 0) {
+        throw new Error('No recipients provided');
       }
-
       await eveMailService.sendMail(
         auth.characterId,
         auth.accessToken,
         data.subject,
         data.content,
-        [{ recipient_id: recipient.character_id, recipient_type: 'character' }]
+        data.recipients
       );
 
       // Log successful mail send
       logEvent('send_mail', 'mail', 'Mail sent successfully');
-      
-      // Add the sent mail to the local state
+      // Add the sent mail to the local state (show only first recipient for preview)
       const newMail = {
-        id: `temp_${Date.now()}`, // Temporary ID until we refresh
+        id: `temp_${Date.now()}`,
         from: auth.characterName || 'Me',
-        to: recipient.name,
+        fromId: Number(auth.characterId),
+        to: data.to,
         subject: data.subject,
         content: data.content,
         preview: formatPreview(data.content).substring(0, 100) + '...',
@@ -265,14 +263,10 @@ const Mail: React.FC = () => {
         isStarred: false,
         type: 'sent' as const
       };
-      
       setMails(prevMails => [...prevMails, newMail]);
       setIsComposeOpen(false);
       setReplyData(undefined);
-      
-      // If we're not in the sent folder, show a success message
       if (selectedFolder !== 'sent') {
-        // You might want to add a toast/snackbar notification here
         console.log('Mail sent successfully');
       }
     } catch (error) {
@@ -573,65 +567,27 @@ const Mail: React.FC = () => {
           onSend={handleSendMail}
           replyData={replyData}
         />
-        {/* Contacts Sidebar */}
-        <div
-          className={`fixed top-0 right-0 h-full w-80 bg-[#23243a] shadow-lg z-50 transform transition-transform duration-300 ease-in-out hidden sm:block ${isContactsOpen ? 'translate-x-0' : 'translate-x-full'}`}
-          style={{ minWidth: 320, maxWidth: 400 }}
-          aria-label="Contacts sidebar"
-          tabIndex={isContactsOpen ? 0 : -1}
-        >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-            <span className="flex items-center gap-2 text-white text-lg font-semibold">
-              <PersonIcon /> Contacts
-            </span>
-            <button
-              className="text-white hover:text-blue-400 focus:outline-none"
-              aria-label="Close contacts sidebar"
-              onClick={() => setIsContactsOpen(false)}
-            >
-              <ArrowForwardIosIcon className="rotate-180" />
-            </button>
-          </div>
-          <div className="p-4 overflow-y-auto h-[calc(100%-56px)]">
-            {contactsLoading && <div className="text-white/70">Loading contacts...</div>}
-            {contactsError && <div className="text-red-400">{contactsError}</div>}
-            {!contactsLoading && !contactsError && contacts.length === 0 && (
-              <div className="text-white/60">No contacts found.</div>
-            )}
-            <ul className="space-y-3">
-              {contacts.map((contact) => (
-                <li key={contact.contact_id} className="flex items-center gap-3 bg-[#1a1a2e] rounded px-3 py-2">
-                  <img
-                    src={contact.portrait}
-                    alt={contact.name}
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span className="flex-1 text-white/90 text-sm font-medium">{contact.name}</span>
-                  <button
-                    className="bg-blue-700 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
-                    aria-label={`Compose mail to contact ${contact.name}`}
-                    onClick={() => {
-                      setReplyData({
-                        to: String(contact.contact_id),
-                        subject: '',
-                        content: '',
-                        recipientInfo: {
-                          id: contact.contact_id,
-                          name: String(contact.name),
-                          portrait: contact.portrait,
-                        },
-                      });
-                      setIsComposeOpen(true);
-                      setIsContactsOpen(false);
-                    }}
-                  >
-                    Mail
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        <ContactsSidebar
+          open={isContactsOpen}
+          onClose={() => setIsContactsOpen(false)}
+          contacts={contacts}
+          loading={contactsLoading}
+          error={contactsError}
+          onMailClick={(contact) => {
+            setReplyData({
+              to: contact.name,
+              subject: '',
+              content: '',
+              recipientInfo: {
+                id: contact.contact_id,
+                name: contact.name,
+                portrait: contact.portrait,
+              },
+            });
+            setIsComposeOpen(true);
+            setIsContactsOpen(false);
+          }}
+        />
       </>
     );
   }
