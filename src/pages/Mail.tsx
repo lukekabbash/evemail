@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Resizable, ResizeCallback } from 're-resizable';
 import MailLayout from '../components/mail/MailLayout';
 import MailList from '../components/mail/MailList';
 import MailView from '../components/mail/MailView';
@@ -30,6 +31,8 @@ const Mail: React.FC = () => {
   const [mails, setMails] = useState<Mail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [replyData, setReplyData] = useState<{ to: string; subject: string; content: string } | null>(null);
+  const [mailListWidth, setMailListWidth] = useState(400);
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -127,6 +130,18 @@ const Mail: React.FC = () => {
     }
   };
 
+  const handleReply = (id: string) => {
+    const mail = mails.find(m => m.id === id);
+    if (mail) {
+      setReplyData({
+        to: mail.from,
+        subject: `Re: ${mail.subject}`,
+        content: `\n\n-------- Original Message --------\nFrom: ${mail.from}\nDate: ${new Date(mail.date).toLocaleString()}\nSubject: ${mail.subject}\n\n${mail.content}`
+      });
+      setIsComposeOpen(true);
+    }
+  };
+
   const handleSendMail = async (data: { to: string; subject: string; content: string }) => {
     if (!auth.characterId || !auth.accessToken) return;
 
@@ -212,32 +227,55 @@ const Mail: React.FC = () => {
           height: '100%',
           borderLeft: '1px solid #e0e0e0'
         }}>
-          <Box sx={{ 
-            width: '400px',
-            borderRight: '1px solid #e0e0e0',
-            overflow: 'auto'
-          }}>
-            <MailList
-              mails={mails}
-              selectedMail={selectedMail}
-              onMailSelect={handleMailSelect}
-              onMailStar={(id) => {
-                setMails(mails.map(mail =>
-                  mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail
-                ));
-              }}
-              onMailDelete={handleMailDelete}
-            />
-          </Box>
+          <Resizable
+            size={{ width: mailListWidth, height: '100%' }}
+            onResizeStop={(e: MouseEvent | TouchEvent, direction: string, ref: HTMLElement, d: { width: number; height: number }) => {
+              setMailListWidth(mailListWidth + d.width);
+            }}
+            minWidth={300}
+            maxWidth={600}
+            enable={{ right: true }}
+            handleComponent={{
+              right: (
+                <Box
+                  sx={{
+                    width: '4px',
+                    height: '100%',
+                    position: 'absolute',
+                    right: '-2px',
+                    cursor: 'col-resize',
+                    backgroundColor: 'transparent',
+                    transition: 'background-color 0.2s',
+                    '&:hover': {
+                      backgroundColor: '#1976d2',
+                    },
+                  }}
+                />
+              ),
+            }}
+          >
+            <Box sx={{ 
+              height: '100%',
+              borderRight: '1px solid #e0e0e0',
+              overflow: 'auto'
+            }}>
+              <MailList
+                mails={mails}
+                selectedMail={selectedMail}
+                onMailSelect={handleMailSelect}
+                onMailStar={(id) => {
+                  setMails(mails.map(mail =>
+                    mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail
+                  ));
+                }}
+                onMailDelete={handleMailDelete}
+              />
+            </Box>
+          </Resizable>
           <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
             <MailView
               mail={selectedMailData}
-              onReply={(id) => {
-                const mail = mails.find(m => m.id === id);
-                if (mail) {
-                  setIsComposeOpen(true);
-                }
-              }}
+              onReply={handleReply}
               onForward={(id) => {
                 const mail = mails.find(m => m.id === id);
                 if (mail) {
@@ -258,6 +296,7 @@ const Mail: React.FC = () => {
         open={isComposeOpen}
         onClose={() => setIsComposeOpen(false)}
         onSend={handleSendMail}
+        replyData={replyData}
       />
     </Box>
   );

@@ -126,8 +126,9 @@ const MailList: React.FC<MailListProps> = ({
                 <Typography
                   variant="body1"
                   sx={{
-                    fontWeight: mail.isRead ? 'normal' : 'bold',
+                    fontWeight: mail.isRead ? 'normal' : 600,
                     color: mail.isRead ? 'rgba(0, 0, 0, 0.7)' : '#000000',
+                    fontSize: '0.95rem',
                   }}
                 >
                   {mail.from}
@@ -135,12 +136,14 @@ const MailList: React.FC<MailListProps> = ({
               </Box>
             }
             secondary={
-              <Box>
+              <Box sx={{ mt: 0.5 }}>
                 <Typography
                   variant="body2"
                   sx={{
-                    fontWeight: mail.isRead ? 'normal' : 'bold',
+                    fontWeight: mail.isRead ? 'normal' : 600,
                     color: mail.isRead ? 'rgba(0, 0, 0, 0.7)' : '#000000',
+                    fontSize: '0.875rem',
+                    mb: 0.5,
                   }}
                 >
                   {mail.subject}
@@ -152,6 +155,9 @@ const MailList: React.FC<MailListProps> = ({
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
+                    fontSize: '0.815rem',
+                    lineHeight: 1.4,
+                    maxWidth: '280px',
                   }}
                 >
                   {mail.preview}

@@ -19,6 +19,7 @@ interface ComposeDialogProps {
   open: boolean;
   onClose: () => void;
   onSend: (data: { to: string; subject: string; content: string }) => void;
+  replyData?: { to: string; subject: string; content: string } | null;
 }
 
 interface CharacterOption {
@@ -27,13 +28,21 @@ interface CharacterOption {
   portrait_url: string;
 }
 
-const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend }) => {
+const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, replyData }) => {
   const [recipient, setRecipient] = useState<CharacterOption | null>(null);
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [options, setOptions] = useState<CharacterOption[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (replyData) {
+      setSearchQuery(replyData.to);
+      setSubject(replyData.subject);
+      setContent(replyData.content);
+    }
+  }, [replyData]);
 
   const searchCharacters = debounce(async (query: string) => {
     if (!query) {

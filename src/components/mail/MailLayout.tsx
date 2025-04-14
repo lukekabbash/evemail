@@ -37,14 +37,13 @@ const MailLayout: React.FC<MailLayoutProps> = ({
   ];
 
   const drawer = (
-    <Box sx={{ overflow: 'auto' }}>
-      <Box sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ color: '#1976d2' }}>
+    <Box sx={{ overflow: 'auto', height: '100%', bgcolor: '#f8f9fa' }}>
+      <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
+        <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 600 }}>
           Mail
         </Typography>
       </Box>
-      <Divider />
-      <List>
+      <List sx={{ p: 1 }}>
         {mailFolders.map((folder) => (
           <ListItem
             button
@@ -57,6 +56,8 @@ const MailLayout: React.FC<MailLayoutProps> = ({
             }}
             selected={selectedFolder === folder.value}
             sx={{
+              borderRadius: '8px',
+              mb: 0.5,
               '&.Mui-selected': {
                 backgroundColor: 'rgba(25, 118, 210, 0.08)',
                 '&:hover': {
@@ -69,7 +70,8 @@ const MailLayout: React.FC<MailLayoutProps> = ({
             }}
           >
             <ListItemIcon sx={{ 
-              color: selectedFolder === folder.value ? '#1976d2' : 'inherit'
+              color: selectedFolder === folder.value ? '#1976d2' : 'rgba(0, 0, 0, 0.54)',
+              minWidth: '40px'
             }}>
               {folder.icon}
             </ListItemIcon>
@@ -77,7 +79,8 @@ const MailLayout: React.FC<MailLayoutProps> = ({
               primary={folder.text}
               sx={{
                 '& .MuiListItemText-primary': {
-                  color: selectedFolder === folder.value ? '#1976d2' : 'inherit',
+                  color: selectedFolder === folder.value ? '#1976d2' : 'rgba(0, 0, 0, 0.87)',
+                  fontWeight: selectedFolder === folder.value ? 600 : 400,
                 },
               }}
             />
