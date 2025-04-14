@@ -14,8 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import MailHeader from '../components/mail/MailHeader';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ContactsSidebar, { Contact } from '../components/mail/ContactsSidebar';
-import ReactDOM from 'react-dom';
+import ContactsModal, { Contact } from '../components/mail/ContactsModal';
 
 // Add helper function to strip HTML and handle line breaks
 const formatPreview = (html: string): string => {
@@ -57,9 +56,10 @@ const Mail: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchValue, setSearchValue] = useState('');
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
-  const [contacts, setContacts] = useState<any[]>([]);
-  const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactsModalOpen, setContactsModalOpen] = useState(false);
+  const [contactsSearchValue, setContactsSearchValue] = useState('');
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [contactsLoading, setContactsLoading] = useState(true);
   const [contactsError, setContactsError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -277,43 +277,6 @@ const Mail: React.FC = () => {
     }
   };
 
-  const handleContactsClick = async () => {
-    setIsContactsOpen((prev) => !prev);
-    if (!isContactsOpen && contacts.length === 0 && auth.characterId && auth.accessToken) {
-      setContactsLoading(true);
-      setContactsError(null);
-      try {
-        const data = await eveMailService.getContacts(auth.characterId, auth.accessToken);
-        // Fetch names and portraits for each contact
-        const contactsWithNames = await Promise.all(
-          data.map(async (contact: any) => {
-            try {
-              const info = await eveMailService.getCharacterInfo(contact.contact_id, auth.accessToken);
-              return {
-                contact_id: contact.contact_id,
-                name: info.name,
-                portrait: `https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`,
-              };
-            } catch {
-              return {
-                contact_id: contact.contact_id,
-                name: String(contact.contact_id),
-                portrait: `https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`,
-              };
-            }
-          })
-        );
-        // Sort alphabetically by name
-        contactsWithNames.sort((a, b) => a.name.localeCompare(b.name));
-        setContacts(contactsWithNames);
-      } catch (err) {
-        setContactsError('Failed to load contacts');
-      } finally {
-        setContactsLoading(false);
-      }
-    }
-  };
-
   const selectedMailData = selectedMail 
     ? mails.find(mail => mail.id === selectedMail) || null
     : null;
@@ -494,7 +457,7 @@ const Mail: React.FC = () => {
   if (!isMobile) {
     return (
       <>
-        <MailHeader searchValue={searchValue} onSearchChange={setSearchValue} onContactsClick={handleContactsClick} />
+        <MailHeader searchValue={searchValue} onSearchChange={setSearchValue} onContactsClick={() => setContactsModalOpen(true)} />
         <MailLayout
           sidebarWidth={computedSidebarWidth}
           onComposeClick={() => {
@@ -568,30 +531,29 @@ const Mail: React.FC = () => {
           onSend={handleSendMail}
           replyData={replyData}
         />
-        {ReactDOM.createPortal(
-          <ContactsSidebar
-            open={isContactsOpen}
-            onClose={() => setIsContactsOpen(false)}
-            contacts={contacts}
-            loading={contactsLoading}
-            error={contactsError}
-            onMailClick={(contact) => {
-              setReplyData({
-                to: contact.name,
-                subject: '',
-                content: '',
-                recipientInfo: {
-                  id: contact.contact_id,
-                  name: contact.name,
-                  portrait: contact.portrait,
-                },
-              });
-              setIsComposeOpen(true);
-              setIsContactsOpen(false);
-            }}
-          />,
-          document.body
-        )}
+        <ContactsModal
+          open={contactsModalOpen}
+          onClose={() => setContactsModalOpen(false)}
+          contacts={contacts}
+          onMailClick={(contact: Contact) => {
+            setReplyData({
+              to: contact.name,
+              subject: '',
+              content: '',
+              recipientInfo: {
+                id: contact.contact_id,
+                name: contact.name,
+                portrait: contact.portrait,
+              },
+            });
+            setIsComposeOpen(true);
+            setContactsModalOpen(false);
+          }}
+          searchValue={contactsSearchValue}
+          onSearchChange={setContactsSearchValue}
+          loading={contactsLoading}
+          error={contactsError}
+        />
       </>
     );
   }
@@ -668,30 +630,29 @@ const Mail: React.FC = () => {
         onSend={handleSendMail}
         replyData={replyData}
       />
-      {ReactDOM.createPortal(
-        <ContactsSidebar
-          open={isContactsOpen}
-          onClose={() => setIsContactsOpen(false)}
-          contacts={contacts}
-          loading={contactsLoading}
-          error={contactsError}
-          onMailClick={(contact) => {
-            setReplyData({
-              to: contact.name,
-              subject: '',
-              content: '',
-              recipientInfo: {
-                id: contact.contact_id,
-                name: contact.name,
-                portrait: contact.portrait,
-              },
-            });
-            setIsComposeOpen(true);
-            setIsContactsOpen(false);
-          }}
-        />,
-        document.body
-      )}
+      <ContactsModal
+        open={contactsModalOpen}
+        onClose={() => setContactsModalOpen(false)}
+        contacts={contacts}
+        onMailClick={(contact: Contact) => {
+          setReplyData({
+            to: contact.name,
+            subject: '',
+            content: '',
+            recipientInfo: {
+              id: contact.contact_id,
+              name: contact.name,
+              portrait: contact.portrait,
+            },
+          });
+          setIsComposeOpen(true);
+          setContactsModalOpen(false);
+        }}
+        searchValue={contactsSearchValue}
+        onSearchChange={setContactsSearchValue}
+        loading={contactsLoading}
+        error={contactsError}
+      />
     </>
   );
 };
