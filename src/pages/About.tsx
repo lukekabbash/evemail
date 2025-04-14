@@ -205,7 +205,7 @@ const About: React.FC = () => {
             }}
           >
             <Typography variant="h4" component="h2" sx={{ mb: 3, color: '#fff' }}>
-              About{' '}
+              About the{' '}
               <Link 
                 href="https://www.eveos.space" 
                 target="_blank"

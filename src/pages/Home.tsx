@@ -178,22 +178,45 @@ const Home: React.FC = () => {
               >
                 New to EVE OS Mail?
               </Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => navigate('/about')}
-                sx={{
-                  borderColor: 'rgba(0, 180, 255, 0.5)',
-                  '&:hover': {
-                    borderColor: '#00b4ff',
-                    backgroundColor: 'rgba(0, 180, 255, 0.1)',
-                  },
-                  py: 1.2,
-                  px: 3,
-                }}
-              >
-                Learn More
-              </Button>
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => navigate('/about')}
+                  sx={{
+                    borderColor: 'rgba(0, 180, 255, 0.5)',
+                    '&:hover': {
+                      borderColor: '#00b4ff',
+                      backgroundColor: 'rgba(0, 180, 255, 0.1)',
+                    },
+                    py: 1.2,
+                    px: 3,
+                  }}
+                >
+                  Learn More
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  component="a"
+                  href="https://www.eveos.space"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Return to EVE OS"
+                  sx={{
+                    borderColor: 'rgba(0, 180, 255, 0.5)',
+                    color: '#00b4ff',
+                    '&:hover': {
+                      borderColor: '#00b4ff',
+                      backgroundColor: 'rgba(0, 180, 255, 0.1)',
+                    },
+                    py: 1.2,
+                    px: 3,
+                  }}
+                >
+                  Return to EVE OS
+                </Button>
+              </Box>
             </Box>
           )}
         </Box>
