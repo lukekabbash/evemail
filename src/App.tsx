@@ -43,28 +43,33 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          <Router>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/auth/callback" element={<Callback />} />
-                <Route
-                  path="/mail"
-                  element={
-                    <ProtectedRoute>
-                      <Mail />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Layout>
-          </Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/auth/callback" element={<Callback />} />
+              <Route
+                path="/mail"
+                element={
+                  <ProtectedRoute>
+                    <Mail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Layout>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
 };
 
-export default App;
+// Wrap the exported app with BrowserRouter
+export default function WrappedApp() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}
