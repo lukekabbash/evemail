@@ -272,6 +272,15 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                 onBlur={handleBlur}
                 error={error !== ''}
                 helperText={error}
+                sx={{
+                  '& .MuiInputLabel-root': { color: '#000000' },
+                  '& .MuiInputBase-input': { color: '#000000' },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
+                    '&:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.5)' },
+                    '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+                  }
+                }}
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: validatedRecipient && (
@@ -292,21 +301,30 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             fullWidth
             variant="outlined"
             size="small"
+            sx={{
+              '& .MuiInputLabel-root': { color: '#000000' },
+              '& .MuiInputBase-input': { color: '#000000' },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
+                '&:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.5)' },
+                '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+              }
+            }}
           />
           <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
             <Tooltip title="Bold">
-              <IconButton onClick={() => formatText('bold')}>
+              <IconButton onClick={() => formatText('bold')} sx={{ color: '#000000' }}>
                 <FormatBoldIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Italic">
-              <IconButton onClick={() => formatText('italic')}>
+              <IconButton onClick={() => formatText('italic')} sx={{ color: '#000000' }}>
                 <FormatItalicIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Text Color">
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <IconButton onClick={() => formatText('color')}>
+                <IconButton onClick={() => formatText('color')} sx={{ color: '#000000' }}>
                   <FormatColorTextIcon />
                 </IconButton>
                 <input
@@ -327,6 +345,15 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             multiline
             rows={16}
             variant="outlined"
+            sx={{
+              '& .MuiInputLabel-root': { color: '#000000' },
+              '& .MuiInputBase-input': { color: '#000000' },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
+                '&:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.5)' },
+                '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+              }
+            }}
           />
         </Box>
       </DialogContent>
@@ -335,7 +362,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         borderTop: '1px solid rgba(0, 0, 0, 0.1)',
         bgcolor: '#ffffff'
       }}>
-        <Button onClick={handleClose}>
+        <Button onClick={handleClose} sx={{ color: '#000000' }}>
           Cancel
         </Button>
         <Button 

@@ -70,11 +70,14 @@ const EVEMailContent: React.FC<EVEMailContentProps> = ({ content }) => {
             textDecoration: 'underline',
           },
         },
-        '& span': {
-          color: 'inherit',
+        '& span:not([style*="color"])': {
+          color: 'rgba(255, 255, 255, 0.9)',
         },
-        backgroundColor: '#ffffff',
-        color: '#000000',
+        '& *:not(a):not(.eve-link):not([style*="color"])': {
+          color: 'rgba(255, 255, 255, 0.9) !important',
+        },
+        backgroundColor: '#2a2a3e',
+        color: 'rgba(255, 255, 255, 0.9)',
         p: 2,
         borderRadius: 1,
         whiteSpace: 'pre-wrap',

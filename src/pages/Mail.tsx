@@ -338,7 +338,7 @@ const Mail: React.FC = () => {
   return (
     <Box sx={{ 
       height: '100vh',
-      bgcolor: '#ffffff',
+      bgcolor: '#1a1a2e', // Deep EVE blue
       display: 'flex',
     }}>
       <MailLayout
@@ -354,7 +354,7 @@ const Mail: React.FC = () => {
         <Box sx={{ 
           display: 'flex',
           height: '100%',
-          borderLeft: '1px solid #e0e0e0'
+          borderLeft: '1px solid rgba(255, 255, 255, 0.1)'
         }}>
           <Resizable
             size={{ width: mailListWidth, height: '100%' }}
@@ -376,7 +376,7 @@ const Mail: React.FC = () => {
                     backgroundColor: 'transparent',
                     transition: 'background-color 0.2s',
                     '&:hover': {
-                      backgroundColor: '#1976d2',
+                      backgroundColor: '#00b4ff',
                     },
                   }}
                 />
@@ -385,7 +385,8 @@ const Mail: React.FC = () => {
           >
             <Box sx={{ 
               height: '100%',
-              borderRight: '1px solid #e0e0e0',
+              borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+              bgcolor: '#1a1a2e', // Deep EVE blue
               overflow: 'auto'
             }}>
               <MailList
@@ -401,7 +402,7 @@ const Mail: React.FC = () => {
               />
             </Box>
           </Resizable>
-          <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+          <Box sx={{ flexGrow: 1, overflow: 'auto', bgcolor: '#2a2a3e' /* Darker grey for main content */ }}>
             <MailView
               mail={selectedMailData}
               onReply={handleReply}

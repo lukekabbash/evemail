@@ -12,12 +12,12 @@ const Home: React.FC = () => {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        height: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,20,40,0.8) 100%)',
-        py: 2,
+        py: 1,
       }}
     >
       <Container maxWidth="sm">
@@ -33,14 +33,14 @@ const Home: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 2,
-              mb: 3,
+              mb: 2,
             }}
           >
             <img
               src="/wormhole-purple.png"
               alt="Wormhole"
               style={{
-                height: '40px',
+                height: '32px',
                 opacity: 0.8,
                 filter: 'drop-shadow(0 0 10px rgba(0, 180, 255, 0.5))',
               }}
@@ -52,6 +52,7 @@ const Home: React.FC = () => {
                 fontWeight: 'bold',
                 color: '#fff',
                 textShadow: '0 0 20px rgba(0, 180, 255, 0.5)',
+                fontSize: '2.5rem',
               }}
             >
               EVE OS Mail
@@ -60,23 +61,36 @@ const Home: React.FC = () => {
               src="/wormhole-purple.png"
               alt="Wormhole"
               style={{
-                height: '40px',
+                height: '32px',
                 opacity: 0.8,
                 filter: 'drop-shadow(0 0 10px rgba(0, 180, 255, 0.5))',
               }}
             />
           </Box>
 
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 2,
+              color: 'rgba(255, 255, 255, 0.7)',
+              maxWidth: '480px',
+              mx: 'auto',
+            }}
+          >
+            Experience EVE Online mail like never before with EVE OS Mail - the modern, secure, and free web-based mail client for EVE Online players. Access your EVE Mail anywhere, anytime, with real-time updates and instant search capabilities.
+          </Typography>
+
           <Paper
             elevation={24}
             sx={{
-              p: 3,
+              p: 2.5,
               backgroundColor: 'rgba(13, 13, 13, 0.95)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(0, 180, 255, 0.2)',
               borderRadius: 2,
               position: 'relative',
               overflow: 'hidden',
+              mb: 2,
               '&::before': {
                 content: '""',
                 position: 'absolute',
@@ -90,7 +104,7 @@ const Home: React.FC = () => {
           >
             {!auth.isAuthenticated ? (
               <>
-                <Typography variant="h5" sx={{ mb: 3, color: '#fff', fontWeight: 600 }}>
+                <Typography variant="h5" sx={{ mb: 2, color: '#fff', fontWeight: 600, fontSize: '1.25rem' }}>
                   Sign in to EVE OS Mail
                 </Typography>
                 <Button
@@ -109,7 +123,7 @@ const Home: React.FC = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    mt: 2,
+                    mt: 1.5,
                     color: 'text.secondary',
                     textAlign: 'center',
                   }}
@@ -119,7 +133,7 @@ const Home: React.FC = () => {
               </>
             ) : (
               <>
-                <Typography variant="h5" sx={{ mb: 3, color: '#fff', fontWeight: 600 }}>
+                <Typography variant="h5" sx={{ mb: 2, color: '#fff', fontWeight: 600, fontSize: '1.25rem' }}>
                   Welcome back, Commander
                 </Typography>
                 <Button
@@ -139,8 +153,20 @@ const Home: React.FC = () => {
             )}
           </Paper>
 
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'rgba(255, 255, 255, 0.7)',
+              maxWidth: '480px',
+              mx: 'auto',
+              mb: 2,
+            }}
+          >
+            Part of the EVE OS platform - your all-in-one toolkit for EVE Online. Featuring industry tools, wormhole guides, market analysis, and more. Zero data collection, maximum security, and seamless ESI integration for the best EVE Online experience.
+          </Typography>
+
           {!auth.isAuthenticated && (
-            <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Box sx={{ textAlign: 'center' }}>
               <Typography
                 variant="body2"
                 sx={{

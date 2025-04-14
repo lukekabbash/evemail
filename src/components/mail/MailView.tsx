@@ -66,11 +66,11 @@ const MailView: React.FC<MailViewProps> = ({
           alignItems: 'center',
           justifyContent: 'center',
           height: '100%',
-          color: '#000000',
-          backgroundColor: '#ffffff',
+          color: 'rgba(255, 255, 255, 0.7)',
+          backgroundColor: '#2a2a3e',
         }}
       >
-        <Typography variant="h6" sx={{ color: '#000000' }}>
+        <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
           Select an email to view
         </Typography>
       </Box>
@@ -95,7 +95,7 @@ const MailView: React.FC<MailViewProps> = ({
         height: '100%', 
         display: 'flex', 
         flexDirection: 'column',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#2a2a3e',
       }}
     >
       <Box
@@ -104,11 +104,11 @@ const MailView: React.FC<MailViewProps> = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         }}
       >
         <Box>
-          <Typography variant="h6" sx={{ mb: 1, color: '#000000' }}>
+          <Typography variant="h6" sx={{ mb: 1, color: 'rgba(255, 255, 255, 0.9)' }}>
             {mail.subject}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -123,13 +123,13 @@ const MailView: React.FC<MailViewProps> = ({
               {!fromPortrait && mail.from.charAt(0).toUpperCase()}
             </Avatar>
             <Box>
-              <Typography variant="subtitle1" sx={{ color: '#000000' }}>
+              <Typography variant="subtitle1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                 {mail.from}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.7)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                 To: {mail.to}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.7)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                 {formatDate(mail.date)}
               </Typography>
             </Box>
@@ -140,7 +140,7 @@ const MailView: React.FC<MailViewProps> = ({
             <IconButton
               onClick={() => onReply(mail.id)}
               sx={{ 
-                color: 'rgba(0, 0, 0, 0.7)',
+                color: 'rgba(255, 255, 255, 0.7)',
                 '&:hover': {
                   color: '#00b4ff',
                 },
@@ -153,7 +153,7 @@ const MailView: React.FC<MailViewProps> = ({
             <IconButton
               onClick={() => onForward(mail.id)}
               sx={{ 
-                color: 'rgba(0, 0, 0, 0.7)',
+                color: 'rgba(255, 255, 255, 0.7)',
                 '&:hover': {
                   color: '#00b4ff',
                 },
@@ -166,7 +166,7 @@ const MailView: React.FC<MailViewProps> = ({
             <IconButton
               onClick={() => onStar(mail.id)}
               sx={{ 
-                color: mail.isStarred ? '#00b4ff' : 'rgba(0, 0, 0, 0.7)',
+                color: mail.isStarred ? '#00b4ff' : 'rgba(255, 255, 255, 0.7)',
                 '&:hover': {
                   color: '#00b4ff',
                 },
@@ -179,7 +179,7 @@ const MailView: React.FC<MailViewProps> = ({
             <IconButton
               onClick={() => onDelete(mail.id)}
               sx={{ 
-                color: 'rgba(0, 0, 0, 0.7)',
+                color: 'rgba(255, 255, 255, 0.7)',
                 '&:hover': {
                   color: '#ff4444',
                 },

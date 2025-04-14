@@ -57,90 +57,51 @@ const MailList: React.FC<MailListProps> = ({
   };
 
   return (
-    <List sx={{ width: '100%', bgcolor: '#ffffff', p: 0 }}>
+    <List sx={{ p: 0, bgcolor: '#1a1a2e' }}>
       {mails.map((mail) => (
         <ListItem
           key={mail.id}
           sx={{
-            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-            cursor: 'pointer',
-            backgroundColor: selectedMail === mail.id ? 'rgba(0, 180, 255, 0.1)' : 'transparent',
-            '&:hover': {
-              backgroundColor: 'rgba(0, 180, 255, 0.05)',
-            },
+            px: 2,
             py: 1,
+            cursor: 'pointer',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            bgcolor: selectedMail === mail.id ? 'rgba(0, 180, 255, 0.1)' : 'transparent',
+            '&:hover': {
+              bgcolor: 'rgba(0, 180, 255, 0.05)',
+            },
           }}
-          secondaryAction={
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              minWidth: '140px', // Ensure minimum width for date and actions
-              ml: 2,
-            }}>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: 'rgba(0, 0, 0, 0.7)',
-                  mr: 1,
-                  minWidth: '70px',
-                  textAlign: 'right',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {formatDate(mail.date)}
-              </Typography>
-              <Tooltip title="Star">
-                <IconButton
-                  edge="end"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMailStar(mail.id);
-                  }}
-                  sx={{ 
-                    color: mail.isStarred ? '#00b4ff' : 'rgba(0, 0, 0, 0.7)',
-                    '&:hover': {
-                      color: '#00b4ff',
-                    },
-                    padding: '4px',
-                  }}
-                >
-                  {mail.isStarred ? <StarIcon /> : <StarBorderIcon />}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Delete">
-                <IconButton
-                  edge="end"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMailDelete(mail.id);
-                  }}
-                  sx={{ 
-                    color: 'rgba(0, 0, 0, 0.7)',
-                    '&:hover': {
-                      color: '#ff4444',
-                    },
-                    padding: '4px',
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          }
           onClick={() => onMailSelect(mail.id)}
         >
           <ListItemText
             primary={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+              }}>
                 <Typography
-                  variant="body1"
                   sx={{
-                    fontWeight: mail.isRead ? 'normal' : 600,
-                    color: mail.isRead ? 'rgba(0, 0, 0, 0.7)' : '#000000',
-                    fontSize: '0.95rem',
+                    fontWeight: mail.isRead ? 400 : 600,
+                    color: mail.isRead ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)',
+                    fontSize: '0.875rem',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {mail.from}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: 'rgba(255, 255, 255, 0.5)',
+                    fontSize: '0.75rem',
+                    flexShrink: 0,
+                    ml: 2,
+                  }}
+                >
+                  {new Date(mail.date).toLocaleDateString()}
                 </Typography>
               </Box>
             }
@@ -150,13 +111,13 @@ const MailList: React.FC<MailListProps> = ({
                   display: 'flex', 
                   alignItems: 'center',
                   width: '100%',
-                  pr: '160px', // Account for date and actions width
+                  pr: '160px',
                 }}>
                   <Typography
                     variant="body2"
                     sx={{
                       fontWeight: 600,
-                      color: mail.isRead ? 'rgba(0, 0, 0, 0.7)' : '#000000',
+                      color: mail.isRead ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)',
                       fontSize: '0.875rem',
                       mb: 0.5,
                       overflow: 'hidden',
@@ -171,7 +132,7 @@ const MailList: React.FC<MailListProps> = ({
                 <Typography
                   variant="body2"
                   sx={{
-                    color: 'rgba(0, 0, 0, 0.5)',
+                    color: 'rgba(255, 255, 255, 0.5)',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'pre-line',
@@ -189,6 +150,46 @@ const MailList: React.FC<MailListProps> = ({
               </Box>
             }
           />
+          <Box sx={{ 
+            display: 'flex',
+            alignItems: 'center',
+            ml: 2,
+          }}>
+            <Tooltip title={mail.isStarred ? "Unstar" : "Star"}>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMailStar(mail.id);
+                }}
+                size="small"
+                sx={{ 
+                  color: mail.isStarred ? '#00b4ff' : 'rgba(255, 255, 255, 0.5)',
+                  '&:hover': {
+                    color: mail.isStarred ? '#0099ff' : '#00b4ff',
+                  }
+                }}
+              >
+                {mail.isStarred ? <StarIcon /> : <StarBorderIcon />}
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete">
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMailDelete(mail.id);
+                }}
+                size="small"
+                sx={{ 
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  '&:hover': {
+                    color: '#ff4444',
+                  }
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </ListItem>
       ))}
     </List>
