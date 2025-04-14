@@ -286,4 +286,23 @@ export const eveMailService = {
       throw new Error(`Failed to send mail: ${response.statusText}`);
     }
   },
+
+  async getContacts(characterId: string | null, accessToken: string | null): Promise<any[]> {
+    if (!characterId || !accessToken) {
+      throw new Error('Character ID and access token are required');
+    }
+    const cleanId = cleanCharacterId(characterId);
+    const response = await fetch(
+      `${ESI_BASE_URL}/characters/${cleanId}/contacts/`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch contacts: ${response.statusText}`);
+    }
+    return response.json();
+  },
 }; 

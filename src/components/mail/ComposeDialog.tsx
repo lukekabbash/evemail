@@ -293,8 +293,13 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             onInputChange={handleSearchChange}
             options={options}
             loading={loading}
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
+            getOptionLabel={(option) => typeof option === 'string' ? option : option.name}
+            isOptionEqualToValue={(option, value) => {
+              if (typeof option === 'string' || typeof value === 'string') {
+                return option === value;
+              }
+              return option.name === value.name;
+            }}
             onChange={(_, newValue) => {
               if (newValue) handleOptionSelect(newValue as RecipientInfo);
             }}

@@ -61,12 +61,12 @@ const MailView: React.FC<MailViewProps> = ({
   if (!mail) {
     return (
       <Box
-        className="flex flex-col items-center justify-center h-full w-full min-h-screen bg-[#2a2a3e]"
+        className="flex flex-col items-center justify-center h-full w-full min-h-screen bg-[#2a2a3e] mt-[400px]"
       >
         <img
           src="/EVE MAIL.png"
           alt="EVE Mail Logo"
-          className="h-10 mb-4 opacity-90 drop-shadow-lg"
+          className="h-3 mb-4 opacity-90 drop-shadow-lg"
         />
         <Typography
           variant="h6"
