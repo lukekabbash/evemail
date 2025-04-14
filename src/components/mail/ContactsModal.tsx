@@ -47,20 +47,53 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ open, onClose, contacts, 
         {!loading && !error && filteredContacts.length === 0 && (
           <Typography sx={{ color: 'white', mb: 2 }}>No contacts found.</Typography>
         )}
-        <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+        <Box
+          sx={{
+            maxHeight: 400,
+            overflowY: 'auto',
+            pr: 1,
+            '::-webkit-scrollbar': {
+              width: 8,
+              background: '#23243a',
+            },
+            '::-webkit-scrollbar-thumb': {
+              background: '#888',
+              borderRadius: 4,
+            },
+            '::-webkit-scrollbar-track': {
+              background: '#23243a',
+            },
+          }}
+        >
           {filteredContacts.map(contact => (
-            <Box key={contact.contact_id} className="flex items-center gap-3 bg-[#1a1a2e] rounded px-3 py-2 mb-2">
-              <Avatar src={contact.portrait} alt={contact.name} sx={{ width: 32, height: 32, mr: 2 }} />
-              <span className="flex-1 text-white/90 text-sm font-medium">{contact.name}</span>
-              <Button
-                variant="contained"
-                size="small"
-                sx={{ bgcolor: '#00b4ff', color: 'white', minWidth: 0, px: 2, py: 0.5, fontSize: '0.85rem', '&:hover': { bgcolor: '#0099ff' } }}
-                onClick={() => onMailClick(contact)}
-                aria-label={`Compose mail to ${contact.name}`}
-              >
-                Mail
-              </Button>
+            <Box
+              key={contact.contact_id}
+              className="flex items-center"
+              sx={{
+                gap: 2,
+                bgcolor: '#1a1a2e',
+                borderRadius: 2,
+                px: 2.5,
+                py: 2,
+                mb: 2,
+                minHeight: 56,
+                alignItems: 'center',
+                display: 'flex',
+              }}
+            >
+              <Avatar src={contact.portrait} alt={contact.name} sx={{ width: 36, height: 36, mr: 2 }} />
+              <span className="flex-1 text-white/90 text-base font-medium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{contact.name}</span>
+              <Box sx={{ flex: '0 0 auto', ml: 'auto' }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{ bgcolor: '#00b4ff', color: 'white', minWidth: 0, px: 2.5, py: 0.75, fontSize: '0.95rem', boxShadow: 'none', '&:hover': { bgcolor: '#0099ff' } }}
+                  onClick={() => onMailClick(contact)}
+                  aria-label={`Compose mail to ${contact.name}`}
+                >
+                  Mail
+                </Button>
+              </Box>
             </Box>
           ))}
         </Box>

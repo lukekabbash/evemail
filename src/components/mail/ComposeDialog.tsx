@@ -330,7 +330,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                             {recipient.name}
                             <button
                               type="button"
-                              className="ml-2 mr-1 px-2 py-0.5 text-xs bg-red-900 text-red-300 rounded-full hover:bg-red-800 focus:outline-none"
+                              className="ml-4 mr-1 px-2 py-0.5 text-xs bg-red-900 text-red-300 rounded-full hover:bg-red-800 focus:outline-none"
                               aria-label={`Remove ${recipient.name}`}
                               tabIndex={0}
                               onClick={() => setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}
