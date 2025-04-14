@@ -289,7 +289,28 @@ const Mail: React.FC = () => {
       setContactsError(null);
       try {
         const data = await eveMailService.getContacts(auth.characterId, auth.accessToken);
-        setContacts(data);
+        // Fetch names and portraits for each contact
+        const contactsWithNames = await Promise.all(
+          data.map(async (contact: any) => {
+            try {
+              const info = await eveMailService.getCharacterInfo(contact.contact_id, auth.accessToken);
+              return {
+                contact_id: contact.contact_id,
+                name: info.name,
+                portrait: `https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`,
+              };
+            } catch {
+              return {
+                contact_id: contact.contact_id,
+                name: String(contact.contact_id),
+                portrait: `https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`,
+              };
+            }
+          })
+        );
+        // Sort alphabetically by name
+        contactsWithNames.sort((a, b) => a.name.localeCompare(b.name));
+        setContacts(contactsWithNames);
       } catch (err) {
         setContactsError('Failed to load contacts');
       } finally {
@@ -581,14 +602,14 @@ const Mail: React.FC = () => {
               {contacts.map((contact) => (
                 <li key={contact.contact_id} className="flex items-center gap-3 bg-[#1a1a2e] rounded px-3 py-2">
                   <img
-                    src={`https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`}
-                    alt={contact.contact_id}
+                    src={contact.portrait}
+                    alt={contact.name}
                     className="w-8 h-8 rounded-full"
                   />
-                  <span className="flex-1 text-white/90 text-sm font-medium">{contact.contact_id}</span>
+                  <span className="flex-1 text-white/90 text-sm font-medium">{contact.name}</span>
                   <button
                     className="bg-blue-700 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
-                    aria-label={`Compose mail to contact ${contact.contact_id}`}
+                    aria-label={`Compose mail to contact ${contact.name}`}
                     onClick={() => {
                       setReplyData({
                         to: String(contact.contact_id),
@@ -596,8 +617,8 @@ const Mail: React.FC = () => {
                         content: '',
                         recipientInfo: {
                           id: contact.contact_id,
-                          name: String(contact.contact_id),
-                          portrait: `https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`,
+                          name: String(contact.name),
+                          portrait: contact.portrait,
                         },
                       });
                       setIsComposeOpen(true);
