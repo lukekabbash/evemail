@@ -19,6 +19,7 @@ import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
 import { eveMailService } from '../../services/eveMailService';
 import debounce from 'lodash/debounce';
+import { AutocompleteInputChangeReason } from '@mui/material/Autocomplete';
 
 export interface RecipientInfo {
   id: number;
@@ -130,12 +131,15 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     }
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
-    setSearchQuery(query);
+  const handleSearchChange = (
+    event: React.SyntheticEvent<Element, Event>,
+    value: string,
+    reason: AutocompleteInputChangeReason
+  ) => {
+    setSearchQuery(value);
     setValidatedRecipient(null);
     setError('');
-    handleCharacterSearch(query);
+    handleCharacterSearch(value);
   };
 
   const handleOptionSelect = (recipient: RecipientInfo) => {
