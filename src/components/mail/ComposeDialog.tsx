@@ -54,7 +54,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   const [error, setError] = useState('');
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
-  const [validatedRecipient, setValidatedRecipient] = useState<RecipientInfo | null>(null);
+  const [validatedRecipients, setValidatedRecipients] = useState<RecipientInfo[]>([]);
   const [selectedColor, setSelectedColor] = useState('#000000');
 
   useEffect(() => {
@@ -63,8 +63,8 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       setContent(replyData.content);
       
       if (replyData.recipientInfo) {
-        setValidatedRecipient(replyData.recipientInfo);
-        setSearchQuery(replyData.recipientInfo.name);
+        setValidatedRecipients([replyData.recipientInfo]);
+        setSearchQuery('');
         setOptions([replyData.recipientInfo]);
       } else if (replyData.to) {
         setSearchQuery(replyData.to);
@@ -115,17 +115,17 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       );
 
       if (exactMatch) {
-        setValidatedRecipient(exactMatch);
+        setValidatedRecipients([exactMatch]);
         setOptions([exactMatch]);
         setError('');
       } else {
-        setValidatedRecipient(null);
+        setValidatedRecipients([]);
         setOptions(mappedResults);
         setError('Please select a valid character');
       }
     } catch (err) {
       setError('Failed to validate character');
-      setValidatedRecipient(null);
+      setValidatedRecipients([]);
     } finally {
       setLoading(false);
     }
@@ -137,36 +137,38 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     reason: AutocompleteInputChangeReason
   ) => {
     setSearchQuery(value);
-    setValidatedRecipient(null);
     setError('');
     handleCharacterSearch(value);
   };
 
   const handleOptionSelect = (recipient: RecipientInfo) => {
-    setValidatedRecipient(recipient);
-    setSearchQuery(recipient.name);
-    setOptions([recipient]);
-    setError('');
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Tab' && searchQuery && !validatedRecipient) {
-      event.preventDefault();
-      validateAndSearchCharacter(searchQuery);
+    if (!validatedRecipients.some(r => r.id === recipient.id)) {
+      setValidatedRecipients([...validatedRecipients, recipient]);
+      setSearchQuery('');
+      setError('');
     }
   };
 
-  const handleBlur = () => {
-    if (searchQuery && !validatedRecipient) {
-      validateAndSearchCharacter(searchQuery);
+  const handleKeyDown = async (event: React.KeyboardEvent) => {
+    if ((event.key === 'Tab' || event.key === ',') && searchQuery) {
+      event.preventDefault();
+      await addRecipientsFromInput(searchQuery);
+    } else if (event.key === 'Backspace' && !searchQuery && validatedRecipients.length) {
+      setValidatedRecipients(validatedRecipients.slice(0, -1));
+    }
+  };
+
+  const handleBlur = async () => {
+    if (searchQuery) {
+      await addRecipientsFromInput(searchQuery);
     }
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     
-    if (!validatedRecipient) {
-      setError('Please select a valid recipient');
+    if (!validatedRecipients.length) {
+      setError('Please select at least one valid recipient');
       return;
     }
 
@@ -176,7 +178,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     }
 
     onSend({
-      to: validatedRecipient.name,
+      to: validatedRecipients.map(r => r.name).join(', '),
       subject: subject.trim(),
       content: content.trim()
     });
@@ -208,13 +210,39 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   };
 
   const handleClose = () => {
-    setValidatedRecipient(null);
+    setValidatedRecipients([]);
     setSubject('');
     setContent('');
     setSearchQuery('');
     setOptions([]);
     setError('');
     onClose();
+  };
+
+  const addRecipientsFromInput = async (input: string) => {
+    const names = input.split(',').map(n => n.trim()).filter(Boolean);
+    let newRecipients: RecipientInfo[] = [];
+    for (const name of names) {
+      const results = await eveMailService.searchCharacters(name);
+      const mappedResults: RecipientInfo[] = results.map(char => ({
+        id: char.character_id,
+        name: char.name,
+        portrait: char.portrait_url
+      }));
+      const exactMatch = mappedResults.find(
+        (char) => char.name.toLowerCase() === name.toLowerCase()
+      );
+      if (exactMatch && !validatedRecipients.some(r => r.id === exactMatch.id)) {
+        newRecipients.push(exactMatch);
+      }
+    }
+    if (newRecipients.length) {
+      setValidatedRecipients([...validatedRecipients, ...newRecipients]);
+      setSearchQuery('');
+      setError('');
+    } else if (names.length) {
+      setError('Please select valid character(s)');
+    }
   };
 
   return (
@@ -238,16 +266,38 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       </DialogTitle>
       <DialogContent sx={{ bgcolor: '#23243a' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+          <Box className="flex flex-wrap gap-2 mb-2">
+            {validatedRecipients.map((recipient) => (
+              <span
+                key={recipient.id}
+                className="flex items-center bg-blue-900 text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 shadow"
+              >
+                <Avatar src={recipient.portrait} alt={recipient.name} className="w-5 h-5 mr-1" />
+                {recipient.name}
+                <button
+                  type="button"
+                  className="ml-2 text-white hover:text-red-400 focus:outline-none"
+                  aria-label={`Remove ${recipient.name}`}
+                  tabIndex={0}
+                  onClick={() => setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}
+                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </Box>
           <Autocomplete
-            value={validatedRecipient}
-            onChange={(_, newValue) => {
-              setValidatedRecipient(newValue);
-            }}
+            freeSolo
+            inputValue={searchQuery}
             onInputChange={handleSearchChange}
             options={options}
             loading={loading}
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.name === value.name}
+            onChange={(_, newValue) => {
+              if (newValue) handleOptionSelect(newValue as RecipientInfo);
+            }}
             renderOption={(props, option) => (
               <Box component="li" {...props} sx={{ '&:hover': { backgroundColor: 'rgba(0, 180, 255, 0.1)' }, bgcolor: '#23243a' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -280,16 +330,6 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                     '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
                   },
                   bgcolor: '#23243a',
-                }}
-                InputProps={{
-                  ...params.InputProps,
-                  startAdornment: validatedRecipient && (
-                    <Avatar
-                      src={validatedRecipient.portrait}
-                      alt={validatedRecipient.name}
-                      sx={{ width: 24, height: 24, mr: 1 }}
-                    />
-                  ),
                 }}
               />
             )}
@@ -370,7 +410,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         <Button 
           onClick={handleSubmit}
           variant="contained"
-          disabled={!validatedRecipient || !subject || !content}
+          disabled={!validatedRecipients.length || !subject || !content}
           sx={{ bgcolor: '#00b4ff', color: '#fff', '&:hover': { bgcolor: '#0099ff' } }}
         >
           Send
