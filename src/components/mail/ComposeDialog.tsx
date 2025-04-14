@@ -35,14 +35,50 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   const [searchQuery, setSearchQuery] = useState('');
   const [options, setOptions] = useState<CharacterOption[]>([]);
   const [loading, setLoading] = useState(false);
+  const [recipientError, setRecipientError] = useState(false);
+  const [recipientValidated, setRecipientValidated] = useState(false);
 
   useEffect(() => {
     if (replyData) {
       setSearchQuery(replyData.to);
       setSubject(replyData.subject);
       setContent(replyData.content);
+      validateAndSearchCharacter(replyData.to);
     }
   }, [replyData]);
+
+  const validateAndSearchCharacter = async (name: string) => {
+    if (!name) return;
+    
+    setLoading(true);
+    try {
+      const results = await eveMailService.searchCharacters(name);
+      const exactMatch = results.find(char => char.name.toLowerCase() === name.toLowerCase());
+      
+      if (exactMatch) {
+        setRecipient(exactMatch);
+        setRecipientValidated(true);
+        setRecipientError(false);
+      } else {
+        setRecipient(null);
+        setRecipientValidated(false);
+        setRecipientError(true);
+      }
+    } catch (error) {
+      console.error('Failed to validate character:', error);
+      setRecipientError(true);
+      setRecipientValidated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRecipientKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab' && searchQuery) {
+      event.preventDefault();
+      validateAndSearchCharacter(searchQuery);
+    }
+  };
 
   const searchCharacters = debounce(async (query: string) => {
     if (!query) {
@@ -109,8 +145,16 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <Autocomplete
             value={recipient}
-            onChange={(_, newValue) => setRecipient(newValue)}
-            onInputChange={(_, newInputValue) => setSearchQuery(newInputValue)}
+            onChange={(_, newValue) => {
+              setRecipient(newValue);
+              setRecipientValidated(!!newValue);
+              setRecipientError(!newValue);
+            }}
+            onInputChange={(_, newInputValue) => {
+              setSearchQuery(newInputValue);
+              setRecipientValidated(false);
+              setRecipientError(false);
+            }}
             options={options}
             loading={loading}
             getOptionLabel={(option) => option.name}
@@ -136,14 +180,32 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                 placeholder="Search character name..."
                 variant="outlined"
                 size="small"
+                onKeyDown={handleRecipientKeyDown}
+                error={recipientError}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: recipient && (
+                    <Avatar
+                      src={recipient.portrait_url}
+                      alt={recipient.name}
+                      sx={{ width: 24, height: 24, mr: 1 }}
+                    />
+                  ),
+                  sx: {
+                    color: recipientValidated ? '#2e7d32' : (recipientError ? '#d32f2f' : '#000000'),
+                    '& input': {
+                      color: recipientValidated ? '#2e7d32' : (recipientError ? '#d32f2f' : '#000000'),
+                    },
+                  }
+                }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     backgroundColor: '#ffffff',
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'rgba(0, 180, 255, 0.5)',
+                      borderColor: recipientValidated ? '#2e7d32' : (recipientError ? '#d32f2f' : 'rgba(0, 180, 255, 0.5)'),
                     },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#00b4ff',
+                      borderColor: recipientValidated ? '#2e7d32' : (recipientError ? '#d32f2f' : '#00b4ff'),
                     },
                   },
                   '& .MuiInputLabel-root': {
@@ -160,6 +222,14 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             fullWidth
             variant="outlined"
             size="small"
+            InputProps={{
+              sx: {
+                color: '#000000',
+                '& input': {
+                  color: '#000000',
+                },
+              },
+            }}
             sx={{
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#ffffff',
@@ -183,6 +253,14 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             multiline
             rows={20}
             variant="outlined"
+            InputProps={{
+              sx: {
+                color: '#000000',
+                '& textarea': {
+                  color: '#000000',
+                },
+              },
+            }}
             sx={{
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#ffffff',

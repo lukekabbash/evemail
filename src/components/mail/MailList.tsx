@@ -68,9 +68,15 @@ const MailList: React.FC<MailListProps> = ({
             '&:hover': {
               backgroundColor: 'rgba(0, 180, 255, 0.05)',
             },
+            py: 1,
           }}
           secondaryAction={
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              minWidth: '140px', // Ensure minimum width for date and actions
+              ml: 2,
+            }}>
               <Typography
                 variant="body2"
                 sx={{
@@ -78,6 +84,7 @@ const MailList: React.FC<MailListProps> = ({
                   mr: 1,
                   minWidth: '70px',
                   textAlign: 'right',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {formatDate(mail.date)}
@@ -94,6 +101,7 @@ const MailList: React.FC<MailListProps> = ({
                     '&:hover': {
                       color: '#00b4ff',
                     },
+                    padding: '4px',
                   }}
                 >
                   {mail.isStarred ? <StarIcon /> : <StarBorderIcon />}
@@ -111,6 +119,7 @@ const MailList: React.FC<MailListProps> = ({
                     '&:hover': {
                       color: '#ff4444',
                     },
+                    padding: '4px',
                   }}
                 >
                   <DeleteIcon />
@@ -137,17 +146,28 @@ const MailList: React.FC<MailListProps> = ({
             }
             secondary={
               <Box sx={{ mt: 0.5 }}>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: mail.isRead ? 'normal' : 600,
-                    color: mail.isRead ? 'rgba(0, 0, 0, 0.7)' : '#000000',
-                    fontSize: '0.875rem',
-                    mb: 0.5,
-                  }}
-                >
-                  {mail.subject}
-                </Typography>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  width: '100%',
+                  pr: '160px', // Account for date and actions width
+                }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: mail.isRead ? 'rgba(0, 0, 0, 0.7)' : '#000000',
+                      fontSize: '0.875rem',
+                      mb: 0.5,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      width: '100%',
+                    }}
+                  >
+                    {mail.subject}
+                  </Typography>
+                </Box>
                 <Typography
                   variant="body2"
                   sx={{
@@ -157,7 +177,7 @@ const MailList: React.FC<MailListProps> = ({
                     whiteSpace: 'nowrap',
                     fontSize: '0.815rem',
                     lineHeight: 1.4,
-                    maxWidth: '280px',
+                    pr: '160px', // Account for date and actions width
                   }}
                 >
                   {mail.preview}
