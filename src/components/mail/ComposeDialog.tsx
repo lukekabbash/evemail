@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -56,11 +56,15 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   const [content, setContent] = useState('');
   const [validatedRecipient, setValidatedRecipient] = useState<RecipientInfo | null>(null);
   const [selectedColor, setSelectedColor] = useState('#000000');
+  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (replyData) {
       setSubject(replyData.subject);
       setContent(replyData.content);
+      if (editorRef.current) {
+        editorRef.current.innerHTML = replyData.content || '';
+      }
       
       if (replyData.recipientInfo) {
         setValidatedRecipient(replyData.recipientInfo);
@@ -162,6 +166,37 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     }
   };
 
+  const handleEditorInput = () => {
+    if (editorRef.current) {
+      setContent(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleFormat = (command: 'bold' | 'italic' | 'foreColor') => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+      if (command === 'foreColor') {
+        document.execCommand(command, false, selectedColor);
+      } else {
+        document.execCommand(command, false);
+      }
+      setContent(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleEditorKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.ctrlKey) {
+      if (event.key === 'b' || event.key === 'B') {
+        event.preventDefault();
+        handleFormat('bold');
+      }
+      if (event.key === 'i' || event.key === 'I') {
+        event.preventDefault();
+        handleFormat('italic');
+      }
+    }
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     
@@ -180,31 +215,6 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       subject: subject.trim(),
       content: content.trim()
     });
-  };
-
-  const formatText = (format: 'bold' | 'italic' | 'color') => {
-    const textarea = document.querySelector('[name="message-content"]') as HTMLTextAreaElement;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = content.substring(start, end);
-
-    let formattedText = '';
-    switch (format) {
-      case 'bold':
-        formattedText = `<b>${selectedText}</b>`;
-        break;
-      case 'italic':
-        formattedText = `<i>${selectedText}</i>`;
-        break;
-      case 'color':
-        formattedText = `<font color="${selectedColor}">${selectedText}</font>`;
-        break;
-    }
-
-    const newContent = content.substring(0, start) + formattedText + content.substring(end);
-    setContent(newContent);
   };
 
   const handleClose = () => {
@@ -237,7 +247,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         New Message
       </DialogTitle>
       <DialogContent sx={{ bgcolor: '#23243a' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+        <Box className="flex flex-col gap-2 mt-1">
           <Autocomplete
             value={validatedRecipient}
             onChange={(_, newValue) => {
@@ -249,14 +259,10 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.name === value.name}
             renderOption={(props, option) => (
-              <Box component="li" {...props} sx={{ '&:hover': { backgroundColor: 'rgba(0, 180, 255, 0.1)' }, bgcolor: '#23243a' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Avatar
-                    src={option.portrait}
-                    alt={option.name}
-                    sx={{ width: 32, height: 32 }}
-                  />
-                  <Typography sx={{ color: 'rgba(255,255,255,0.9)' }}>{option.name}</Typography>
+              <Box component="li" {...props} className="hover:bg-cyan-900 bg-[#23243a]">
+                <Box className="flex items-center gap-1">
+                  <Avatar src={option.portrait} alt={option.name} sx={{ width: 32, height: 32 }} />
+                  <Typography className="text-white">{option.name}</Typography>
                 </Box>
               </Box>
             )}
@@ -312,50 +318,51 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
               bgcolor: '#23243a',
             }}
           />
-          <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-            <Tooltip title="Bold">
-              <IconButton onClick={() => formatText('bold')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                <FormatBoldIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Italic">
-              <IconButton onClick={() => formatText('italic')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                <FormatItalicIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Text Color">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <IconButton onClick={() => formatText('color')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                  <FormatColorTextIcon />
-                </IconButton>
-                <input
-                  type="color"
-                  value={selectedColor}
-                  onChange={(e) => setSelectedColor(e.target.value)}
-                  style={{ width: 30, height: 30, padding: 0, border: 'none', background: '#23243a' }}
-                />
-              </Box>
-            </Tooltip>
-          </Box>
-          <TextField
-            name="message-content"
-            label="Message"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            fullWidth
-            multiline
-            rows={16}
-            variant="outlined"
-            sx={{
-              '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
-              '& .MuiInputBase-input': { color: 'rgba(255,255,255,0.9)' },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                '&:hover fieldset': { borderColor: '#00b4ff' },
-                '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
-              },
-              bgcolor: '#23243a',
-            }}
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              aria-label="Bold"
+              tabIndex={0}
+              className="rounded p-2 hover:bg-cyan-900 text-white focus:outline-none"
+              onClick={() => handleFormat('bold')}
+            >
+              <FormatBoldIcon />
+            </button>
+            <button
+              type="button"
+              aria-label="Italic"
+              tabIndex={0}
+              className="rounded p-2 hover:bg-cyan-900 text-white focus:outline-none"
+              onClick={() => handleFormat('italic')}
+            >
+              <FormatItalicIcon />
+            </button>
+            <label className="flex items-center cursor-pointer">
+              <span className="rounded p-2 hover:bg-cyan-900 text-white focus:outline-none" aria-label="Text Color" tabIndex={0}>
+                <FormatColorTextIcon onClick={() => handleFormat('foreColor')} />
+              </span>
+              <input
+                type="color"
+                value={selectedColor}
+                onChange={(e) => setSelectedColor(e.target.value)}
+                className="w-6 h-6 ml-2 border-none bg-[#23243a] cursor-pointer"
+                aria-label="Choose text color"
+                tabIndex={0}
+              />
+            </label>
+          </div>
+          <div
+            ref={editorRef}
+            contentEditable
+            tabIndex={0}
+            aria-label="Message editor"
+            className="min-h-[300px] max-h-[400px] overflow-y-auto rounded border border-gray-700 bg-[#23243a] text-white p-4 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            onInput={handleEditorInput}
+            onKeyDown={handleEditorKeyDown}
+            suppressContentEditableWarning={true}
+            dangerouslySetInnerHTML={{ __html: content }}
+            role="textbox"
+            spellCheck={true}
           />
         </Box>
       </DialogContent>

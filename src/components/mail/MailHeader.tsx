@@ -90,11 +90,7 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange }) 
       </Box>
 
       {/* Right: PFP */}
-      <IconButton
-        onClick={() => navigate('/login')}
-        sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)' }}
-        aria-label="SSO management"
-      >
+      <Box sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Avatar
           src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64` : undefined}
           alt={auth.characterName || 'Profile'}
@@ -105,7 +101,7 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange }) 
         >
           {auth.characterName ? auth.characterName[0] : '?'}
         </Avatar>
-      </IconButton>
+      </Box>
     </Box>
   );
 };

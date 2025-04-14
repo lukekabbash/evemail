@@ -63,25 +63,35 @@ const MailView: React.FC<MailViewProps> = ({
       <Box
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          height: '100%',
-          width: '100%',
+          height: '100vh',
+          width: '100vw',
           bgcolor: '#2a2a3e',
+          position: 'absolute',
+          top: 0,
+          left: 0,
         }}
       >
+        <img
+          src="/wormhole-purple.png"
+          alt="Wormhole"
+          style={{ height: '48px', marginBottom: '18px', opacity: 0.85, filter: 'drop-shadow(0 0 10px #00b4ff)' }}
+        />
         <Typography
           variant="h6"
           sx={{
-            color: 'rgba(255,255,255,0.5)',
-            fontWeight: 400,
+            color: 'rgba(255,255,255,0.7)',
+            fontWeight: 500,
             letterSpacing: 0.5,
             textAlign: 'center',
             textShadow: '0 2px 16px rgba(0,0,0,0.18)',
-            fontSize: { xs: '1rem', sm: '1.2rem', md: '1.5rem' },
+            fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
+            maxWidth: 420,
           }}
         >
-          Select an email to view
+          Welcome to EVE OS Mail. Select a message to begin.
         </Typography>
       </Box>
     );
