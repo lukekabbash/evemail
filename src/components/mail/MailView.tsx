@@ -60,21 +60,36 @@ const MailView: React.FC<MailViewProps> = ({
 
   if (!mail) {
     return (
-      <Box
-        className="flex flex-col items-center justify-center h-full w-full min-h-screen bg-[#2a2a3e] mt-[400px]"
+      <div
+        className="flex flex-col items-center justify-center h-full w-full min-h-screen bg-[#2a2a3e]"
+        role="region"
+        aria-label="No mail selected"
       >
         <img
           src="/EVE MAIL.png"
           alt="EVE Mail Logo"
-          className="h-3 mb-4 opacity-90 drop-shadow-lg"
+          className="h-16 w-16 mb-6 opacity-90 drop-shadow-lg"
         />
-        <Typography
-          variant="h6"
-          className="text-center text-[1.25rem] md:text-[1.5rem] max-w-[420px] text-white/70 font-medium tracking-wide shadow-sm"
+        <span
+          className="text-center text-[1.25rem] md:text-[1.5rem] max-w-[420px] text-white/70 font-medium tracking-wide shadow-sm mb-8"
         >
           Select a mail message to begin.
-        </Typography>
-      </Box>
+        </span>
+        <button
+          type="button"
+          className="mt-2 px-6 py-3 rounded-lg bg-[#00b4ff] text-white font-semibold shadow-lg hover:bg-[#0099cc] focus:outline-none focus:ring-2 focus:ring-[#00b4ff] focus:ring-offset-2 focus:ring-offset-[#2a2a3e] transition-colors duration-150"
+          aria-label="Return to EVE OS"
+          tabIndex={0}
+          onClick={() => window.open('https://www.eveos.space', '_blank', 'noopener,noreferrer')}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              window.open('https://www.eveos.space', '_blank', 'noopener,noreferrer');
+            }
+          }}
+        >
+          Return to EVE OS
+        </button>
+      </div>
     );
   }
 
