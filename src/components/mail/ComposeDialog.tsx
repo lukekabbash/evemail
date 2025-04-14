@@ -17,9 +17,6 @@ import {
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
-import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
-import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
-import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import { eveMailService } from '../../services/eveMailService';
 import debounce from 'lodash/debounce';
 import { AutocompleteInputChangeReason } from '@mui/material/Autocomplete';
@@ -56,15 +53,15 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [subject, setSubject] = useState('');
-  const [editorHtml, setEditorHtml] = useState('');
-  const [fontSize, setFontSize] = useState('16px');
+  const [content, setContent] = useState('');
   const [validatedRecipient, setValidatedRecipient] = useState<RecipientInfo | null>(null);
   const [selectedColor, setSelectedColor] = useState('#000000');
 
   useEffect(() => {
     if (replyData) {
       setSubject(replyData.subject);
-      setEditorHtml(replyData.content);
+      setContent(replyData.content);
+      
       if (replyData.recipientInfo) {
         setValidatedRecipient(replyData.recipientInfo);
         setSearchQuery(replyData.recipientInfo.name);
@@ -181,40 +178,42 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     onSend({
       to: validatedRecipient.name,
       subject: subject.trim(),
-      content: editorHtml.trim()
+      content: content.trim()
     });
   };
 
-  const handleEditorInput = (e: React.FormEvent<HTMLDivElement>) => {
-    setEditorHtml(e.currentTarget.innerHTML);
-  };
+  const formatText = (format: 'bold' | 'italic' | 'color') => {
+    const textarea = document.querySelector('[name="message-content"]') as HTMLTextAreaElement;
+    if (!textarea) return;
 
-  const handleFormat = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-  };
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
 
-  const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFontSize(e.target.value);
-    handleFormat('fontSize', '7'); // Use largest, then replace with real px below
-    // Replace <font size="7"> with style
-    const selection = window.getSelection();
-    if (selection && selection.anchorNode && selection.anchorNode.parentElement) {
-      const fontTags = document.querySelectorAll('font[size="7"]');
-      fontTags.forEach(tag => {
-        tag.removeAttribute('size');
-        tag.setAttribute('style', `font-size: ${e.target.value}`);
-      });
+    let formattedText = '';
+    switch (format) {
+      case 'bold':
+        formattedText = `<b>${selectedText}</b>`;
+        break;
+      case 'italic':
+        formattedText = `<i>${selectedText}</i>`;
+        break;
+      case 'color':
+        formattedText = `<font color="${selectedColor}">${selectedText}</font>`;
+        break;
     }
+
+    const newContent = content.substring(0, start) + formattedText + content.substring(end);
+    setContent(newContent);
   };
 
   const handleClose = () => {
     setValidatedRecipient(null);
     setSubject('');
-    setEditorHtml('');
+    setContent('');
     setSearchQuery('');
     setOptions([]);
     setError('');
-    setFontSize('16px');
     onClose();
   };
 
@@ -234,8 +233,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         }
       }}
     >
-      <DialogTitle sx={{ color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', bgcolor: '#23243a', display: 'flex', alignItems: 'center', gap: 2 }}>
-        <img src="/EVE MAIL.png" alt="EVE Mail Icon" className="h-8 w-8 mr-2" />
+      <DialogTitle sx={{ color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', bgcolor: '#23243a' }}>
         New Message
       </DialogTitle>
       <DialogContent sx={{ bgcolor: '#23243a' }}>
@@ -314,77 +312,50 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
               bgcolor: '#23243a',
             }}
           />
-          <div className="flex gap-2 mb-2">
-            <button
-              type="button"
-              aria-label="Bold"
-              tabIndex={0}
-              className="p-2 rounded hover:bg-blue-900 focus:outline-none"
-              onMouseDown={e => { e.preventDefault(); handleFormat('bold'); }}
-            >
-              <FormatBoldIcon />
-            </button>
-            <button
-              type="button"
-              aria-label="Italic"
-              tabIndex={0}
-              className="p-2 rounded hover:bg-blue-900 focus:outline-none"
-              onMouseDown={e => { e.preventDefault(); handleFormat('italic'); }}
-            >
-              <FormatItalicIcon />
-            </button>
-            <button
-              type="button"
-              aria-label="Underline"
-              tabIndex={0}
-              className="p-2 rounded hover:bg-blue-900 focus:outline-none"
-              onMouseDown={e => { e.preventDefault(); handleFormat('underline'); }}
-            >
-              <FormatUnderlinedIcon />
-            </button>
-            <button
-              type="button"
-              aria-label="Strikethrough"
-              tabIndex={0}
-              className="p-2 rounded hover:bg-blue-900 focus:outline-none"
-              onMouseDown={e => { e.preventDefault(); handleFormat('strikeThrough'); }}
-            >
-              <StrikethroughSIcon />
-            </button>
-            <select
-              aria-label="Font Size"
-              className="p-2 rounded bg-[#23243a] text-white border border-gray-700 focus:outline-none"
-              value={fontSize}
-              onChange={handleFontSizeChange}
-              tabIndex={0}
-            >
-              <option value="12px">Small</option>
-              <option value="16px">Normal</option>
-              <option value="20px">Large</option>
-              <option value="28px">Extra Large</option>
-            </select>
-            <label className="flex items-center gap-1">
-              <FormatColorTextIcon />
-              <input
-                type="color"
-                aria-label="Font Color"
-                value={selectedColor}
-                onChange={e => { setSelectedColor(e.target.value); handleFormat('foreColor', e.target.value); }}
-                className="w-7 h-7 border-none bg-[#23243a] cursor-pointer"
-                tabIndex={0}
-              />
-            </label>
-          </div>
-          <div
-            contentEditable
-            aria-label="Message editor"
-            tabIndex={0}
-            className="min-h-[200px] max-h-[400px] overflow-y-auto rounded border border-gray-700 bg-[#23243a] text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ fontSize }}
-            onInput={handleEditorInput}
-            dangerouslySetInnerHTML={{ __html: editorHtml }}
-            role="textbox"
-            spellCheck={true}
+          <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+            <Tooltip title="Bold">
+              <IconButton onClick={() => formatText('bold')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                <FormatBoldIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Italic">
+              <IconButton onClick={() => formatText('italic')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                <FormatItalicIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Text Color">
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton onClick={() => formatText('color')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                  <FormatColorTextIcon />
+                </IconButton>
+                <input
+                  type="color"
+                  value={selectedColor}
+                  onChange={(e) => setSelectedColor(e.target.value)}
+                  style={{ width: 30, height: 30, padding: 0, border: 'none', background: '#23243a' }}
+                />
+              </Box>
+            </Tooltip>
+          </Box>
+          <TextField
+            name="message-content"
+            label="Message"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            fullWidth
+            multiline
+            rows={16}
+            variant="outlined"
+            sx={{
+              '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
+              '& .MuiInputBase-input': { color: 'rgba(255,255,255,0.9)' },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
+                '&:hover fieldset': { borderColor: '#00b4ff' },
+                '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
+              },
+              bgcolor: '#23243a',
+            }}
           />
         </Box>
       </DialogContent>
@@ -399,7 +370,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         <Button 
           onClick={handleSubmit}
           variant="contained"
-          disabled={!validatedRecipient || !subject || !editorHtml}
+          disabled={!validatedRecipient || !subject || !content}
           sx={{ bgcolor: '#00b4ff', color: '#fff', '&:hover': { bgcolor: '#0099ff' } }}
         >
           Send

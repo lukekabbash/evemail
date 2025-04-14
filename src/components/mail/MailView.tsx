@@ -60,19 +60,40 @@ const MailView: React.FC<MailViewProps> = ({
 
   if (!mail) {
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full bg-[#2a2a3e] absolute top-0 left-0">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          width: '100vw',
+          bgcolor: '#2a2a3e',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      >
         <img
-          src="/EVE MAIL.png"
-          alt="EVE Mail Icon"
-          className="h-12 mb-4 opacity-85 drop-shadow-[0_0_10px_#00b4ff]"
+          src="/wormhole-purple.png"
+          alt="Wormhole"
+          style={{ height: '48px', marginBottom: '18px', opacity: 0.85, filter: 'drop-shadow(0 0 10px #00b4ff)' }}
         />
-        <span
-          className="text-lg md:text-2xl font-semibold text-white/70 text-center shadow-lg max-w-xl"
-          aria-label="Select a mail message prompt"
+        <Typography
+          variant="h6"
+          sx={{
+            color: 'rgba(255,255,255,0.7)',
+            fontWeight: 500,
+            letterSpacing: 0.5,
+            textAlign: 'center',
+            textShadow: '0 2px 16px rgba(0,0,0,0.18)',
+            fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
+            maxWidth: 420,
+          }}
         >
           Welcome to EVE OS Mail. Select a message to begin.
-        </span>
-      </div>
+        </Typography>
+      </Box>
     );
   }
 
