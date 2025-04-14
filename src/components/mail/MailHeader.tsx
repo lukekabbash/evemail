@@ -64,7 +64,7 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
         </Typography>
       </Box>
 
-      {/* Center/Right: Search + Contacts */}
+      {/* Center/Right: Search */}
       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', mx: 2 }}>
         <Box
           sx={{
@@ -92,50 +92,29 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
             inputProps={{ 'aria-label': 'search mail' }}
           />
         </Box>
-        {/* Persistent Search Contacts Autocomplete */}
-        <Autocomplete
-          options={contacts}
-          getOptionLabel={option => option.name}
-          onChange={(_, value) => value && onContactSelect(value)}
-          renderOption={(props, option) => (
-            <Box component="li" {...props} className="flex items-center gap-2">
-              <Avatar src={option.portrait} alt={option.name} sx={{ width: 24, height: 24 }} />
-              <span>{option.name}</span>
-            </Box>
-          )}
-          renderInput={params => (
-            <TextField
-              {...params}
-              placeholder="Search contacts..."
-              size="small"
-              sx={{ ml: 2, bgcolor: '#23243a', minWidth: 180, input: { color: 'white' } }}
-            />
-          )}
-          sx={{ ml: 2, minWidth: 180, maxWidth: 240 }}
-        />
-        {/* Contacts Button */}
+      </Box>
+      {/* Right: Contacts Button + PFP */}
+      <Box className="flex items-center gap-2">
         <button
           type="button"
           onClick={onContactsClick}
-          className="hidden sm:flex items-center gap-1 ml-4 px-3 py-1 rounded bg-blue-900 text-white hover:bg-blue-800 transition"
+          className="hidden sm:flex items-center gap-1 px-3 py-1 rounded bg-blue-900 text-white hover:bg-blue-800 transition"
           aria-label="Open contacts modal"
         >
           <PersonIcon className="mr-1" /> Contacts
         </button>
-      </Box>
-
-      {/* Right: PFP */}
-      <Box sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Avatar
-          src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64` : undefined}
-          alt={auth.characterName || 'Profile'}
-          sx={{ width: 36, height: 36, bgcolor: '#00b4ff', color: '#fff', fontWeight: 700 }}
-          imgProps={{
-            onError: (e: any) => { e.target.onerror = null; e.target.src = undefined; },
-          }}
-        >
-          {auth.characterName ? auth.characterName[0] : '?'}
-        </Avatar>
+        <Box sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Avatar
+            src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64` : undefined}
+            alt={auth.characterName || 'Profile'}
+            sx={{ width: 36, height: 36, bgcolor: '#00b4ff', color: '#fff', fontWeight: 700 }}
+            imgProps={{
+              onError: (e: any) => { e.target.onerror = null; e.target.src = undefined; },
+            }}
+          >
+            {auth.characterName ? auth.characterName[0] : '?'}
+          </Avatar>
+        </Box>
       </Box>
     </Box>
   );

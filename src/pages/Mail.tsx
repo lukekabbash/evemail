@@ -305,6 +305,44 @@ const Mail: React.FC = () => {
   // Set sidebar width: 30% of viewport width on desktop, fallback to 312px, min 260, max 400
   const computedSidebarWidth = isMobile ? 320 : 312;
 
+  useEffect(() => {
+    if (!contactsModalOpen) return;
+    if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) return;
+    if (contacts.length > 0 && !contactsError) return;
+    const fetchContacts = async () => {
+      setContactsLoading(true);
+      setContactsError(null);
+      try {
+        const data = await eveMailService.getContacts(auth.characterId, auth.accessToken);
+        const contactsWithNames = await Promise.all(
+          data.map(async (contact: any) => {
+            try {
+              const info = await eveMailService.getCharacterInfo(contact.contact_id, auth.accessToken);
+              return {
+                contact_id: contact.contact_id,
+                name: info.name,
+                portrait: `https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`,
+              };
+            } catch {
+              return {
+                contact_id: contact.contact_id,
+                name: String(contact.contact_id),
+                portrait: `https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`,
+              };
+            }
+          })
+        );
+        contactsWithNames.sort((a, b) => a.name.localeCompare(b.name));
+        setContacts(contactsWithNames);
+      } catch (err) {
+        setContactsError('Failed to load contacts');
+      } finally {
+        setContactsLoading(false);
+      }
+    };
+    fetchContacts();
+  }, [contactsModalOpen, auth.characterId, auth.accessToken]);
+
   if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
     return (
       <Box sx={{ 
