@@ -66,96 +66,109 @@ const MailList: React.FC<MailListProps> = ({
             key={mail.id}
             sx={{
               px: 2,
-              py: 1,
+              py: 1.5,
               cursor: 'pointer',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              bgcolor: selectedMail === mail.id ? 'rgba(0, 180, 255, 0.1)' : 'transparent',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              bgcolor: selectedMail === mail.id ? 'rgba(0, 180, 255, 0.12)' : 'transparent',
               '&:hover': {
-                bgcolor: 'rgba(0, 180, 255, 0.05)',
+                bgcolor: 'rgba(0, 180, 255, 0.07)',
               },
               display: 'flex',
-              alignItems: 'flex-start',
+              alignItems: 'stretch',
               gap: 1,
+              minHeight: 64,
             }}
             onClick={() => onMailSelect(mail.id)}
           >
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
-                <Typography
-                  sx={{
-                    fontWeight: mail.isRead ? 400 : 700,
-                    color: mail.isRead ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.95)',
-                    fontSize: '0.95rem',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    flex: 1,
-                  }}
-                >
-                  {mail.subject}
-                </Typography>
-                <Typography
-                  sx={{
-                    color: 'rgba(255, 255, 255, 0.5)',
-                    fontSize: '0.75rem',
-                    flexShrink: 0,
-                    ml: 2,
-                    minWidth: 70,
-                    textAlign: 'right',
-                  }}
-                >
-                  {formatDate(mail.date)}
-                </Typography>
-              </Box>
+            <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <Typography
+                sx={{
+                  fontWeight: mail.isRead ? 400 : 700,
+                  color: mail.isRead ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 1)',
+                  fontSize: '0.98rem',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  mb: 0.2,
+                }}
+              >
+                {mail.subject}
+              </Typography>
               <Typography
                 variant="body2"
                 sx={{
-                  color: 'rgba(255, 255, 255, 0.6)',
+                  color: 'rgba(255, 255, 255, 0.65)',
                   fontSize: '0.82rem',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
-                  mt: 0.25,
+                  mb: 0.2,
                 }}
               >
                 {isSent ? mail.to : mail.from}
               </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  fontSize: '0.78rem',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: '95%',
+                }}
+              >
+                {mail.preview}
+              </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-              <Tooltip title={mail.isStarred ? "Unstar" : "Star"}>
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMailStar(mail.id);
-                  }}
-                  size="small"
-                  sx={{ 
-                    color: mail.isStarred ? '#00b4ff' : 'rgba(255, 255, 255, 0.5)',
-                    '&:hover': {
-                      color: mail.isStarred ? '#0099ff' : '#00b4ff',
-                    }
-                  }}
-                >
-                  {mail.isStarred ? <StarIcon /> : <StarBorderIcon />}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Delete">
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMailDelete(mail.id);
-                  }}
-                  size="small"
-                  sx={{ 
-                    color: 'rgba(255, 255, 255, 0.5)',
-                    '&:hover': {
-                      color: '#ff4444',
-                    }
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Tooltip>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'space-between', ml: 1, minWidth: 32 }}>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMailStar(mail.id);
+                }}
+                size="small"
+                sx={{ 
+                  color: mail.isStarred ? '#00b4ff' : 'rgba(255, 255, 255, 0.5)',
+                  mb: 0.5,
+                  p: 0.5,
+                  fontSize: 18,
+                  '&:hover': {
+                    color: mail.isStarred ? '#0099ff' : '#00b4ff',
+                  }
+                }}
+              >
+                {mail.isStarred ? <StarIcon fontSize="inherit" /> : <StarBorderIcon fontSize="inherit" />}
+              </IconButton>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMailDelete(mail.id);
+                }}
+                size="small"
+                sx={{ 
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  p: 0.5,
+                  fontSize: 18,
+                  '&:hover': {
+                    color: '#ff4444',
+                  }
+                }}
+              >
+                <DeleteIcon fontSize="inherit" />
+              </IconButton>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'rgba(255,255,255,0.45)',
+                  fontSize: '0.72rem',
+                  mt: 0.5,
+                  textAlign: 'right',
+                  minWidth: 40,
+                }}
+              >
+                {formatDate(mail.date)}
+              </Typography>
             </Box>
           </ListItem>
         );

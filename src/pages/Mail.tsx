@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, CircularProgress, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, CircularProgress, Typography, Select, MenuItem, FormControl, InputLabel, useTheme, useMediaQuery, IconButton, Fab } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Resizable, ResizeCallback } from 're-resizable';
 import MailLayout from '../components/mail/MailLayout';
@@ -9,6 +9,8 @@ import ComposeDialog, { type ReplyData } from '../components/mail/ComposeDialog'
 import { useAuth } from '../contexts/AuthContext';
 import { eveMailService } from '../services/eveMailService';
 import { logEvent } from '../utils/analytics';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import EditIcon from '@mui/icons-material/Edit';
 
 // Add helper function to strip HTML and handle line breaks
 const formatPreview = (html: string): string => {
@@ -46,6 +48,8 @@ const Mail: React.FC = () => {
   const [replyData, setReplyData] = useState<ReplyData | undefined>(undefined);
   const [mailListWidth, setMailListWidth] = useState(400);
   const [sidebarWidth, setSidebarWidth] = useState(240);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -333,6 +337,109 @@ const Mail: React.FC = () => {
         <Typography color="error">{error}</Typography>
       </Box>
     );
+  }
+
+  // Mobile layout logic
+  if (isMobile) {
+    if (!selectedMail) {
+      // Show only sidebar
+      return (
+        <Box sx={{ height: '100vh', bgcolor: '#1a1a2e', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', height: '100vh' }}>
+            <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1 }} size="small">
+              <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)' }}>Folder</InputLabel>
+              <Select
+                labelId="folder-select-label"
+                id="folder-select"
+                value={selectedFolder}
+                label="Folder"
+                onChange={e => setSelectedFolder(e.target.value)}
+                sx={{
+                  color: 'rgba(255,255,255,0.9)',
+                  bgcolor: '#23243a',
+                  '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
+                  '.MuiSvgIcon-root': { color: '#00b4ff' },
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      bgcolor: '#23243a',
+                      color: 'rgba(255,255,255,0.9)',
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="inbox">Inbox</MenuItem>
+                <MenuItem value="sent">Sent</MenuItem>
+                <MenuItem value="trash">Trash</MenuItem>
+              </Select>
+            </FormControl>
+            <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#888', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
+              <MailList
+                mails={filteredMails}
+                selectedMail={selectedMail}
+                onMailSelect={handleMailSelect}
+                onMailStar={id => setMails(mails.map(mail => mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail))}
+                onMailDelete={handleMailDelete}
+              />
+            </Box>
+          </Box>
+          <Fab
+            color="primary"
+            aria-label="compose"
+            onClick={() => {
+              setReplyData(undefined);
+              setIsComposeOpen(true);
+            }}
+            sx={{
+              position: 'fixed',
+              bottom: 16,
+              right: 16,
+              bgcolor: '#00b4ff',
+              '&:hover': {
+                bgcolor: '#0099ff',
+              },
+            }}
+          >
+            <EditIcon />
+          </Fab>
+          <ComposeDialog
+            open={isComposeOpen}
+            onClose={() => {
+              setIsComposeOpen(false);
+              setReplyData(undefined);
+            }}
+            onSend={handleSendMail}
+            replyData={replyData}
+          />
+        </Box>
+      );
+    } else {
+      // Show only main view with back button
+      return (
+        <Box sx={{ height: '100vh', bgcolor: '#2a2a3e', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ p: 1, bgcolor: '#23243a', display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={() => setSelectedMail(null)} sx={{ color: '#00b4ff', mr: 1 }}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="subtitle1" sx={{ color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+              Mail
+            </Typography>
+          </Box>
+          <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', bgcolor: '#2a2a3e' }}>
+            <MailView
+              mail={selectedMailData}
+              onReply={handleReply}
+              onForward={handleForward}
+              onDelete={handleMailDelete}
+              onStar={id => setMails(mails.map(mail => mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail))}
+            />
+          </Box>
+        </Box>
+      );
+    }
   }
 
   return (

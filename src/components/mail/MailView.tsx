@@ -66,11 +66,21 @@ const MailView: React.FC<MailViewProps> = ({
           alignItems: 'center',
           justifyContent: 'center',
           height: '100%',
-          color: 'rgba(255, 255, 255, 0.7)',
-          backgroundColor: '#2a2a3e',
+          width: '100%',
+          bgcolor: '#2a2a3e',
         }}
       >
-        <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+        <Typography
+          variant="h4"
+          sx={{
+            color: 'rgba(255,255,255,0.5)',
+            fontWeight: 700,
+            letterSpacing: 1,
+            textAlign: 'center',
+            textShadow: '0 2px 16px rgba(0,0,0,0.25)',
+            fontSize: { xs: '1.3rem', sm: '2rem', md: '2.5rem' },
+          }}
+        >
           Select an email to view
         </Typography>
       </Box>
