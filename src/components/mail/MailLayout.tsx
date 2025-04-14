@@ -39,8 +39,8 @@ const MailLayout: React.FC<MailLayoutProps> = ({
   const drawer = (
     <Box sx={{ overflow: 'auto' }}>
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ color: '#00b4ff' }}>
-          EVE Mail
+        <Typography variant="h6" sx={{ color: '#1976d2' }}>
+          Mail
         </Typography>
       </Box>
       <Divider />
@@ -58,21 +58,26 @@ const MailLayout: React.FC<MailLayoutProps> = ({
             selected={selectedFolder === folder.value}
             sx={{
               '&.Mui-selected': {
-                backgroundColor: 'rgba(0, 180, 255, 0.1)',
+                backgroundColor: 'rgba(25, 118, 210, 0.08)',
                 '&:hover': {
-                  backgroundColor: 'rgba(0, 180, 255, 0.2)',
+                  backgroundColor: 'rgba(25, 118, 210, 0.12)',
                 },
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)',
               },
             }}
           >
-            <ListItemIcon sx={{ color: selectedFolder === folder.value ? '#00b4ff' : 'inherit' }}>
+            <ListItemIcon sx={{ 
+              color: selectedFolder === folder.value ? '#1976d2' : 'inherit'
+            }}>
               {folder.icon}
             </ListItemIcon>
             <ListItemText 
               primary={folder.text}
               sx={{
                 '& .MuiListItemText-primary': {
-                  color: selectedFolder === folder.value ? '#00b4ff' : 'inherit',
+                  color: selectedFolder === folder.value ? '#1976d2' : 'inherit',
                 },
               }}
             />
@@ -83,7 +88,7 @@ const MailLayout: React.FC<MailLayoutProps> = ({
   );
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#121212' }}>
+    <Box sx={{ display: 'flex', height: '100vh', bgcolor: '#ffffff' }}>
       {isMobile && (
         <IconButton
           color="inherit"
@@ -106,8 +111,8 @@ const MailLayout: React.FC<MailLayoutProps> = ({
           '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
             boxSizing: 'border-box',
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+            backgroundColor: '#ffffff',
+            borderRight: '1px solid #e0e0e0',
           },
         }}
       >
@@ -118,10 +123,9 @@ const MailLayout: React.FC<MailLayoutProps> = ({
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           height: '100vh',
-          overflow: 'auto',
+          overflow: 'hidden',
         }}
       >
         {children}
@@ -135,9 +139,9 @@ const MailLayout: React.FC<MailLayoutProps> = ({
           position: 'fixed',
           bottom: 16,
           right: 16,
-          backgroundColor: '#00b4ff',
+          bgcolor: '#1976d2',
           '&:hover': {
-            backgroundColor: '#007db2',
+            bgcolor: '#1565c0',
           },
         }}
       >

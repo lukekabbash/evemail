@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Box, CircularProgress, Typography } from '@mui/material';
 
-const Callback: React.FC = () => {
+const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
   const { handleCallback } = useAuth();
 
@@ -40,4 +40,4 @@ const Callback: React.FC = () => {
   );
 };
 
-export default Callback; 
+export default AuthCallback; 

@@ -1,226 +1,265 @@
 import React, { useState, useEffect } from 'react';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import MailLayout from '../components/mail/MailLayout';
+import MailList from '../components/mail/MailList';
+import MailView from '../components/mail/MailView';
+import ComposeDialog from '../components/mail/ComposeDialog';
 import { useAuth } from '../contexts/AuthContext';
-import { useChecklist } from '../contexts/ChecklistContext';
-import { mailService } from '../services/esiService';
-import styles from './Mail.module.css';
+import { eveMailService } from '../services/eveMailService';
+
+// Temporary interface until we integrate with EVE API
+interface Mail {
+  id: string;
+  from: string;
+  subject: string;
+  preview: string;
+  content: string;
+  date: string;
+  isRead: boolean;
+  isStarred: boolean;
+  to: string;
+}
 
 const Mail: React.FC = () => {
   const { auth } = useAuth();
-  const { items, totalItems } = useChecklist();
   const navigate = useNavigate();
-  
-  const [subject, setSubject] = useState('Shopping List');
-  const [customMessage, setCustomMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState('inbox');
+  const [selectedMail, setSelectedMail] = useState<string | null>(null);
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const [mails, setMails] = useState<Mail[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Redirect to checklist if no items
+
   useEffect(() => {
-    if (totalItems === 0) {
-      navigate('/checklist');
-    }
-  }, [totalItems, navigate]);
-  
-  // Check if we have the mail permission
-  const hasMailPermission = auth.scopes.includes('esi-mail.send_mail.v1');
-  
-  // Generate the shopping list text
-  const generateShoppingList = (): string => {
-    let mailBody = 'Shopping List:\n\n';
-    
-    items.forEach(item => {
-      mailBody += `- ${item.name}: ${item.quantity.toLocaleString()}\n`;
-    });
-    
-    if (customMessage) {
-      mailBody += '\n' + customMessage;
-    }
-    
-    return mailBody;
-  };
-  
-  // Handle sending the mail
-  const handleSendMail = async () => {
-    if (!auth.characterId || !auth.accessToken) {
-      setError('Authentication data missing.');
+    if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
+      navigate('/');
       return;
     }
-    
-    if (!hasMailPermission) {
-      setError('You do not have permission to send mail. Please re-login with the mail scope.');
-      return;
-    }
-    
-    setIsSending(true);
-    setError(null);
-    
+
+    const fetchMails = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const headers = await eveMailService.getMailHeaders(auth.characterId, auth.accessToken);
+        
+        const characterIds = new Set<number>();
+        headers.forEach(header => characterIds.add(header.from));
+        
+        const characterNames = new Map<number, string>();
+        await Promise.all(
+          Array.from(characterIds).map(async (id) => {
+            try {
+              const info = await eveMailService.getCharacterInfo(id, auth.accessToken!);
+              characterNames.set(id, info.name);
+            } catch (error) {
+              console.error(`Failed to fetch character info for ID ${id}:`, error);
+              characterNames.set(id, `Character #${id}`);
+            }
+          })
+        );
+
+        const mailPromises = headers.map(async (header) => {
+          try {
+            const content = await eveMailService.getMailContent(
+              auth.characterId!,
+              header.mail_id,
+              auth.accessToken!
+            );
+
+            return {
+              id: header.mail_id.toString(),
+              from: characterNames.get(header.from) || `Character #${header.from}`,
+              subject: header.subject,
+              preview: content.body.substring(0, 100) + '...',
+              content: content.body,
+              date: header.timestamp,
+              isRead: header.is_read,
+              isStarred: false,
+              to: auth.characterName || 'Me',
+            };
+          } catch (error) {
+            console.error(`Failed to fetch mail content for ID ${header.mail_id}:`, error);
+            return null;
+          }
+        });
+
+        const fetchedMails = (await Promise.all(mailPromises)).filter((mail): mail is Mail => mail !== null);
+        setMails(fetchedMails);
+      } catch (error) {
+        console.error('Failed to fetch mails:', error);
+        setError('Failed to load your mail. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMails();
+  }, [auth.characterId, auth.accessToken, auth.characterName, auth.isAuthenticated, navigate]);
+
+  const handleMailSelect = async (id: string) => {
+    if (!auth.characterId || !auth.accessToken) return;
+
+    setSelectedMail(id);
+    setMails(mails.map(mail => 
+      mail.id === id ? { ...mail, isRead: true } : mail
+    ));
+
     try {
-      // Create recipients array with the user's character ID
-      const recipients = [{
-        recipient_id: parseInt(auth.characterId),
-        recipient_type: 'character'
-      }];
-      
-      // Send the mail
-      await mailService.sendMail(
+      await eveMailService.markMailRead(auth.characterId, parseInt(id), auth.accessToken);
+    } catch (error) {
+      console.error('Failed to mark mail as read:', error);
+    }
+  };
+
+  const handleMailDelete = async (id: string) => {
+    if (!auth.characterId || !auth.accessToken) return;
+
+    try {
+      await eveMailService.deleteMail(auth.characterId, parseInt(id), auth.accessToken);
+      setMails(mails.filter(mail => mail.id !== id));
+      if (selectedMail === id) {
+        setSelectedMail(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete mail:', error);
+    }
+  };
+
+  const handleSendMail = async (data: { to: string; subject: string; content: string }) => {
+    if (!auth.characterId || !auth.accessToken) return;
+
+    try {
+      await eveMailService.sendMail(
         auth.characterId,
         auth.accessToken,
-        subject,
-        generateShoppingList(),
-        recipients
+        data.subject,
+        data.content,
+        [{ recipient_id: parseInt(data.to), recipient_type: 'character' }]
       );
-      
-      setSuccess(true);
+      setIsComposeOpen(false);
+      // Refresh mail list
+      window.location.reload();
     } catch (error) {
       console.error('Failed to send mail:', error);
-      setError('Failed to send mail. Please try again later.');
-    } finally {
-      setIsSending(false);
     }
   };
-  
-  // Handle navigation back to checklist
-  const handleBackToChecklist = () => {
-    navigate('/checklist');
-  };
-  
+
+  const selectedMailData = selectedMail 
+    ? mails.find(mail => mail.id === selectedMail) || null
+    : null;
+
+  if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
+    return (
+      <Box sx={{ 
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 2,
+      }}>
+        <Typography>Please log in to view your mail.</Typography>
+      </Box>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 2,
+      }}>
+        <CircularProgress size={40} />
+        <Typography>Loading your mail...</Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ 
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 2,
+      }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
   return (
-    <div>
-      <h1 className={styles.title}>Send Shopping List as Mail</h1>
-      
-      {!hasMailPermission ? (
-        <div className={styles.errorCard}>
-          <h2 className={styles.errorTitle}>Missing Permission</h2>
-          <p className={styles.errorText}>
-            Your account doesn't have the required permission to send mail. Please log out and log back in with the mail permission.
-          </p>
-          <button 
-            onClick={handleBackToChecklist}
-            className={styles.backButton}
-            aria-label="Return to checklist"
-          >
-            Return to Checklist
-          </button>
-        </div>
-      ) : success ? (
-        <div className={styles.successCard}>
-          <div className={styles.successIcon}>✓</div>
-          <h2 className={styles.successTitle}>Mail Sent Successfully!</h2>
-          <p className={styles.successText}>
-            Your shopping list has been sent to {auth.characterName}.
-          </p>
-          <div className={styles.buttonGroup}>
-            <button 
-              onClick={handleBackToChecklist}
-              className={styles.backButton}
-              aria-label="Return to checklist"
-            >
-              Return to Checklist
-            </button>
-            <button 
-              onClick={() => navigate('/')}
-              className={styles.sendButton}
-              aria-label="Return to home"
-            >
-              Return to Home
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div className={styles.mailCard}>
-            <h2 className={styles.mailTitle}>Mail Preview</h2>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="subject" className={styles.label}>
-                Subject
-              </label>
-              <input
-                id="subject"
-                type="text"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className={styles.input}
-                aria-label="Mail subject"
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="recipient" className={styles.label}>
-                Recipient
-              </label>
-              <input
-                id="recipient"
-                type="text"
-                value={auth.characterName || ''}
-                disabled
-                className={styles.inputDisabled}
-                aria-label="Mail recipient"
-              />
-              <p className={styles.helpText}>
-                Mail will be sent to your character.
-              </p>
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label className={styles.label}>
-                Shopping List
-              </label>
-              <div className={styles.shoppingList}>
-                <pre>
-                  {items.map((item, index) => (
-                    <div key={index} className={styles.listItem}>
-                      - {item.name}: {item.quantity.toLocaleString()}
-                    </div>
-                  ))}
-                </pre>
-              </div>
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="customMessage" className={styles.label}>
-                Additional Message (Optional)
-              </label>
-              <textarea
-                id="customMessage"
-                value={customMessage}
-                onChange={(e) => setCustomMessage(e.target.value)}
-                rows={4}
-                className={styles.input}
-                placeholder="Add any notes or additional information..."
-                aria-label="Additional message"
-              />
-            </div>
-          </div>
-          
-          {error && (
-            <div className={styles.errorMessage}>
-              {error}
-            </div>
-          )}
-          
-          <div className={styles.actionButtons}>
-            <button
-              onClick={handleBackToChecklist}
-              className={styles.backButton}
-              aria-label="Back to checklist"
-            >
-              Back to Checklist
-            </button>
-            <button
-              onClick={handleSendMail}
-              disabled={isSending}
-              className={styles.sendButton}
-              aria-label="Send mail"
-            >
-              {isSending ? 'Sending...' : 'Send Mail'}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    <Box sx={{ 
+      height: '100vh',
+      bgcolor: '#ffffff',
+      display: 'flex',
+    }}>
+      <MailLayout
+        selectedFolder={selectedFolder}
+        onFolderSelect={setSelectedFolder}
+        onComposeClick={() => setIsComposeOpen(true)}
+      >
+        <Box sx={{ 
+          display: 'flex',
+          height: '100%',
+          borderLeft: '1px solid #e0e0e0'
+        }}>
+          <Box sx={{ 
+            width: '400px',
+            borderRight: '1px solid #e0e0e0',
+            overflow: 'auto'
+          }}>
+            <MailList
+              mails={mails}
+              selectedMail={selectedMail}
+              onMailSelect={handleMailSelect}
+              onMailStar={(id) => {
+                setMails(mails.map(mail =>
+                  mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail
+                ));
+              }}
+              onMailDelete={handleMailDelete}
+            />
+          </Box>
+          <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+            <MailView
+              mail={selectedMailData}
+              onReply={(id) => {
+                const mail = mails.find(m => m.id === id);
+                if (mail) {
+                  setIsComposeOpen(true);
+                }
+              }}
+              onForward={(id) => {
+                const mail = mails.find(m => m.id === id);
+                if (mail) {
+                  setIsComposeOpen(true);
+                }
+              }}
+              onDelete={handleMailDelete}
+              onStar={(id) => {
+                setMails(mails.map(mail =>
+                  mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail
+                ));
+              }}
+            />
+          </Box>
+        </Box>
+      </MailLayout>
+      <ComposeDialog
+        open={isComposeOpen}
+        onClose={() => setIsComposeOpen(false)}
+        onSend={handleSendMail}
+      />
+    </Box>
   );
 };
 

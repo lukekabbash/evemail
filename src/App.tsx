@@ -14,11 +14,12 @@ import About from './pages/About';
 import './App.css';
 import { theme } from './theme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import AuthCallback from './pages/AuthCallback';
 
 // Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { auth } = useAuth();
-  return auth.isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  return auth.isAuthenticated ? <>{children}</> : <Navigate to="/" />;
 };
 
 const queryClient = new QueryClient();
@@ -28,29 +29,23 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
-          <AuthProvider>
-            <ChecklistProvider>
-              <Layout>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/auth/callback" element={<Callback />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/" element={<Home />} />
-                  <Route path="/checklist" element={<Checklist />} />
-                  <Route 
-                    path="/mail" 
-                    element={
-                      <PrivateRoute>
-                        <Mail />
-                      </PrivateRoute>
-                    } 
-                  />
-                </Routes>
-              </Layout>
-            </ChecklistProvider>
-          </AuthProvider>
-        </Router>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/auth/callback" element={<Callback />} />
+              <Route
+                path="/mail"
+                element={
+                  <ProtectedRoute>
+                    <Mail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
