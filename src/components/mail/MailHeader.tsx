@@ -119,7 +119,7 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
         <button
           type="button"
           onClick={onContactsClick}
-          className="hidden sm:flex items-center gap-1 px-3 py-1 rounded bg-blue-900 text-white hover:bg-blue-800 transition"
+          className="hidden sm:flex items-center gap-1 px-3 py-1 rounded bg-blue-900 text-white hover:bg-blue-800 transition ml-[30px]"
           aria-label="Open contacts modal"
           style={{ display: 'flex', alignItems: 'center' }}
         >
