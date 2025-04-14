@@ -65,8 +65,6 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     if (replyData) {
       setSubject(replyData.subject);
       setEditorHtml(replyData.content);
-      setContent(replyData.content);
-      
       if (replyData.recipientInfo) {
         setValidatedRecipient(replyData.recipientInfo);
         setSearchQuery(replyData.recipientInfo.name);
@@ -189,7 +187,6 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
 
   const handleEditorInput = (e: React.FormEvent<HTMLDivElement>) => {
     setEditorHtml(e.currentTarget.innerHTML);
-    setContent(e.currentTarget.innerHTML);
   };
 
   const handleFormat = (command: string, value?: string) => {
@@ -214,7 +211,6 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     setValidatedRecipient(null);
     setSubject('');
     setEditorHtml('');
-    setContent('');
     setSearchQuery('');
     setOptions([]);
     setError('');
