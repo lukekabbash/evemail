@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -17,6 +17,9 @@ import {
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
+import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
+import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
+import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import { eveMailService } from '../../services/eveMailService';
 import debounce from 'lodash/debounce';
 import { AutocompleteInputChangeReason } from '@mui/material/Autocomplete';
@@ -53,18 +56,16 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [subject, setSubject] = useState('');
-  const [content, setContent] = useState('');
+  const [editorHtml, setEditorHtml] = useState('');
+  const [fontSize, setFontSize] = useState('16px');
   const [validatedRecipient, setValidatedRecipient] = useState<RecipientInfo | null>(null);
   const [selectedColor, setSelectedColor] = useState('#000000');
-  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (replyData) {
       setSubject(replyData.subject);
+      setEditorHtml(replyData.content);
       setContent(replyData.content);
-      if (editorRef.current) {
-        editorRef.current.innerHTML = replyData.content || '';
-      }
       
       if (replyData.recipientInfo) {
         setValidatedRecipient(replyData.recipientInfo);
@@ -166,37 +167,6 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     }
   };
 
-  const handleEditorInput = () => {
-    if (editorRef.current) {
-      setContent(editorRef.current.innerHTML);
-    }
-  };
-
-  const handleFormat = (command: 'bold' | 'italic' | 'foreColor') => {
-    if (editorRef.current) {
-      editorRef.current.focus();
-      if (command === 'foreColor') {
-        document.execCommand(command, false, selectedColor);
-      } else {
-        document.execCommand(command, false);
-      }
-      setContent(editorRef.current.innerHTML);
-    }
-  };
-
-  const handleEditorKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.ctrlKey) {
-      if (event.key === 'b' || event.key === 'B') {
-        event.preventDefault();
-        handleFormat('bold');
-      }
-      if (event.key === 'i' || event.key === 'I') {
-        event.preventDefault();
-        handleFormat('italic');
-      }
-    }
-  };
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     
@@ -213,17 +183,42 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     onSend({
       to: validatedRecipient.name,
       subject: subject.trim(),
-      content: content.trim()
+      content: editorHtml.trim()
     });
+  };
+
+  const handleEditorInput = (e: React.FormEvent<HTMLDivElement>) => {
+    setEditorHtml(e.currentTarget.innerHTML);
+    setContent(e.currentTarget.innerHTML);
+  };
+
+  const handleFormat = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+  };
+
+  const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFontSize(e.target.value);
+    handleFormat('fontSize', '7'); // Use largest, then replace with real px below
+    // Replace <font size="7"> with style
+    const selection = window.getSelection();
+    if (selection && selection.anchorNode && selection.anchorNode.parentElement) {
+      const fontTags = document.querySelectorAll('font[size="7"]');
+      fontTags.forEach(tag => {
+        tag.removeAttribute('size');
+        tag.setAttribute('style', `font-size: ${e.target.value}`);
+      });
+    }
   };
 
   const handleClose = () => {
     setValidatedRecipient(null);
     setSubject('');
+    setEditorHtml('');
     setContent('');
     setSearchQuery('');
     setOptions([]);
     setError('');
+    setFontSize('16px');
     onClose();
   };
 
@@ -243,11 +238,12 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         }
       }}
     >
-      <DialogTitle sx={{ color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', bgcolor: '#23243a' }}>
+      <DialogTitle sx={{ color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', bgcolor: '#23243a', display: 'flex', alignItems: 'center', gap: 2 }}>
+        <img src="/EVE MAIL.png" alt="EVE Mail Icon" className="h-8 w-8 mr-2" />
         New Message
       </DialogTitle>
       <DialogContent sx={{ bgcolor: '#23243a' }}>
-        <Box className="flex flex-col gap-2 mt-1">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <Autocomplete
             value={validatedRecipient}
             onChange={(_, newValue) => {
@@ -259,10 +255,14 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.name === value.name}
             renderOption={(props, option) => (
-              <Box component="li" {...props} className="hover:bg-cyan-900 bg-[#23243a]">
-                <Box className="flex items-center gap-1">
-                  <Avatar src={option.portrait} alt={option.name} sx={{ width: 32, height: 32 }} />
-                  <Typography className="text-white">{option.name}</Typography>
+              <Box component="li" {...props} sx={{ '&:hover': { backgroundColor: 'rgba(0, 180, 255, 0.1)' }, bgcolor: '#23243a' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Avatar
+                    src={option.portrait}
+                    alt={option.name}
+                    sx={{ width: 32, height: 32 }}
+                  />
+                  <Typography sx={{ color: 'rgba(255,255,255,0.9)' }}>{option.name}</Typography>
                 </Box>
               </Box>
             )}
@@ -323,8 +323,8 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
               type="button"
               aria-label="Bold"
               tabIndex={0}
-              className="rounded p-2 hover:bg-cyan-900 text-white focus:outline-none"
-              onClick={() => handleFormat('bold')}
+              className="p-2 rounded hover:bg-blue-900 focus:outline-none"
+              onMouseDown={e => { e.preventDefault(); handleFormat('bold'); }}
             >
               <FormatBoldIcon />
             </button>
@@ -332,35 +332,61 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
               type="button"
               aria-label="Italic"
               tabIndex={0}
-              className="rounded p-2 hover:bg-cyan-900 text-white focus:outline-none"
-              onClick={() => handleFormat('italic')}
+              className="p-2 rounded hover:bg-blue-900 focus:outline-none"
+              onMouseDown={e => { e.preventDefault(); handleFormat('italic'); }}
             >
               <FormatItalicIcon />
             </button>
-            <label className="flex items-center cursor-pointer">
-              <span className="rounded p-2 hover:bg-cyan-900 text-white focus:outline-none" aria-label="Text Color" tabIndex={0}>
-                <FormatColorTextIcon onClick={() => handleFormat('foreColor')} />
-              </span>
+            <button
+              type="button"
+              aria-label="Underline"
+              tabIndex={0}
+              className="p-2 rounded hover:bg-blue-900 focus:outline-none"
+              onMouseDown={e => { e.preventDefault(); handleFormat('underline'); }}
+            >
+              <FormatUnderlinedIcon />
+            </button>
+            <button
+              type="button"
+              aria-label="Strikethrough"
+              tabIndex={0}
+              className="p-2 rounded hover:bg-blue-900 focus:outline-none"
+              onMouseDown={e => { e.preventDefault(); handleFormat('strikeThrough'); }}
+            >
+              <StrikethroughSIcon />
+            </button>
+            <select
+              aria-label="Font Size"
+              className="p-2 rounded bg-[#23243a] text-white border border-gray-700 focus:outline-none"
+              value={fontSize}
+              onChange={handleFontSizeChange}
+              tabIndex={0}
+            >
+              <option value="12px">Small</option>
+              <option value="16px">Normal</option>
+              <option value="20px">Large</option>
+              <option value="28px">Extra Large</option>
+            </select>
+            <label className="flex items-center gap-1">
+              <FormatColorTextIcon />
               <input
                 type="color"
+                aria-label="Font Color"
                 value={selectedColor}
-                onChange={(e) => setSelectedColor(e.target.value)}
-                className="w-6 h-6 ml-2 border-none bg-[#23243a] cursor-pointer"
-                aria-label="Choose text color"
+                onChange={e => { setSelectedColor(e.target.value); handleFormat('foreColor', e.target.value); }}
+                className="w-7 h-7 border-none bg-[#23243a] cursor-pointer"
                 tabIndex={0}
               />
             </label>
           </div>
           <div
-            ref={editorRef}
             contentEditable
-            tabIndex={0}
             aria-label="Message editor"
-            className="min-h-[300px] max-h-[400px] overflow-y-auto rounded border border-gray-700 bg-[#23243a] text-white p-4 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            tabIndex={0}
+            className="min-h-[200px] max-h-[400px] overflow-y-auto rounded border border-gray-700 bg-[#23243a] text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{ fontSize }}
             onInput={handleEditorInput}
-            onKeyDown={handleEditorKeyDown}
-            suppressContentEditableWarning={true}
-            dangerouslySetInnerHTML={{ __html: content }}
+            dangerouslySetInnerHTML={{ __html: editorHtml }}
             role="textbox"
             spellCheck={true}
           />
@@ -377,7 +403,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         <Button 
           onClick={handleSubmit}
           variant="contained"
-          disabled={!validatedRecipient || !subject || !content}
+          disabled={!validatedRecipient || !subject || !editorHtml}
           sx={{ bgcolor: '#00b4ff', color: '#fff', '&:hover': { bgcolor: '#0099ff' } }}
         >
           Send
