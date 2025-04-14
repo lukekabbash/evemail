@@ -31,7 +31,7 @@ const Mail: React.FC = () => {
   const [mails, setMails] = useState<Mail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [replyData, setReplyData] = useState<{ to: string; subject: string; content: string } | null>(null);
+  const [replyData, setReplyData] = useState<{ to: string; subject: string; content: string; recipientInfo?: any } | null>(null);
   const [mailListWidth, setMailListWidth] = useState(400);
 
   useEffect(() => {
@@ -130,14 +130,27 @@ const Mail: React.FC = () => {
     }
   };
 
-  const handleReply = (id: string) => {
+  const handleReply = async (id: string) => {
     const mail = mails.find(m => m.id === id);
     if (mail) {
-      setReplyData({
-        to: mail.from,
-        subject: `Re: ${mail.subject}`,
-        content: `\n\n-------- Original Message --------\nFrom: ${mail.from}\nDate: ${new Date(mail.date).toLocaleString()}\nSubject: ${mail.subject}\n\n${mail.content}`
-      });
+      try {
+        // Search for the character to get their ID and portrait
+        const searchResults = await eveMailService.searchCharacters(mail.from);
+        const recipientInfo = searchResults.find(char => char.name === mail.from);
+        
+        if (recipientInfo) {
+          setReplyData({
+            to: mail.from,
+            subject: `Re: ${mail.subject}`,
+            content: `\n\n-------- Original Message --------\nFrom: ${mail.from}\nDate: ${new Date(mail.date).toLocaleString()}\nSubject: ${mail.subject}\n\n${mail.content}`,
+            recipientInfo: recipientInfo
+          });
+        } else {
+          console.error('Could not find character info for:', mail.from);
+        }
+      } catch (error) {
+        console.error('Failed to get character info:', error);
+      }
       setIsComposeOpen(true);
     }
   };

@@ -19,7 +19,12 @@ interface ComposeDialogProps {
   open: boolean;
   onClose: () => void;
   onSend: (data: { to: string; subject: string; content: string }) => void;
-  replyData?: { to: string; subject: string; content: string } | null;
+  replyData?: { 
+    to: string; 
+    subject: string; 
+    content: string; 
+    recipientInfo?: CharacterOption;
+  } | null;
 }
 
 interface CharacterOption {
@@ -43,7 +48,13 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       setSearchQuery(replyData.to);
       setSubject(replyData.subject);
       setContent(replyData.content);
-      validateAndSearchCharacter(replyData.to);
+      if (replyData.recipientInfo) {
+        setRecipient(replyData.recipientInfo);
+        setRecipientValidated(true);
+        setRecipientError(false);
+      } else {
+        validateAndSearchCharacter(replyData.to);
+      }
     }
   }, [replyData]);
 
@@ -258,6 +269,9 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                 color: '#000000',
                 '& textarea': {
                   color: '#000000',
+                  fontFamily: 'monospace',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
                 },
               },
             }}

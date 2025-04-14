@@ -174,13 +174,17 @@ const MailList: React.FC<MailListProps> = ({
                     color: 'rgba(0, 0, 0, 0.5)',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    whiteSpace: 'pre-line',
                     fontSize: '0.815rem',
                     lineHeight: 1.4,
-                    pr: '160px', // Account for date and actions width
+                    pr: '160px',
+                    maxHeight: '2.8em',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
                   }}
                 >
-                  {mail.preview}
+                  {mail.preview.replace(/\n{2,}/g, '\n').replace(/\s+/g, ' ').trim()}
                 </Typography>
               </Box>
             }
