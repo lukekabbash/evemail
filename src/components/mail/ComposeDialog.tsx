@@ -227,15 +227,15 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         sx: {
           height: '80vh',
           maxHeight: '800px',
-          backgroundColor: '#ffffff',
+          backgroundColor: '#1a1a2e',
           backgroundImage: 'none',
         }
       }}
     >
-      <DialogTitle sx={{ color: '#000000', borderBottom: '1px solid rgba(0, 0, 0, 0.1)' }}>
+      <DialogTitle sx={{ color: 'rgba(255, 255, 255, 0.9)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
         New Message
       </DialogTitle>
-      <DialogContent sx={{ bgcolor: '#ffffff' }}>
+      <DialogContent sx={{ bgcolor: '#1a1a2e' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <Autocomplete
             value={validatedRecipient}
@@ -249,6 +249,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             isOptionEqualToValue={(option, value) => option.name === value.name}
             renderOption={(props, option) => (
               <Box component="li" {...props} sx={{ 
+                color: 'rgba(255, 255, 255, 0.9)',
                 '&:hover': { backgroundColor: 'rgba(0, 180, 255, 0.1)' }
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -257,7 +258,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                     alt={option.name}
                     sx={{ width: 32, height: 32 }}
                   />
-                  <Typography sx={{ color: '#000000' }}>{option.name}</Typography>
+                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>{option.name}</Typography>
                 </Box>
               </Box>
             )}
@@ -273,12 +274,24 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                 error={error !== ''}
                 helperText={error}
                 sx={{
-                  '& .MuiInputLabel-root': { color: '#000000' },
-                  '& .MuiInputBase-input': { color: '#000000' },
+                  '& .MuiInputLabel-root': { 
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    '&.Mui-focused': {
+                      color: '#00b4ff'
+                    }
+                  },
+                  '& .MuiInputBase-input': { 
+                    color: 'rgba(255, 255, 255, 0.9)',
+                  },
                   '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
-                    '&:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.5)' },
-                    '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+                    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.23)' },
+                    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                    '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
+                  },
+                  '& .MuiAutocomplete-endAdornment': {
+                    '& .MuiSvgIcon-root': {
+                      color: 'rgba(255, 255, 255, 0.7)'
+                    }
                   }
                 }}
                 InputProps={{
@@ -293,6 +306,17 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                 }}
               />
             )}
+            sx={{
+              '& .MuiAutocomplete-listbox': {
+                bgcolor: '#1a1a2e',
+                '& .MuiAutocomplete-option': {
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  '&:hover': {
+                    bgcolor: 'rgba(0, 180, 255, 0.1)'
+                  }
+                }
+              }
+            }}
           />
           <TextField
             label="Subject"
@@ -302,29 +326,36 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             variant="outlined"
             size="small"
             sx={{
-              '& .MuiInputLabel-root': { color: '#000000' },
-              '& .MuiInputBase-input': { color: '#000000' },
+              '& .MuiInputLabel-root': { 
+                color: 'rgba(255, 255, 255, 0.7)',
+                '&.Mui-focused': {
+                  color: '#00b4ff'
+                }
+              },
+              '& .MuiInputBase-input': { 
+                color: 'rgba(255, 255, 255, 0.9)',
+              },
               '& .MuiOutlinedInput-root': {
-                '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
-                '&:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.5)' },
-                '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.23)' },
+                '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
               }
             }}
           />
           <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
             <Tooltip title="Bold">
-              <IconButton onClick={() => formatText('bold')} sx={{ color: '#000000' }}>
+              <IconButton onClick={() => formatText('bold')} sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                 <FormatBoldIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Italic">
-              <IconButton onClick={() => formatText('italic')} sx={{ color: '#000000' }}>
+              <IconButton onClick={() => formatText('italic')} sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                 <FormatItalicIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title="Text Color">
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <IconButton onClick={() => formatText('color')} sx={{ color: '#000000' }}>
+                <IconButton onClick={() => formatText('color')} sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                   <FormatColorTextIcon />
                 </IconButton>
                 <input
@@ -346,12 +377,19 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             rows={16}
             variant="outlined"
             sx={{
-              '& .MuiInputLabel-root': { color: '#000000' },
-              '& .MuiInputBase-input': { color: '#000000' },
+              '& .MuiInputLabel-root': { 
+                color: 'rgba(255, 255, 255, 0.7)',
+                '&.Mui-focused': {
+                  color: '#00b4ff'
+                }
+              },
+              '& .MuiInputBase-input': { 
+                color: 'rgba(255, 255, 255, 0.9)',
+              },
               '& .MuiOutlinedInput-root': {
-                '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
-                '&:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.5)' },
-                '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.23)' },
+                '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
               }
             }}
           />
@@ -359,16 +397,33 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       </DialogContent>
       <DialogActions sx={{ 
         p: 2,
-        borderTop: '1px solid rgba(0, 0, 0, 0.1)',
-        bgcolor: '#ffffff'
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+        bgcolor: '#1a1a2e'
       }}>
-        <Button onClick={handleClose} sx={{ color: '#000000' }}>
+        <Button 
+          onClick={handleClose} 
+          sx={{ 
+            color: 'rgba(255, 255, 255, 0.9)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+        >
           Cancel
         </Button>
         <Button 
           onClick={handleSubmit}
           variant="contained"
           disabled={!validatedRecipient || !subject || !content}
+          sx={{
+            bgcolor: '#00b4ff',
+            '&:hover': {
+              bgcolor: '#0099ff'
+            },
+            '&.Mui-disabled': {
+              bgcolor: 'rgba(0, 180, 255, 0.3)'
+            }
+          }}
         >
           Send
         </Button>
