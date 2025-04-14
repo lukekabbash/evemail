@@ -5,6 +5,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useAuth } from '../../contexts/AuthContext';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 interface MailHeaderProps {
   searchValue: string;
@@ -17,6 +21,7 @@ interface MailHeaderProps {
 const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, onContactsClick, contacts, onContactSelect }) => {
   const navigate = useNavigate();
   const { auth } = useAuth();
+  const [profileModalOpen, setProfileModalOpen] = React.useState(false);
 
   return (
     <Box
@@ -100,10 +105,17 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
           onClick={onContactsClick}
           className="hidden sm:flex items-center gap-1 px-3 py-1 rounded bg-blue-900 text-white hover:bg-blue-800 transition"
           aria-label="Open contacts modal"
+          style={{ display: 'flex', alignItems: 'center' }}
         >
-          <PersonIcon className="mr-1" /> Contacts
+          <PersonIcon sx={{ verticalAlign: 'middle', fontSize: 22 }} />
+          <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>Contacts</span>
         </button>
-        <Box sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          onClick={() => setProfileModalOpen(true)}
+          tabIndex={0}
+          aria-label="Open profile modal"
+          onKeyDown={e => { if (e.key === 'Enter') setProfileModalOpen(true); }}
+        >
           <Avatar
             src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64` : undefined}
             alt={auth.characterName || 'Profile'}
@@ -116,6 +128,27 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
           </Avatar>
         </Box>
       </Box>
+      <Dialog open={profileModalOpen} onClose={() => setProfileModalOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ bgcolor: '#23243a', color: 'white', textAlign: 'center', pb: 1 }}>Account</DialogTitle>
+        <DialogContent sx={{ bgcolor: '#23243a', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 2 }}>
+          <Avatar
+            src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=128` : undefined}
+            alt={auth.characterName || 'Profile'}
+            sx={{ width: 80, height: 80, bgcolor: '#00b4ff', color: '#fff', fontWeight: 700, mb: 2 }}
+          >
+            {auth.characterName ? auth.characterName[0] : '?'}
+          </Avatar>
+          <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>{auth.characterName || 'Unknown Character'}</Typography>
+        </DialogContent>
+        <DialogActions sx={{ bgcolor: '#23243a', justifyContent: 'center', pb: 2 }}>
+          <Button variant="contained" sx={{ bgcolor: '#00b4ff', color: 'white', mr: 2, '&:hover': { bgcolor: '#0099ff' } }} onClick={() => { window.location.href = '/'; }}>
+            Change character
+          </Button>
+          <Button variant="outlined" sx={{ color: 'white', borderColor: '#00b4ff', '&:hover': { borderColor: '#0099ff', color: '#00b4ff' } }} onClick={() => { if (auth.logout) auth.logout(); }}>
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -150,7 +150,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   };
 
   const handleKeyDown = async (event: React.KeyboardEvent) => {
-    if ((event.key === 'Tab' || event.key === ',') && searchQuery) {
+    if ((event.key === 'Tab' || event.key === ',' || event.key === 'Enter') && searchQuery) {
       event.preventDefault();
       await addRecipientsFromInput(searchQuery);
     } else if (event.key === 'Backspace' && !searchQuery && validatedRecipients.length) {
@@ -326,11 +326,12 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                             key={recipient.id}
                             className="flex items-center bg-blue-900 text-white rounded-full px-3 py-1 text-sm mr-2 shadow"
                           >
-                            <Avatar src={recipient.portrait} alt={recipient.name} className="w-4 h-4 mr-1" />
+                            <Avatar src={recipient.portrait} alt={recipient.name} sx={{ width: 20, height: 20, mr: 1 }} />
                             {recipient.name}
                             <button
                               type="button"
-                              className="ml-4 mr-1 px-2 py-0.5 text-xs bg-red-900 text-red-300 rounded-full hover:bg-red-800 focus:outline-none"
+                              className="px-1 py-0 text-xs bg-red-900 text-red-300 rounded-full hover:bg-red-800 focus:outline-none"
+                              style={{ marginLeft: '5px', fontSize: '0.9em', lineHeight: 1, minWidth: 18, height: 18 }}
                               aria-label={`Remove ${recipient.name}`}
                               tabIndex={0}
                               onClick={() => setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}

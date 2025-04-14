@@ -20,10 +20,13 @@ interface ContactsModalProps {
 }
 
 const ContactsModal: React.FC<ContactsModalProps> = ({ open, onClose, contacts, onMailClick, searchValue, onSearchChange, loading, error }) => {
-  // Filter and sort contacts
-  const filteredContacts = contacts
-    .filter(c => c.name.toLowerCase().includes(searchValue.toLowerCase()))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const numberName = (name: string) => /^\d+$/.test(name);
+  const normalNames = contacts.filter(c => !numberName(c.name));
+  const numberNames = contacts.filter(c => numberName(c.name));
+  const filteredContacts = [
+    ...normalNames.sort((a, b) => a.name.localeCompare(b.name)),
+    ...numberNames.sort((a, b) => a.name.localeCompare(b.name)),
+  ].filter(c => c.name.toLowerCase().includes(searchValue.toLowerCase()));
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
