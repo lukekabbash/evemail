@@ -12,6 +12,8 @@ import { logEvent } from '../utils/analytics';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import MailHeader from '../components/mail/MailHeader';
+import PersonIcon from '@mui/icons-material/Person';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 // Add helper function to strip HTML and handle line breaks
 const formatPreview = (html: string): string => {
@@ -52,6 +54,10 @@ const Mail: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchValue, setSearchValue] = useState('');
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactsError, setContactsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -276,6 +282,22 @@ const Mail: React.FC = () => {
     }
   };
 
+  const handleContactsClick = async () => {
+    setIsContactsOpen((prev) => !prev);
+    if (!isContactsOpen && contacts.length === 0 && auth.characterId && auth.accessToken) {
+      setContactsLoading(true);
+      setContactsError(null);
+      try {
+        const data = await eveMailService.getContacts(auth.characterId, auth.accessToken);
+        setContacts(data);
+      } catch (err) {
+        setContactsError('Failed to load contacts');
+      } finally {
+        setContactsLoading(false);
+      }
+    }
+  };
+
   const selectedMailData = selectedMail 
     ? mails.find(mail => mail.id === selectedMail) || null
     : null;
@@ -456,7 +478,7 @@ const Mail: React.FC = () => {
   if (!isMobile) {
     return (
       <>
-        <MailHeader searchValue={searchValue} onSearchChange={setSearchValue} />
+        <MailHeader searchValue={searchValue} onSearchChange={setSearchValue} onContactsClick={handleContactsClick} />
         <MailLayout
           sidebarWidth={computedSidebarWidth}
           onComposeClick={() => {
@@ -530,6 +552,65 @@ const Mail: React.FC = () => {
           onSend={handleSendMail}
           replyData={replyData}
         />
+        {/* Contacts Sidebar */}
+        <div
+          className={`fixed top-0 right-0 h-full w-80 bg-[#23243a] shadow-lg z-50 transform transition-transform duration-300 ease-in-out hidden sm:block ${isContactsOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          style={{ minWidth: 320, maxWidth: 400 }}
+          aria-label="Contacts sidebar"
+          tabIndex={isContactsOpen ? 0 : -1}
+        >
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <span className="flex items-center gap-2 text-white text-lg font-semibold">
+              <PersonIcon /> Contacts
+            </span>
+            <button
+              className="text-white hover:text-blue-400 focus:outline-none"
+              aria-label="Close contacts sidebar"
+              onClick={() => setIsContactsOpen(false)}
+            >
+              <ArrowForwardIosIcon className="rotate-180" />
+            </button>
+          </div>
+          <div className="p-4 overflow-y-auto h-[calc(100%-56px)]">
+            {contactsLoading && <div className="text-white/70">Loading contacts...</div>}
+            {contactsError && <div className="text-red-400">{contactsError}</div>}
+            {!contactsLoading && !contactsError && contacts.length === 0 && (
+              <div className="text-white/60">No contacts found.</div>
+            )}
+            <ul className="space-y-3">
+              {contacts.map((contact) => (
+                <li key={contact.contact_id} className="flex items-center gap-3 bg-[#1a1a2e] rounded px-3 py-2">
+                  <img
+                    src={`https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`}
+                    alt={contact.contact_id}
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className="flex-1 text-white/90 text-sm font-medium">{contact.contact_id}</span>
+                  <button
+                    className="bg-blue-700 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
+                    aria-label={`Compose mail to contact ${contact.contact_id}`}
+                    onClick={() => {
+                      setReplyData({
+                        to: String(contact.contact_id),
+                        subject: '',
+                        content: '',
+                        recipientInfo: {
+                          id: contact.contact_id,
+                          name: String(contact.contact_id),
+                          portrait: `https://images.evetech.net/characters/${contact.contact_id}/portrait?size=32`,
+                        },
+                      });
+                      setIsComposeOpen(true);
+                      setIsContactsOpen(false);
+                    }}
+                  >
+                    Mail
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </>
     );
   }

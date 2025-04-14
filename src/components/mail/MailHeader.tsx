@@ -1,15 +1,18 @@
 import React from 'react';
-import { Box, Typography, InputBase, Avatar, IconButton } from '@mui/material';
+import { Box, Typography, InputBase, Avatar, IconButton, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import { useAuth } from '../../contexts/AuthContext';
+import PersonIcon from '@mui/icons-material/Person';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 interface MailHeaderProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
+  onContactsClick?: () => void;
 }
 
-const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange }) => {
+const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, onContactsClick }) => {
   const navigate = useNavigate();
   const { auth } = useAuth();
 
@@ -89,18 +92,29 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange }) 
         </Box>
       </Box>
 
-      {/* Right: PFP */}
-      <Box sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Avatar
-          src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64` : undefined}
-          alt={auth.characterName || 'Profile'}
-          sx={{ width: 36, height: 36, bgcolor: '#00b4ff', color: '#fff', fontWeight: 700 }}
-          imgProps={{
-            onError: (e: any) => { e.target.onerror = null; e.target.src = undefined; },
-          }}
+      {/* Right: Contacts Button + PFP */}
+      <Box className="flex items-center gap-2">
+        <Button
+          onClick={onContactsClick}
+          className="hidden sm:flex items-center gap-1 px-3 py-1 rounded bg-blue-900 text-white hover:bg-blue-800 transition"
+          aria-label="Open contacts sidebar"
+          startIcon={<PersonIcon />}
+          endIcon={<ArrowForwardIosIcon />}
         >
-          {auth.characterName ? auth.characterName[0] : '?'}
-        </Avatar>
+          Contacts
+        </Button>
+        <Box sx={{ ml: 2, p: 0.5, borderRadius: '50%', border: '2px solid #00b4ff', bgcolor: 'rgba(0,180,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Avatar
+            src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64` : undefined}
+            alt={auth.characterName || 'Profile'}
+            sx={{ width: 36, height: 36, bgcolor: '#00b4ff', color: '#fff', fontWeight: 700 }}
+            imgProps={{
+              onError: (e: any) => { e.target.onerror = null; e.target.src = undefined; },
+            }}
+          >
+            {auth.characterName ? auth.characterName[0] : '?'}
+          </Avatar>
+        </Box>
       </Box>
     </Box>
   );
