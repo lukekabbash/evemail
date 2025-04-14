@@ -8,6 +8,7 @@ import MailView from '../components/mail/MailView';
 import ComposeDialog, { type ReplyData } from '../components/mail/ComposeDialog';
 import { useAuth } from '../contexts/AuthContext';
 import { eveMailService } from '../services/eveMailService';
+import { logEvent } from '../utils/analytics';
 
 // Add helper function to strip HTML and handle line breaks
 const formatPreview = (html: string): string => {
@@ -83,6 +84,20 @@ const Mail: React.FC = () => {
               auth.accessToken!
             );
 
+            const isFromMe = header.from === Number(auth.characterId);
+
+            // For sent mails, we need to look up the recipient's name
+            let recipientName = auth.characterName || 'Me';
+            if (isFromMe && header.recipient_id) {
+              try {
+                const recipientInfo = await eveMailService.getCharacterInfo(header.recipient_id, auth.accessToken!);
+                recipientName = recipientInfo.name;
+              } catch (error) {
+                console.error(`Failed to fetch recipient info for ID ${header.recipient_id}:`, error);
+                recipientName = `Character #${header.recipient_id}`;
+              }
+            }
+
             return {
               id: header.mail_id.toString(),
               from: characterNames.get(header.from) || `Character #${header.from}`,
@@ -92,8 +107,8 @@ const Mail: React.FC = () => {
               date: header.timestamp,
               isRead: header.is_read,
               isStarred: false,
-              to: auth.characterName || 'Me',
-              type: header.from === Number(auth.characterId) ? 'sent' : 'inbox'  // Fix type comparison
+              to: isFromMe ? recipientName : auth.characterName || 'Me',
+              type: isFromMe ? 'sent' : 'inbox'
             };
           } catch (error) {
             console.error(`Failed to fetch mail content for ID ${header.mail_id}:`, error);
@@ -140,8 +155,10 @@ const Mail: React.FC = () => {
       if (selectedMail === id) {
         setSelectedMail(null);
       }
+      logEvent('delete_mail', 'mail', 'Mail moved to trash');
     } catch (error) {
       console.error('Failed to delete mail:', error);
+      logEvent('delete_mail_error', 'mail', 'Failed to delete mail');
     }
   };
 
@@ -168,12 +185,15 @@ const Mail: React.FC = () => {
           }
         });
         setIsComposeOpen(true);
+        logEvent('reply_mail', 'mail', 'Reply mail dialog opened');
       } else {
         console.error('Could not find character info for:', mail.from);
+        logEvent('reply_mail_error', 'mail', 'Could not find recipient');
         alert('Could not find the character to reply to. Please try again.');
       }
     } catch (error) {
       console.error('Failed to get character info:', error);
+      logEvent('reply_mail_error', 'mail', 'Failed to prepare reply');
       alert('Failed to prepare reply. Please try again.');
     }
   };
@@ -186,11 +206,12 @@ const Mail: React.FC = () => {
     const forwardContent = `\n\n-------- Forwarded Message --------\nFrom: ${mail.from}\nDate: ${formattedDate}\nSubject: ${mail.subject}\nTo: ${mail.to}\n\n${mail.content}`;
     
     setReplyData({
-      to: '',  // Empty to field for forward
+      to: '',
       subject: `Fwd: ${mail.subject}`,
       content: forwardContent
     });
     setIsComposeOpen(true);
+    logEvent('forward_mail', 'mail', 'Forward mail dialog opened');
   };
 
   const handleSendMail = async (data: { to: string; subject: string; content: string }) => {
@@ -208,21 +229,22 @@ const Mail: React.FC = () => {
         throw new Error('Recipient not found');
       }
 
-      const recipientId = recipient.character_id;
-      
       await eveMailService.sendMail(
         auth.characterId,
         auth.accessToken,
         data.subject,
         data.content,
-        [{ recipient_id: recipientId, recipient_type: 'character' }]
+        [{ recipient_id: recipient.character_id, recipient_type: 'character' }]
       );
+
+      // Log successful mail send
+      logEvent('send_mail', 'mail', 'Mail sent successfully');
       
       // Add the sent mail to the local state
       const newMail = {
         id: `temp_${Date.now()}`, // Temporary ID until we refresh
         from: auth.characterName || 'Me',
-        to: data.to,
+        to: recipient.name,
         subject: data.subject,
         content: data.content,
         preview: formatPreview(data.content).substring(0, 100) + '...',
@@ -243,6 +265,7 @@ const Mail: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to send mail:', error);
+      logEvent('send_mail_error', 'mail', 'Failed to send mail');
       alert('Failed to send mail. Please make sure the recipient exists and try again.');
     }
   };
@@ -252,11 +275,13 @@ const Mail: React.FC = () => {
     : null;
 
   const filteredMails = mails.filter(mail => {
+    const isFromMe = Number(mail.from) === Number(auth.characterId) || mail.from === auth.characterName;
+    
     switch (selectedFolder) {
       case 'sent':
-        return mail.type === 'sent' || mail.from === auth.characterName;
+        return isFromMe;
       case 'inbox':
-        return mail.type === 'inbox' && mail.to === auth.characterName;
+        return !isFromMe && mail.type !== 'trash';
       case 'trash':
         return mail.type === 'trash';
       default:

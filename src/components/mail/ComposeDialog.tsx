@@ -82,7 +82,12 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       setLoading(true);
       setError('');
       const results = await eveMailService.searchCharacters(query);
-      setOptions(results);
+      const mappedResults: RecipientInfo[] = results.map(char => ({
+        id: char.character_id,
+        name: char.name,
+        portrait: char.portrait_url
+      }));
+      setOptions(mappedResults);
     } catch (err) {
       setError('Failed to search characters');
       setOptions([]);
@@ -98,8 +103,13 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       setLoading(true);
       setError('');
       const results = await eveMailService.searchCharacters(query);
+      const mappedResults: RecipientInfo[] = results.map(char => ({
+        id: char.character_id,
+        name: char.name,
+        portrait: char.portrait_url
+      }));
       
-      const exactMatch = results.find(
+      const exactMatch = mappedResults.find(
         (char) => char.name.toLowerCase() === query.toLowerCase()
       );
 
@@ -109,7 +119,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         setError('');
       } else {
         setValidatedRecipient(null);
-        setOptions(results);
+        setOptions(mappedResults);
         setError('Please select a valid character');
       }
     } catch (err) {

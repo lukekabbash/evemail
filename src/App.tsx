@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ChecklistProvider } from './contexts/ChecklistContext';
@@ -15,6 +15,7 @@ import './App.css';
 import { theme } from './theme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthCallback from './pages/AuthCallback';
+import { initGA, logPageView } from './utils/analytics';
 
 // Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -25,6 +26,18 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Initialize Google Analytics
+    initGA();
+  }, []);
+
+  useEffect(() => {
+    // Log page views on route changes
+    logPageView(location.pathname + location.search);
+  }, [location]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
