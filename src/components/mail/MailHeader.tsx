@@ -115,11 +115,11 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
         </Box>
       </Box>
       {/* Right: Contacts Button + EVE OS Button + PFP */}
-      <Box className="flex items-center gap-3">
+      <Box className="flex items-center gap-3 mr-8">
         <button
           type="button"
           onClick={onContactsClick}
-          className="hidden sm:flex items-center gap-1 px-3 py-1 rounded bg-blue-900 text-white hover:bg-blue-800 transition ml-[30px]"
+          className="hidden sm:flex items-center gap-1 px-3 py-1 rounded bg-blue-900 text-white hover:bg-blue-800 transition"
           aria-label="Open contacts modal"
           style={{ display: 'flex', alignItems: 'center' }}
         >

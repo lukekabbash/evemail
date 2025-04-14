@@ -68,7 +68,7 @@ const MailView: React.FC<MailViewProps> = ({
         <img
           src="/EVE MAIL.png"
           alt="EVE Mail Logo"
-          className="h-16 w-16 mb-6 opacity-90 drop-shadow-lg"
+          className="h-12 w-12 mb-6 opacity-90 drop-shadow-lg"
         />
         <span
           className="text-center text-[1.25rem] md:text-[1.5rem] max-w-[420px] text-white/70 font-medium tracking-wide shadow-sm"
