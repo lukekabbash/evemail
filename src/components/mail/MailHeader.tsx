@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, InputBase, Avatar, IconButton, Button, Autocomplete, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -22,6 +22,21 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
   const navigate = useNavigate();
   const { auth, logout, login } = useAuth();
   const [profileModalOpen, setProfileModalOpen] = React.useState(false);
+  const [portraitUrl, setPortraitUrl] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (auth.characterId) {
+      const url = `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64`;
+      setPortraitUrl(url);
+      // Optionally, check if the image loads
+      const img = new window.Image();
+      img.onload = () => setPortraitUrl(url);
+      img.onerror = () => setPortraitUrl(undefined);
+      img.src = url;
+    } else {
+      setPortraitUrl(undefined);
+    }
+  }, [auth.characterId]);
 
   return (
     <Box
@@ -117,12 +132,9 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
           onKeyDown={e => { if (e.key === 'Enter') setProfileModalOpen(true); }}
         >
           <Avatar
-            src={auth.characterId ? `https://images.evetech.net/characters/${auth.characterId}/portrait?size=64` : undefined}
+            src={portraitUrl}
             alt={auth.characterName || 'Profile'}
             sx={{ width: 36, height: 36, bgcolor: '#00b4ff', color: '#fff', fontWeight: 700 }}
-            imgProps={{
-              onError: (e: any) => { e.target.onerror = null; e.target.src = undefined; },
-            }}
           >
             {auth.characterName ? auth.characterName[0] : '?'}
           </Avatar>
@@ -141,7 +153,7 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
           <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>{auth.characterName || 'Unknown Character'}</Typography>
         </DialogContent>
         <DialogActions sx={{ bgcolor: '#23243a', justifyContent: 'center', pb: 2 }}>
-          <Button variant="contained" sx={{ bgcolor: '#00b4ff', color: 'white', mr: 2, '&:hover': { bgcolor: '#0099ff' } }} onClick={login}>
+          <Button variant="contained" sx={{ bgcolor: '#00b4ff', color: 'white', mr: 2, '&:hover': { bgcolor: '#0099ff' } }} onClick={() => { logout(); setTimeout(() => login(), 100); }}>
             Change character
           </Button>
           <Button variant="outlined" sx={{ color: 'white', borderColor: '#00b4ff', '&:hover': { borderColor: '#0099ff', color: '#00b4ff' } }} onClick={logout}>
