@@ -57,16 +57,16 @@ const MailList: React.FC<MailListProps> = ({
   };
 
   return (
-    <List sx={{ width: '100%', bgcolor: 'transparent', p: 0 }}>
+    <List sx={{ width: '100%', bgcolor: '#ffffff', p: 0 }}>
       {mails.map((mail) => (
         <ListItem
           key={mail.id}
           sx={{
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
             cursor: 'pointer',
             backgroundColor: selectedMail === mail.id ? 'rgba(0, 180, 255, 0.1)' : 'transparent',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backgroundColor: 'rgba(0, 180, 255, 0.05)',
             },
           }}
           secondaryAction={
@@ -74,7 +74,7 @@ const MailList: React.FC<MailListProps> = ({
               <Typography
                 variant="body2"
                 sx={{
-                  color: 'rgba(255, 255, 255, 0.7)',
+                  color: 'rgba(0, 0, 0, 0.7)',
                   mr: 1,
                   minWidth: '70px',
                   textAlign: 'right',
@@ -89,7 +89,12 @@ const MailList: React.FC<MailListProps> = ({
                     e.stopPropagation();
                     onMailStar(mail.id);
                   }}
-                  sx={{ color: mail.isStarred ? '#00b4ff' : 'rgba(255, 255, 255, 0.7)' }}
+                  sx={{ 
+                    color: mail.isStarred ? '#00b4ff' : 'rgba(0, 0, 0, 0.7)',
+                    '&:hover': {
+                      color: '#00b4ff',
+                    },
+                  }}
                 >
                   {mail.isStarred ? <StarIcon /> : <StarBorderIcon />}
                 </IconButton>
@@ -101,7 +106,12 @@ const MailList: React.FC<MailListProps> = ({
                     e.stopPropagation();
                     onMailDelete(mail.id);
                   }}
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                  sx={{ 
+                    color: 'rgba(0, 0, 0, 0.7)',
+                    '&:hover': {
+                      color: '#ff4444',
+                    },
+                  }}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -117,7 +127,7 @@ const MailList: React.FC<MailListProps> = ({
                   variant="body1"
                   sx={{
                     fontWeight: mail.isRead ? 'normal' : 'bold',
-                    color: mail.isRead ? 'rgba(255, 255, 255, 0.7)' : '#fff',
+                    color: mail.isRead ? 'rgba(0, 0, 0, 0.7)' : '#000000',
                   }}
                 >
                   {mail.from}
@@ -130,7 +140,7 @@ const MailList: React.FC<MailListProps> = ({
                   variant="body2"
                   sx={{
                     fontWeight: mail.isRead ? 'normal' : 'bold',
-                    color: mail.isRead ? 'rgba(255, 255, 255, 0.7)' : '#fff',
+                    color: mail.isRead ? 'rgba(0, 0, 0, 0.7)' : '#000000',
                   }}
                 >
                   {mail.subject}
@@ -138,7 +148,7 @@ const MailList: React.FC<MailListProps> = ({
                 <Typography
                   variant="body2"
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    color: 'rgba(0, 0, 0, 0.5)',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -155,4 +165,4 @@ const MailList: React.FC<MailListProps> = ({
   );
 };
 
-export default MailList; 
+export default MailList;
