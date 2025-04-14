@@ -15,6 +15,7 @@ import MailHeader from '../components/mail/MailHeader';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ContactsSidebar, { Contact } from '../components/mail/ContactsSidebar';
+import ReactDOM from 'react-dom';
 
 // Add helper function to strip HTML and handle line breaks
 const formatPreview = (html: string): string => {
@@ -567,27 +568,30 @@ const Mail: React.FC = () => {
           onSend={handleSendMail}
           replyData={replyData}
         />
-        <ContactsSidebar
-          open={isContactsOpen}
-          onClose={() => setIsContactsOpen(false)}
-          contacts={contacts}
-          loading={contactsLoading}
-          error={contactsError}
-          onMailClick={(contact) => {
-            setReplyData({
-              to: contact.name,
-              subject: '',
-              content: '',
-              recipientInfo: {
-                id: contact.contact_id,
-                name: contact.name,
-                portrait: contact.portrait,
-              },
-            });
-            setIsComposeOpen(true);
-            setIsContactsOpen(false);
-          }}
-        />
+        {ReactDOM.createPortal(
+          <ContactsSidebar
+            open={isContactsOpen}
+            onClose={() => setIsContactsOpen(false)}
+            contacts={contacts}
+            loading={contactsLoading}
+            error={contactsError}
+            onMailClick={(contact) => {
+              setReplyData({
+                to: contact.name,
+                subject: '',
+                content: '',
+                recipientInfo: {
+                  id: contact.contact_id,
+                  name: contact.name,
+                  portrait: contact.portrait,
+                },
+              });
+              setIsComposeOpen(true);
+              setIsContactsOpen(false);
+            }}
+          />,
+          document.body
+        )}
       </>
     );
   }
@@ -664,6 +668,30 @@ const Mail: React.FC = () => {
         onSend={handleSendMail}
         replyData={replyData}
       />
+      {ReactDOM.createPortal(
+        <ContactsSidebar
+          open={isContactsOpen}
+          onClose={() => setIsContactsOpen(false)}
+          contacts={contacts}
+          loading={contactsLoading}
+          error={contactsError}
+          onMailClick={(contact) => {
+            setReplyData({
+              to: contact.name,
+              subject: '',
+              content: '',
+              recipientInfo: {
+                id: contact.contact_id,
+                name: contact.name,
+                portrait: contact.portrait,
+              },
+            });
+            setIsComposeOpen(true);
+            setIsContactsOpen(false);
+          }}
+        />,
+        document.body
+      )}
     </>
   );
 };

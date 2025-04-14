@@ -8,6 +8,7 @@ import {
   Checkbox,
   IconButton,
   Tooltip,
+  Avatar,
 } from '@mui/material';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
@@ -16,6 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 export interface MailItem {
   id: string;
   from: string;
+  fromId: number;
   to: string;
   subject: string;
   preview: string;
@@ -80,6 +82,19 @@ const MailList: React.FC<MailListProps> = ({
             }}
             onClick={() => onMailSelect(mail.id)}
           >
+            <Box sx={{ display: 'flex', alignItems: 'center', mr: 1 }}>
+              {mail.fromId ? (
+                <Avatar
+                  src={`https://images.evetech.net/characters/${mail.fromId}/portrait?size=32`}
+                  alt={mail.from}
+                  sx={{ width: 32, height: 32, bgcolor: '#23243a', fontSize: 16 }}
+                />
+              ) : (
+                <Avatar sx={{ width: 32, height: 32, bgcolor: '#23243a', fontSize: 16 }}>
+                  {mail.from?.charAt(0).toUpperCase()}
+                </Avatar>
+              )}
+            </Box>
             <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography
                 sx={{
