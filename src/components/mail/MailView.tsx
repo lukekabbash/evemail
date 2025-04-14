@@ -71,13 +71,13 @@ const MailView: React.FC<MailViewProps> = ({
           className="h-16 w-16 mb-6 opacity-90 drop-shadow-lg"
         />
         <span
-          className="text-center text-[1.25rem] md:text-[1.5rem] max-w-[420px] text-white/70 font-medium tracking-wide shadow-sm mb-8"
+          className="text-center text-[1.25rem] md:text-[1.5rem] max-w-[420px] text-white/70 font-medium tracking-wide shadow-sm"
         >
-          Select a mail message to begin.
+          Select a message to begin
         </span>
         <button
           type="button"
-          className="mt-2 px-6 py-3 rounded-lg bg-[#00b4ff] text-white font-semibold shadow-lg hover:bg-[#0099cc] focus:outline-none focus:ring-2 focus:ring-[#00b4ff] focus:ring-offset-2 focus:ring-offset-[#2a2a3e] transition-colors duration-150"
+          className="mt-5 px-6 py-3 rounded-lg bg-[#00b4ff] text-white font-semibold shadow-lg hover:bg-[#0099cc] focus:outline-none focus:ring-2 focus:ring-[#00b4ff] focus:ring-offset-2 focus:ring-offset-[#2a2a3e] transition-colors duration-150"
           aria-label="Return to EVE OS"
           tabIndex={0}
           onClick={() => window.open('https://www.eveos.space', '_blank', 'noopener,noreferrer')}
