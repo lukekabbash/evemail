@@ -14,17 +14,38 @@ interface AuthContextType {
   login: () => void;
   logout: () => void;
   handleCallback: () => Promise<void>;
+  clearSSO: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [auth, setAuth] = useState<Auth>({
-    isAuthenticated: false,
-    accessToken: null,
-    characterId: null,
-    characterName: null,
-    scopes: [],
+  const [auth, setAuth] = useState<Auth>(() => {
+    // Try to restore from localStorage
+    const storedToken = localStorage.getItem('eve_token');
+    if (storedToken) {
+      try {
+        const characterInfo = authService.getCharacterInfo(storedToken);
+        if (!authService.isTokenExpired(storedToken)) {
+          return {
+            isAuthenticated: true,
+            accessToken: storedToken,
+            characterId: characterInfo.sub,
+            characterName: characterInfo.name,
+            scopes: characterInfo.scp,
+          };
+        }
+      } catch (e) {
+        // Invalid token, ignore
+      }
+    }
+    return {
+      isAuthenticated: false,
+      accessToken: null,
+      characterId: null,
+      characterName: null,
+      scopes: [],
+    };
   });
 
   const login = useCallback(() => {
@@ -39,14 +60,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       characterName: null,
       scopes: [],
     });
+    localStorage.removeItem('eve_token');
     authService.logout();
+  }, []);
+
+  const clearSSO = useCallback(() => {
+    setAuth({
+      isAuthenticated: false,
+      accessToken: null,
+      characterId: null,
+      characterName: null,
+      scopes: [],
+    });
+    localStorage.removeItem('eve_token');
   }, []);
 
   const handleCallback = useCallback(async () => {
     try {
       const accessToken = authService.handleCallback();
       const characterInfo = authService.getCharacterInfo(accessToken);
-
       setAuth({
         isAuthenticated: true,
         accessToken,
@@ -54,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         characterName: characterInfo.name,
         scopes: characterInfo.scp,
       });
+      localStorage.setItem('eve_token', accessToken);
     } catch (error) {
       console.error('Failed to handle authentication callback:', error);
       throw error;
@@ -61,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout, handleCallback }}>
+    <AuthContext.Provider value={{ auth, login, logout, handleCallback, clearSSO }}>
       {children}
     </AuthContext.Provider>
   );

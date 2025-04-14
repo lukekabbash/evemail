@@ -11,6 +11,7 @@ import { eveMailService } from '../services/eveMailService';
 import { logEvent } from '../utils/analytics';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
+import MailHeader from '../components/mail/MailHeader';
 
 // Add helper function to strip HTML and handle line breaks
 const formatPreview = (html: string): string => {
@@ -50,6 +51,7 @@ const Mail: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -278,16 +280,22 @@ const Mail: React.FC = () => {
     ? mails.find(mail => mail.id === selectedMail) || null
     : null;
 
+  // Filter mails by search value (subject, from, to, preview)
   const filteredMails = mails.filter(mail => {
     const isFromMe = Number(mail.from) === Number(auth.characterId) || mail.from === auth.characterName;
-    
+    const search = searchValue.toLowerCase();
+    const matches =
+      mail.subject.toLowerCase().includes(search) ||
+      mail.from.toLowerCase().includes(search) ||
+      mail.to.toLowerCase().includes(search) ||
+      mail.preview.toLowerCase().includes(search);
     switch (selectedFolder) {
       case 'sent':
-        return isFromMe;
+        return isFromMe && matches;
       case 'inbox':
-        return !isFromMe && mail.type !== 'trash';
+        return !isFromMe && mail.type !== 'trash' && matches;
       case 'trash':
-        return mail.type === 'trash';
+        return mail.type === 'trash' && matches;
       default:
         return false;
     }
@@ -448,6 +456,7 @@ const Mail: React.FC = () => {
   if (!isMobile) {
     return (
       <>
+        <MailHeader searchValue={searchValue} onSearchChange={setSearchValue} />
         <MailLayout
           sidebarWidth={computedSidebarWidth}
           onComposeClick={() => {
@@ -456,8 +465,10 @@ const Mail: React.FC = () => {
           }}
           sidebar={
             <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
-              <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1 }} size="small">
-                <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)' }}>Folder</InputLabel>
+              <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1, minWidth: 0 }} size="small">
+                <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'unset', left: 8, top: 2, background: 'transparent', px: 0.5 }}>
+                  Folder
+                </InputLabel>
                 <Select
                   labelId="folder-select-label"
                   id="folder-select"

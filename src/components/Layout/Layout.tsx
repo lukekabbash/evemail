@@ -242,6 +242,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
                 A third-party EVE Online tool for logistics and organization.
               </Typography>
+              <RouterLink to="/login" style={{ textDecoration: 'none' }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    color: '#00b4ff',
+                    borderColor: '#00b4ff',
+                    mt: 2,
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 180, 255, 0.08)',
+                      borderColor: '#00b4ff',
+                    },
+                  }}
+                >
+                  SSO management
+                </Button>
+              </RouterLink>
             </Grid>
             <Grid item xs={12} md={4}>
               <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>

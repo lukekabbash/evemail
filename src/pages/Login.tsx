@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ParticleBackground from '../components/ParticleBackground';
 
 export const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { login, clearSSO } = useAuth();
 
   return (
     <>
@@ -82,8 +82,17 @@ export const Login: React.FC = () => {
               Login with EVE Online
             </Button>
 
-            <Typography variant="caption" display="block" color="textSecondary">
-              Secure authentication powered by EVE Online's official SSO
+            <Button
+              variant="outlined"
+              color="error"
+              fullWidth
+              sx={{ mb: 2, mt: 1, borderColor: '#ff4444', color: '#ff4444', '&:hover': { bgcolor: 'rgba(255,68,68,0.08)', borderColor: '#ff4444' } }}
+              onClick={clearSSO}
+            >
+              Clear SSO / Logout
+            </Button>
+            <Typography variant="caption" color="textSecondary" sx={{ mb: 2, display: 'block' }}>
+              This will clear your EVE SSO login from this device. You will need to log in again to access your mail.
             </Typography>
           </Paper>
         </Box>
