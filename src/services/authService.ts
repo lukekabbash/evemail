@@ -5,9 +5,11 @@ const CLIENT_ID = process.env.REACT_APP_EVE_CLIENT_ID;
 const CALLBACK_URL = process.env.REACT_APP_EVE_CALLBACK_URL;
 
 const REQUIRED_SCOPES = [
+  'esi-mail.organize_mail.v1',
+  'esi-mail.read_mail.v1',
   'esi-mail.send_mail.v1',
-  'esi-markets.read_character_markets.v1',
-  'esi-universe.read_universe.v1'
+  'esi-characters.read_contacts.v1',
+  'esi-characters.write_contacts.v1'
 ].join(' ');
 
 interface DecodedToken {
@@ -22,7 +24,7 @@ export const authService = {
     const params = new URLSearchParams({
       response_type: 'token',
       client_id: CLIENT_ID || '',
-      redirect_uri: CALLBACK_URL || '',
+      redirect_uri: CALLBACK_URL || 'http://localhost:3000/auth/callback',
       scope: REQUIRED_SCOPES,
       state: crypto.randomUUID()
     });

@@ -34,7 +34,6 @@ const App: React.FC = () => {
               <Layout>
                 <Routes>
                   <Route path="/login" element={<Login />} />
-                  <Route path="/callback" element={<Callback />} />
                   <Route path="/auth/callback" element={<Callback />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/" element={<Home />} />

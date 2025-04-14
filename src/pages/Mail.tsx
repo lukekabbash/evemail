@@ -120,11 +120,11 @@ const Mail: React.FC = () => {
               Return to Checklist
             </button>
             <button 
-              onClick={() => navigate('/browse')}
+              onClick={() => navigate('/')}
               className={styles.sendButton}
-              aria-label="Browse more items"
+              aria-label="Return to home"
             >
-              Browse More Items
+              Return to Home
             </button>
           </div>
         </div>

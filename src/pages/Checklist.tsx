@@ -78,11 +78,11 @@ const Checklist: React.FC = () => {
         <div className={styles.emptyState}>
           <p className={styles.emptyText}>Your shopping list is empty.</p>
           <button
-            onClick={() => navigate('/browse')}
+            onClick={() => navigate('/')}
             className={styles.browseButton}
-            aria-label="Browse items"
+            aria-label="Go to home"
           >
-            Browse Items
+            Go to Home
           </button>
         </div>
       ) : (

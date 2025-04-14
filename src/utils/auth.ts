@@ -4,8 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 // EVE Online SSO Configuration
 export const EVE_SSO_CONFIG = {
   CLIENT_ID: process.env.REACT_APP_EVE_CLIENT_ID || '',
-  REDIRECT_URI: process.env.REACT_APP_EVE_REDIRECT_URI || 'http://localhost:3000/callback',
-  SCOPES: ['esi-mail.send_mail.v1', 'esi-markets.read_character_markets.v1', 'esi-universe.read_universe.v1'],
+  REDIRECT_URI: process.env.REACT_APP_EVE_CALLBACK_URL || 'http://localhost:3000/auth/callback',
+  SCOPES: [
+    'esi-mail.organize_mail.v1',
+    'esi-mail.read_mail.v1',
+    'esi-mail.send_mail.v1',
+    'esi-characters.read_contacts.v1',
+    'esi-characters.write_contacts.v1'
+  ],
   AUTH_URL: 'https://login.eveonline.com/v2/oauth/authorize',
   TOKEN_URL: 'https://login.eveonline.com/v2/oauth/token',
 };

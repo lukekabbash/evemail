@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Container, Grid, Stack } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import ParticleBackground from '../components/ParticleBackground';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MailIcon from '@mui/icons-material/Mail';
-import SearchIcon from '@mui/icons-material/Search';
+import HandshakeIcon from '@mui/icons-material/Handshake';
 import LoginIcon from '@mui/icons-material/Login';
 
 const Home: React.FC = () => {
@@ -14,24 +13,17 @@ const Home: React.FC = () => {
 
   const features = [
     {
-      icon: <SearchIcon sx={{ fontSize: 40 }} />,
-      title: 'Browse Market',
-      description: 'Search and browse all items available in EVE Online markets. No login required!',
-      path: '/checklist',
-      requiresAuth: false
-    },
-    {
-      icon: <ShoppingCartIcon sx={{ fontSize: 40 }} />,
-      title: 'Create Lists',
-      description: 'Build and manage your shopping lists with ease. Lists are saved locally when not logged in.',
-      path: '/checklist',
-      requiresAuth: false
-    },
-    {
       icon: <MailIcon sx={{ fontSize: 40 }} />,
-      title: 'Send to Game',
-      description: 'Mail your shopping lists directly to your in-game character. Requires EVE Online login.',
+      title: 'Mail Management',
+      description: 'Read, write, and organize your EVE mails in an Outlook-style interface. Access all your communications in one place.',
       path: '/mail',
+      requiresAuth: true
+    },
+    {
+      icon: <HandshakeIcon sx={{ fontSize: 40 }} />,
+      title: 'Contracts',
+      description: 'View and manage your contracts. Create new contracts and track existing ones with ease.',
+      path: '/contracts',
       requiresAuth: true
     }
   ];
@@ -71,7 +63,7 @@ const Home: React.FC = () => {
                 textShadow: '0 0 10px rgba(0, 180, 255, 0.5)',
               }}
             >
-              Welcome to EVE OS Mail
+              EVE OS Mail
             </Typography>
             <img
               src="/wormhole-purple.png"
@@ -89,8 +81,7 @@ const Home: React.FC = () => {
               color: 'rgba(255, 255, 255, 0.8)',
             }}
           >
-            A third-party EVE Online tool designed to improve logistics, organization, and communication.
-            Create shopping lists and send them directly to your in-game mailbox. Start browsing and creating lists instantly - no login required!
+            A modern mail client for EVE Online. Manage your in-game communications and contracts with an intuitive, Outlook-style interface.
           </Typography>
 
           <Stack
@@ -99,35 +90,17 @@ const Home: React.FC = () => {
             justifyContent="center"
             sx={{ mb: 8 }}
           >
-            <Button
-              variant="contained"
-              size="large"
-              onClick={() => navigate('/checklist')}
-              sx={{
-                backgroundColor: '#00b4ff',
-                color: '#fff',
-                '&:hover': {
-                  backgroundColor: '#007db2',
-                },
-                px: 4,
-                py: 2,
-              }}
-            >
-              Start Creating Lists
-            </Button>
-            
             {!auth.isAuthenticated && (
               <Button
-                variant="outlined"
+                variant="contained"
                 size="large"
                 onClick={login}
                 startIcon={<LoginIcon />}
                 sx={{
-                  borderColor: '#00b4ff',
+                  backgroundColor: '#00b4ff',
                   color: '#fff',
                   '&:hover': {
-                    borderColor: '#007db2',
-                    backgroundColor: 'rgba(0, 180, 255, 0.1)',
+                    backgroundColor: '#007db2',
                   },
                   px: 4,
                   py: 2,
@@ -136,12 +109,32 @@ const Home: React.FC = () => {
                 Login with EVE Online
               </Button>
             )}
+            
+            {auth.isAuthenticated && (
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => navigate('/mail')}
+                startIcon={<MailIcon />}
+                sx={{
+                  backgroundColor: '#00b4ff',
+                  color: '#fff',
+                  '&:hover': {
+                    backgroundColor: '#007db2',
+                  },
+                  px: 4,
+                  py: 2,
+                }}
+              >
+                Open Mail Client
+              </Button>
+            )}
           </Stack>
         </Box>
 
         <Grid container spacing={4} sx={{ mb: 8 }}>
           {features.map((feature, index) => (
-            <Grid item xs={12} md={4} key={index}>
+            <Grid item xs={12} md={6} key={index}>
               <Box
                 sx={{
                   p: 4,
