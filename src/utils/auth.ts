@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 // EVE Online SSO Configuration
 export const EVE_SSO_CONFIG = {
   CLIENT_ID: process.env.REACT_APP_EVE_CLIENT_ID || '',
-  REDIRECT_URI: process.env.REACT_APP_EVE_CALLBACK_URL || 'http://localhost:3000/auth/callback',
+  REDIRECT_URI: process.env.REACT_APP_EVE_CALLBACK_URL || 'https://mail.eveos.space/auth/callback',
   SCOPES: [
     'esi-mail.organize_mail.v1',
     'esi-mail.read_mail.v1',

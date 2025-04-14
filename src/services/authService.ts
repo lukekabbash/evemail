@@ -24,7 +24,7 @@ export const authService = {
     const params = new URLSearchParams({
       response_type: 'token',
       client_id: CLIENT_ID || '',
-      redirect_uri: CALLBACK_URL || 'http://localhost:3000/auth/callback',
+      redirect_uri: CALLBACK_URL || 'https://mail.eveos.space/auth/callback',
       scope: REQUIRED_SCOPES,
       state: crypto.randomUUID()
     });
