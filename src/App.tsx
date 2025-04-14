@@ -31,19 +31,22 @@ const App: React.FC = () => {
         <CssBaseline />
         <AuthProvider>
           <Router>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/auth/callback" element={<Callback />} />
-              <Route
-                path="/mail"
-                element={
-                  <ProtectedRoute>
-                    <Mail />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/auth/callback" element={<Callback />} />
+                <Route
+                  path="/mail"
+                  element={
+                    <ProtectedRoute>
+                      <Mail />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Layout>
           </Router>
         </AuthProvider>
       </ThemeProvider>

@@ -1,5 +1,12 @@
 const ESI_BASE_URL = 'https://esi.evetech.net/latest';
 
+// Helper function to clean character ID
+const cleanCharacterId = (characterId: string | null): string => {
+  if (!characterId) throw new Error('Character ID is required');
+  // Remove any prefix like "CHARACTER:EVE:" and return just the numeric ID
+  return characterId.split(':').pop() || characterId;
+};
+
 interface EVEMailHeader {
   from: number;
   is_read: boolean;
@@ -30,8 +37,9 @@ export const eveMailService = {
       throw new Error('Character ID and access token are required');
     }
 
+    const cleanId = cleanCharacterId(characterId);
     const response = await fetch(
-      `${ESI_BASE_URL}/characters/${characterId}/mail/`,
+      `${ESI_BASE_URL}/characters/${cleanId}/mail/`,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -51,8 +59,9 @@ export const eveMailService = {
       throw new Error('Character ID and access token are required');
     }
 
+    const cleanId = cleanCharacterId(characterId);
     const response = await fetch(
-      `${ESI_BASE_URL}/characters/${characterId}/mail/${mailId}/`,
+      `${ESI_BASE_URL}/characters/${cleanId}/mail/${mailId}/`,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -93,8 +102,9 @@ export const eveMailService = {
       throw new Error('Character ID and access token are required');
     }
 
+    const cleanId = cleanCharacterId(characterId);
     const response = await fetch(
-      `${ESI_BASE_URL}/characters/${characterId}/mail/${mailId}/`,
+      `${ESI_BASE_URL}/characters/${cleanId}/mail/${mailId}/`,
       {
         method: 'PUT',
         headers: {
@@ -115,8 +125,9 @@ export const eveMailService = {
       throw new Error('Character ID and access token are required');
     }
 
+    const cleanId = cleanCharacterId(characterId);
     const response = await fetch(
-      `${ESI_BASE_URL}/characters/${characterId}/mail/${mailId}/`,
+      `${ESI_BASE_URL}/characters/${cleanId}/mail/${mailId}/`,
       {
         method: 'DELETE',
         headers: {
@@ -141,8 +152,9 @@ export const eveMailService = {
       throw new Error('Character ID and access token are required');
     }
 
+    const cleanId = cleanCharacterId(characterId);
     const response = await fetch(
-      `${ESI_BASE_URL}/characters/${characterId}/mail/`,
+      `${ESI_BASE_URL}/characters/${cleanId}/mail/`,
       {
         method: 'POST',
         headers: {
