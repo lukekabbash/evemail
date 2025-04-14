@@ -20,6 +20,7 @@ interface Mail {
   isRead: boolean;
   isStarred: boolean;
   to: string;
+  type: 'inbox' | 'sent' | 'trash';  // Add type field to track folder
 }
 
 const Mail: React.FC = () => {
@@ -33,6 +34,7 @@ const Mail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [replyData, setReplyData] = useState<{ to: string; subject: string; content: string; recipientInfo?: any } | null>(null);
   const [mailListWidth, setMailListWidth] = useState(400);
+  const [sidebarWidth, setSidebarWidth] = useState(240);  // Add state for sidebar width
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -81,6 +83,7 @@ const Mail: React.FC = () => {
               isRead: header.is_read,
               isStarred: false,
               to: auth.characterName || 'Me',
+              type: header.from === Number(auth.characterId) ? 'sent' : 'inbox'  // Fix type comparison
             };
           } catch (error) {
             console.error(`Failed to fetch mail content for ID ${header.mail_id}:`, error);
@@ -121,7 +124,9 @@ const Mail: React.FC = () => {
 
     try {
       await eveMailService.deleteMail(auth.characterId, parseInt(id), auth.accessToken);
-      setMails(mails.filter(mail => mail.id !== id));
+      setMails(mails.map(mail => 
+        mail.id === id ? { ...mail, type: 'trash' } : mail
+      ));
       if (selectedMail === id) {
         setSelectedMail(null);
       }
@@ -177,6 +182,8 @@ const Mail: React.FC = () => {
   const selectedMailData = selectedMail 
     ? mails.find(mail => mail.id === selectedMail) || null
     : null;
+
+  const filteredMails = mails.filter(mail => mail.type === selectedFolder);
 
   if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
     return (
@@ -234,6 +241,8 @@ const Mail: React.FC = () => {
         selectedFolder={selectedFolder}
         onFolderSelect={setSelectedFolder}
         onComposeClick={() => setIsComposeOpen(true)}
+        sidebarWidth={sidebarWidth}
+        onSidebarResize={(width: number) => setSidebarWidth(width)}
       >
         <Box sx={{ 
           display: 'flex',
@@ -273,7 +282,7 @@ const Mail: React.FC = () => {
               overflow: 'auto'
             }}>
               <MailList
-                mails={mails}
+                mails={filteredMails}
                 selectedMail={selectedMail}
                 onMailSelect={handleMailSelect}
                 onMailStar={(id) => {
