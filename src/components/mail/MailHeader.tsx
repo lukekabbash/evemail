@@ -20,7 +20,7 @@ interface MailHeaderProps {
 
 const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, onContactsClick, contacts, onContactSelect }) => {
   const navigate = useNavigate();
-  const { auth } = useAuth();
+  const { auth, logout } = useAuth();
   const [profileModalOpen, setProfileModalOpen] = React.useState(false);
 
   return (
@@ -144,7 +144,7 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
           <Button variant="contained" sx={{ bgcolor: '#00b4ff', color: 'white', mr: 2, '&:hover': { bgcolor: '#0099ff' } }} onClick={() => { window.location.href = '/'; }}>
             Change character
           </Button>
-          <Button variant="outlined" sx={{ color: 'white', borderColor: '#00b4ff', '&:hover': { borderColor: '#0099ff', color: '#00b4ff' } }} onClick={() => { if (auth.logout) auth.logout(); }}>
+          <Button variant="outlined" sx={{ color: 'white', borderColor: '#00b4ff', '&:hover': { borderColor: '#0099ff', color: '#00b4ff' } }} onClick={logout}>
             Logout
           </Button>
         </DialogActions>
