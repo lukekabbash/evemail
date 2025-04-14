@@ -16,8 +16,8 @@ const Home: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'radial-gradient(circle at 50% 50%, rgba(0, 180, 255, 0.1) 0%, rgba(0, 0, 0, 0) 50%)',
-        py: 4,
+        background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,20,40,0.8) 100%)',
+        py: 2,
       }}
     >
       <Container maxWidth="sm">
@@ -32,21 +32,21 @@ const Home: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 3,
-              mb: 4,
+              gap: 2,
+              mb: 3,
             }}
           >
             <img
               src="/wormhole-purple.png"
               alt="Wormhole"
               style={{
-                height: '48px',
+                height: '40px',
                 opacity: 0.8,
                 filter: 'drop-shadow(0 0 10px rgba(0, 180, 255, 0.5))',
               }}
             />
             <Typography
-              variant="h2"
+              variant="h3"
               component="h1"
               sx={{
                 fontWeight: 'bold',
@@ -60,7 +60,7 @@ const Home: React.FC = () => {
               src="/wormhole-purple.png"
               alt="Wormhole"
               style={{
-                height: '48px',
+                height: '40px',
                 opacity: 0.8,
                 filter: 'drop-shadow(0 0 10px rgba(0, 180, 255, 0.5))',
               }}
@@ -70,11 +70,11 @@ const Home: React.FC = () => {
           <Paper
             elevation={24}
             sx={{
-              p: 4,
+              p: 3,
               backgroundColor: 'rgba(13, 13, 13, 0.95)',
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(0, 180, 255, 0.2)',
-              borderRadius: 3,
+              borderRadius: 2,
               position: 'relative',
               overflow: 'hidden',
               '&::before': {
@@ -90,7 +90,7 @@ const Home: React.FC = () => {
           >
             {!auth.isAuthenticated ? (
               <>
-                <Typography variant="h5" sx={{ mb: 4, color: '#fff', fontWeight: 600 }}>
+                <Typography variant="h5" sx={{ mb: 3, color: '#fff', fontWeight: 600 }}>
                   Sign in to EVE OS Mail
                 </Typography>
                 <Button
@@ -100,8 +100,8 @@ const Home: React.FC = () => {
                   onClick={login}
                   startIcon={<LoginIcon />}
                   sx={{
-                    py: 1.5,
-                    fontSize: '1.1rem',
+                    py: 1,
+                    fontSize: '1rem',
                   }}
                 >
                   Login with EVE Online
@@ -109,7 +109,7 @@ const Home: React.FC = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    mt: 3,
+                    mt: 2,
                     color: 'text.secondary',
                     textAlign: 'center',
                   }}
@@ -119,7 +119,7 @@ const Home: React.FC = () => {
               </>
             ) : (
               <>
-                <Typography variant="h5" sx={{ mb: 4, color: '#fff', fontWeight: 600 }}>
+                <Typography variant="h5" sx={{ mb: 3, color: '#fff', fontWeight: 600 }}>
                   Welcome back, Commander
                 </Typography>
                 <Button
@@ -129,8 +129,8 @@ const Home: React.FC = () => {
                   onClick={() => navigate('/mail')}
                   startIcon={<MailIcon />}
                   sx={{
-                    py: 1.5,
-                    fontSize: '1.1rem',
+                    py: 1,
+                    fontSize: '1rem',
                   }}
                 >
                   Open Mail Client
@@ -140,18 +140,19 @@ const Home: React.FC = () => {
           </Paper>
 
           {!auth.isAuthenticated && (
-            <Box sx={{ mt: 4, textAlign: 'center' }}>
+            <Box sx={{ mt: 3, textAlign: 'center' }}>
               <Typography
-                variant="body1"
+                variant="body2"
                 sx={{
                   color: 'text.secondary',
-                  mb: 2,
+                  mb: 1,
                 }}
               >
                 New to EVE OS Mail?
               </Typography>
               <Button
                 variant="outlined"
+                size="small"
                 onClick={() => navigate('/about')}
                 sx={{
                   borderColor: 'rgba(0, 180, 255, 0.5)',

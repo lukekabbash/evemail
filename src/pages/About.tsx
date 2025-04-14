@@ -1,6 +1,5 @@
 import React from 'react';
 import { Container, Typography, Box, Paper, Grid, Link } from '@mui/material';
-import ParticleBackground from '../components/ParticleBackground';
 import SecurityIcon from '@mui/icons-material/Security';
 import SpeedIcon from '@mui/icons-material/Speed';
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions';
@@ -16,7 +15,7 @@ const About: React.FC = () => {
     {
       icon: <SpeedIcon sx={{ fontSize: 40 }} />,
       title: 'Fast & Efficient',
-      description: 'Built with modern web technologies for a smooth, responsive experience.',
+      description: 'Modern web-based mail client with instant search and real-time updates.',
     },
     {
       icon: <IntegrationInstructionsIcon sx={{ fontSize: 40 }} />,
@@ -26,8 +25,13 @@ const About: React.FC = () => {
   ];
 
   return (
-    <>
-      <ParticleBackground />
+    <Box 
+      sx={{ 
+        minHeight: '100vh',
+        position: 'relative',
+        background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,20,40,0.8) 100%)',
+      }}
+    >
       <Container maxWidth="lg">
         <Box sx={{ py: 8 }}>
           <Typography
@@ -38,6 +42,19 @@ const About: React.FC = () => {
               mb: 4,
               fontWeight: 'bold',
               color: '#fff',
+              textShadow: '0 0 20px rgba(0, 180, 255, 0.3)',
+              position: 'relative',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: '-16px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '60px',
+                height: '4px',
+                backgroundColor: '#00b4ff',
+                borderRadius: '2px',
+              }
             }}
           >
             About EVE OS Mail
@@ -51,16 +68,21 @@ const About: React.FC = () => {
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
               backdropFilter: 'blur(10px)',
               color: '#fff',
+              border: '1px solid rgba(0, 180, 255, 0.1)',
+              borderRadius: '8px',
+              '&:hover': {
+                boxShadow: '0 0 20px rgba(0, 180, 255, 0.1)',
+              },
+              transition: 'box-shadow 0.3s ease-in-out',
             }}
           >
             <Typography variant="body1" paragraph>
-              EVE OS Mail is an integral part of the EVE OS platform, designed to streamline your
-              market shopping experience in EVE Online. Our tool allows you to browse the market,
-              create shopping lists, and mail them directly to your in-game character.
+              EVE OS Mail is an integral part of the EVE OS platform, providing a modern and efficient way to manage your EVE Online communications. 
+              Our tool offers a seamless mail experience with features like instant search, rich text formatting, and character validation.
             </Typography>
             <Typography variant="body1" paragraph>
-              Built with the EVE Online community in mind, we focus on providing a seamless
-              experience while maintaining the highest standards of security and performance.
+              Built with the EVE Online community in mind, we focus on providing a responsive and intuitive interface while maintaining 
+              the highest standards of security and performance.
             </Typography>
           </Paper>
 
@@ -74,10 +96,14 @@ const About: React.FC = () => {
                     height: '100%',
                     backgroundColor: 'rgba(0, 0, 0, 0.7)',
                     backdropFilter: 'blur(10px)',
-                    transition: 'transform 0.2s',
+                    transition: 'all 0.3s ease-in-out',
                     color: '#fff',
+                    border: '1px solid rgba(0, 180, 255, 0.1)',
+                    borderRadius: '8px',
                     '&:hover': {
                       transform: 'translateY(-5px)',
+                      boxShadow: '0 0 20px rgba(0, 180, 255, 0.1)',
+                      borderColor: 'rgba(0, 180, 255, 0.3)',
                     },
                   }}
                 >
@@ -103,24 +129,65 @@ const About: React.FC = () => {
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
               backdropFilter: 'blur(10px)',
               color: '#fff',
+              border: '1px solid rgba(0, 180, 255, 0.1)',
+              borderRadius: '8px',
             }}
           >
-            <Typography variant="h4" component="h2" sx={{ mb: 3, color: '#fff' }}>
+            <Typography 
+              variant="h4" 
+              component="h2" 
+              sx={{ 
+                mb: 3, 
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                '&::before': {
+                  content: '""',
+                  width: '4px',
+                  height: '24px',
+                  backgroundColor: '#00b4ff',
+                  marginRight: '12px',
+                  borderRadius: '2px',
+                }
+              }}
+            >
               How EVE OS Mail Works
             </Typography>
-            <Typography variant="body1" paragraph>
-              1. Log in with your EVE Online account using secure SSO authentication.
-            </Typography>
-            <Typography variant="body1" paragraph>
-              2. Browse the complete market database with real-time pricing information.
-            </Typography>
-            <Typography variant="body1" paragraph>
-              3. Create and manage shopping lists with custom quantities.
-            </Typography>
-            <Typography variant="body1" paragraph>
-              4. Send your shopping lists directly to your in-game mailbox with one click.
-            </Typography>
-            <Typography variant="body1" sx={{ mt: 4, color: 'rgba(255, 255, 255, 0.7)' }}>
+            <Box 
+              component="ol" 
+              sx={{ 
+                pl: 3,
+                '& > li': {
+                  mb: 2,
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  '&::marker': {
+                    color: '#00b4ff',
+                  }
+                }
+              }}
+            >
+              <Typography component="li" variant="body1">
+                Log in with your EVE Online account using secure SSO authentication.
+              </Typography>
+              <Typography component="li" variant="body1">
+                Access your EVE Online mailbox with a modern, responsive interface.
+              </Typography>
+              <Typography component="li" variant="body1">
+                Compose messages with rich text formatting and character validation.
+              </Typography>
+              <Typography component="li" variant="body1">
+                Manage your communications efficiently with instant search and folder organization.
+              </Typography>
+            </Box>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                mt: 4, 
+                color: 'rgba(255, 255, 255, 0.7)',
+                pl: 2,
+                borderLeft: '2px solid rgba(0, 180, 255, 0.3)',
+              }}
+            >
               All interactions with EVE Online's services are made through the official ESI API,
               ensuring your account's security and compliance with the EVE Online Developer
               License Agreement.
@@ -254,83 +321,18 @@ const About: React.FC = () => {
                   }}
                 >
                   <Typography variant="h6" sx={{ mb: 1, color: '#00b4ff' }}>
-                    Crafting Visualizer
+                    Industry Visualizer
                   </Typography>
                 </Link>
                 <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                  Breaks down complex manufacturing processes into a visual tree, aiding in efficient planning of production chains.
-                </Typography>
-
-                <Link 
-                  href="https://www.eveos.space/industry/planetary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{ 
-                    textDecoration: 'none',
-                    '&:hover h6': {
-                      color: '#007db2',
-                    }
-                  }}
-                >
-                  <Typography variant="h6" sx={{ mb: 1, color: '#00b4ff' }}>
-                    PI Visualizer
-                  </Typography>
-                </Link>
-                <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                  Advanced planetary interaction planning tool for optimizing PI colony layouts and production chains.
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sx={{ textAlign: 'center', mt: 2 }}>
-                <Link 
-                  href="https://www.eveos.space/chat"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{ 
-                    textDecoration: 'none',
-                    '&:hover h6': {
-                      color: '#007db2',
-                    }
-                  }}
-                >
-                  <Typography variant="h6" sx={{ mb: 1, color: '#00b4ff' }}>
-                    EVE Chat Assistant
-                  </Typography>
-                </Link>
-                <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.8)', maxWidth: '600px', mx: 'auto' }}>
-                  An AI-powered assistant that answers questions about EVE Online or the EVE OS platform.
+                  Visual tool for planning and optimizing industrial production chains.
                 </Typography>
               </Grid>
             </Grid>
-
-            <Typography variant="h5" sx={{ mt: 4, mb: 2, color: '#fff' }}>
-              Privacy and Development
-            </Typography>
-            <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-              EVE OS emphasizes user privacy with a zero data collection policy, ensuring that your in-game data and activities 
-              remain confidential. The platform is continuously evolving based on community feedback and needs, with Luke Kabbash 
-              actively engaging with users to implement new features and improvements.
-            </Typography>
-            
-            <Typography sx={{ mt: 4, color: 'rgba(255, 255, 255, 0.7)' }}>
-              Explore more EVE OS tools at{' '}
-              <Link 
-                href="https://www.eveos.space" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                sx={{ 
-                  color: '#00b4ff',
-                  '&:hover': {
-                    color: '#007db2',
-                  }
-                }}
-              >
-                www.eveos.space
-              </Link>
-            </Typography>
           </Paper>
         </Box>
       </Container>
-    </>
+    </Box>
   );
 };
 

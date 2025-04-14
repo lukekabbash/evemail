@@ -16,6 +16,8 @@ import { theme } from './theme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthCallback from './pages/AuthCallback';
 import { initGA, logPageView } from './utils/analytics';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 // Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -47,6 +49,8 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/auth/callback" element={<Callback />} />
               <Route
                 path="/mail"

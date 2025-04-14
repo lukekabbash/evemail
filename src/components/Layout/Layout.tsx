@@ -242,33 +242,56 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
                 Navigation
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-start' }}>
                 <Button
                   component={Link}
                   to="/"
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)', justifyContent: 'flex-start' }}
+                  sx={{ 
+                    color: 'rgba(255, 255, 255, 0.7)', 
+                    justifyContent: 'flex-start',
+                    py: 0.6,
+                    px: 1.2,
+                    mx: -1.2,
+                    borderRadius: 1,
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                    }
+                  }}
                 >
                   Home
                 </Button>
                 <Button
                   component={Link}
                   to="/about"
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)', justifyContent: 'flex-start' }}
+                  sx={{ 
+                    color: 'rgba(255, 255, 255, 0.7)', 
+                    justifyContent: 'flex-start',
+                    py: 0.6,
+                    px: 1.2,
+                    mx: -1.2,
+                    borderRadius: 1,
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                    }
+                  }}
                 >
                   About
-                </Button>
-                <Button
-                  component={Link}
-                  to="/checklist"
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)', justifyContent: 'flex-start' }}
-                >
-                  Checklist
                 </Button>
                 {auth.isAuthenticated && (
                   <Button
                     component={Link}
                     to="/mail"
-                    sx={{ color: 'rgba(255, 255, 255, 0.7)', justifyContent: 'flex-start' }}
+                    sx={{ 
+                      color: 'rgba(255, 255, 255, 0.7)', 
+                      justifyContent: 'flex-start',
+                      py: 0.6,
+                      px: 1.2,
+                      mx: -1.2,
+                      borderRadius: 1,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                      }
+                    }}
                   >
                     Mail
                   </Button>
@@ -279,25 +302,45 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
                 Legal
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Button
-                  component={Link}
-                  to="/privacy"
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)', justifyContent: 'flex-start' }}
-                >
-                  Privacy Policy
-                </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-start' }}>
                 <Button
                   component={Link}
                   to="/terms"
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)', justifyContent: 'flex-start' }}
+                  sx={{ 
+                    color: 'rgba(255, 255, 255, 0.7)', 
+                    justifyContent: 'flex-start',
+                    py: 0.6,
+                    px: 1.2,
+                    mx: -1.2,
+                    borderRadius: 1,
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                    }
+                  }}
                 >
                   Terms of Service
                 </Button>
-                <Typography sx={{ color: 'rgba(255, 255, 255, 0.5)', mt: 2, fontSize: '0.875rem' }}>
-                  EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide.
-                </Typography>
+                <Button
+                  component={Link}
+                  to="/privacy"
+                  sx={{ 
+                    color: 'rgba(255, 255, 255, 0.7)', 
+                    justifyContent: 'flex-start',
+                    py: 0.6,
+                    px: 1.2,
+                    mx: -1.2,
+                    borderRadius: 1,
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                    }
+                  }}
+                >
+                  Privacy Policy
+                </Button>
               </Box>
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 4, fontSize: '0.875rem' }}>
+                EVE Online and the EVE logo are registered trademarks of CCP hf. All rights reserved. Used with permission.
+              </Typography>
             </Grid>
           </Grid>
         </Container>

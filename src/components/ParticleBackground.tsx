@@ -18,7 +18,7 @@ const ParticleBackground: React.FC = () => {
             value: 'transparent',
           },
         },
-        fpsLimit: 120,
+        fpsLimit: 30,
         particles: {
           color: {
             value: '#333333',
@@ -27,28 +27,28 @@ const ParticleBackground: React.FC = () => {
             color: '#333333',
             distance: 150,
             enable: true,
-            opacity: 0.15,
+            opacity: 0.1,
             width: 1,
           },
           move: {
             enable: true,
-            speed: 0.3,
+            speed: 0.2,
             direction: 'none',
-            random: true,
+            random: false,
             straight: false,
             outModes: {
-              default: 'bounce',
+              default: 'out',
             },
           },
           number: {
             density: {
               enable: true,
-              area: 1000,
+              area: 1500,
             },
-            value: 60,
+            value: 30,
           },
           opacity: {
-            value: 0.2,
+            value: 0.15,
           },
           shape: {
             type: 'circle',
@@ -57,7 +57,9 @@ const ParticleBackground: React.FC = () => {
             value: { min: 1, max: 2 },
           },
         },
-        detectRetina: true,
+        detectRetina: false,
+        fullScreen: false,
+        pauseOnBlur: true,
       }}
       style={{
         position: 'absolute',
@@ -65,6 +67,7 @@ const ParticleBackground: React.FC = () => {
         left: 0,
         width: '100%',
         height: '100%',
+        pointerEvents: 'none',
       }}
     />
   );
