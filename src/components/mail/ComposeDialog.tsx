@@ -266,27 +266,6 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       </DialogTitle>
       <DialogContent sx={{ bgcolor: '#23243a' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <Box className="flex flex-wrap gap-2 mb-2">
-            {validatedRecipients.map((recipient) => (
-              <span
-                key={recipient.id}
-                className="flex items-center bg-blue-900 text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 shadow"
-              >
-                <Avatar src={recipient.portrait} alt={recipient.name} className="w-5 h-5 mr-1" />
-                {recipient.name}
-                <button
-                  type="button"
-                  className="ml-2 text-white hover:text-red-400 focus:outline-none"
-                  aria-label={`Remove ${recipient.name}`}
-                  tabIndex={0}
-                  onClick={() => setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}
-                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </Box>
           <Autocomplete
             freeSolo
             inputValue={searchQuery}
@@ -315,29 +294,57 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                 </Box>
               </Box>
             )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="To"
-                placeholder="Search character name..."
-                variant="outlined"
-                size="small"
-                onKeyDown={handleKeyDown}
-                onBlur={handleBlur}
-                error={error !== ''}
-                helperText={error}
-                sx={{
-                  '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
-                  '& .MuiInputBase-input': { color: 'rgba(255,255,255,0.9)' },
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                    '&:hover fieldset': { borderColor: '#00b4ff' },
-                    '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
-                  },
-                  bgcolor: '#23243a',
-                }}
-              />
-            )}
+            renderInput={(params) => {
+              return (
+                <TextField
+                  {...params}
+                  label="To"
+                  placeholder="Search character name..."
+                  variant="outlined"
+                  size="small"
+                  onKeyDown={handleKeyDown}
+                  onBlur={handleBlur}
+                  error={error !== ''}
+                  helperText={error}
+                  sx={{
+                    '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
+                    '& .MuiInputBase-input': { color: 'rgba(255,255,255,0.9)' },
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
+                      '&:hover fieldset': { borderColor: '#00b4ff' },
+                      '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
+                    },
+                    bgcolor: '#23243a',
+                  }}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <Box className="flex items-center gap-x-2">
+                        {validatedRecipients.map((recipient) => (
+                          <span
+                            key={recipient.id}
+                            className="flex items-center bg-blue-900 text-white rounded-full px-3 py-1 text-sm mr-2 shadow"
+                          >
+                            <Avatar src={recipient.portrait} alt={recipient.name} className="w-5 h-5 mr-1" />
+                            {recipient.name}
+                            <button
+                              type="button"
+                              className="ml-2 text-white hover:text-red-400 focus:outline-none"
+                              aria-label={`Remove ${recipient.name}`}
+                              tabIndex={0}
+                              onClick={() => setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}
+                              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setValidatedRecipients(validatedRecipients.filter(r => r.id !== recipient.id))}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </Box>
+                    ),
+                  }}
+                />
+              );
+            }}
           />
           <TextField
             label="Subject"
