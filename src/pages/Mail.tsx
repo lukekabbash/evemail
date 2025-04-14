@@ -141,7 +141,7 @@ const Mail: React.FC = () => {
       try {
         // Search for the character to get their ID and portrait
         const searchResults = await eveMailService.searchCharacters(mail.from);
-        const recipientInfo = searchResults.find(char => char.name === mail.from);
+        const recipientInfo = searchResults.find(char => char.name.toLowerCase() === mail.from.toLowerCase());
         
         if (recipientInfo) {
           setReplyData({
@@ -150,13 +150,13 @@ const Mail: React.FC = () => {
             content: `\n\n-------- Original Message --------\nFrom: ${mail.from}\nDate: ${new Date(mail.date).toLocaleString()}\nSubject: ${mail.subject}\n\n${mail.content}`,
             recipientInfo: recipientInfo
           });
+          setIsComposeOpen(true);
         } else {
           console.error('Could not find character info for:', mail.from);
         }
       } catch (error) {
         console.error('Failed to get character info:', error);
       }
-      setIsComposeOpen(true);
     }
   };
 
@@ -171,11 +171,29 @@ const Mail: React.FC = () => {
         data.content,
         [{ recipient_id: parseInt(data.to), recipient_type: 'character' }]
       );
+      
+      // Add the sent mail to the local state
+      const newMail = {
+        id: Date.now().toString(), // Temporary ID until we refresh
+        from: auth.characterName || 'Me',
+        to: data.to,
+        subject: data.subject,
+        content: data.content,
+        preview: data.content.substring(0, 100) + '...',
+        date: new Date().toISOString(),
+        isRead: true,
+        isStarred: false,
+        type: 'sent' as const
+      };
+      
+      setMails(prevMails => [...prevMails, newMail]);
       setIsComposeOpen(false);
-      // Refresh mail list
-      window.location.reload();
+      
+      // Optionally refresh the mail list to get the server-side version
+      // fetchMails();
     } catch (error) {
       console.error('Failed to send mail:', error);
+      alert('Failed to send mail. Please try again.');
     }
   };
 

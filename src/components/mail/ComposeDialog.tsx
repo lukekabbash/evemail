@@ -70,6 +70,7 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         setRecipient(exactMatch);
         setRecipientValidated(true);
         setRecipientError(false);
+        setSearchQuery(exactMatch.name);
       } else {
         setRecipient(null);
         setRecipientValidated(false);
@@ -85,9 +86,11 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   };
 
   const handleRecipientKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Tab' && searchQuery) {
+    if (event.key === 'Tab' || event.key === 'Enter') {
       event.preventDefault();
-      validateAndSearchCharacter(searchQuery);
+      if (searchQuery) {
+        validateAndSearchCharacter(searchQuery);
+      }
     }
   };
 
@@ -101,8 +104,16 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     try {
       const results = await eveMailService.searchCharacters(query);
       setOptions(results);
+      
+      const exactMatch = results.find(char => char.name.toLowerCase() === query.toLowerCase());
+      if (exactMatch) {
+        setRecipient(exactMatch);
+        setRecipientValidated(true);
+        setRecipientError(false);
+      }
     } catch (error) {
       console.error('Failed to search characters:', error);
+      setOptions([]);
     } finally {
       setLoading(false);
     }
@@ -116,22 +127,35 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
   }, [searchQuery]);
 
   const handleSend = () => {
-    if (!recipient) return;
+    if (!recipient) {
+      setRecipientError(true);
+      return;
+    }
+    if (!subject.trim()) {
+      alert('Please enter a subject');
+      return;
+    }
+    if (!content.trim()) {
+      alert('Please enter a message');
+      return;
+    }
     onSend({ 
       to: recipient.character_id.toString(),
-      subject,
-      content
+      subject: subject.trim(),
+      content: content.trim()
     });
     handleClose();
   };
 
   const handleClose = () => {
-    onClose();
     setRecipient(null);
     setSubject('');
     setContent('');
     setSearchQuery('');
     setOptions([]);
+    setRecipientError(false);
+    setRecipientValidated(false);
+    onClose();
   };
 
   return (
