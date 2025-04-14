@@ -39,45 +39,98 @@ interface EVECharacterSearchResult {
 
 export const eveMailService = {
   async searchCharacters(query: string): Promise<EVECharacterSearchResult[]> {
-    if (!query) return [];
+    if (!query || query.length < 3) return [];
 
-    const response = await fetch(
-      `${ESI_BASE_URL}/search/?categories=character&search=${encodeURIComponent(query)}`,
-      {
-        headers: {
-          'Accept': 'application/json',
-        },
+    try {
+      // First try exact match
+      const exactResponse = await fetch(
+        `${ESI_BASE_URL}/universe/ids/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify([query])
+        }
+      );
+
+      if (exactResponse.ok) {
+        const exactData = await exactResponse.json();
+        if (exactData.characters && exactData.characters.length > 0) {
+          const character = exactData.characters[0];
+          const [infoResponse, portraitResponse] = await Promise.all([
+            fetch(`${ESI_BASE_URL}/characters/${character.id}/`),
+            fetch(`${ESI_BASE_URL}/characters/${character.id}/portrait/`)
+          ]);
+
+          if (infoResponse.ok && portraitResponse.ok) {
+            const portrait = await portraitResponse.json();
+            return [{
+              character_id: character.id,
+              name: character.name,
+              portrait_url: portrait.px64x64
+            }];
+          }
+        }
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to search characters: ${response.statusText}`);
+      // If no exact match, try search
+      const searchResponse = await fetch(
+        `${ESI_BASE_URL}/search/?categories=character&search=${encodeURIComponent(query)}&strict=false`,
+        {
+          headers: {
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (!searchResponse.ok) {
+        throw new Error(`Failed to search characters: ${searchResponse.statusText}`);
+      }
+
+      const searchData = await searchResponse.json();
+      if (!searchData.character || !searchData.character.length) return [];
+
+      // Get character details and portraits for each result
+      const characterPromises = searchData.character.slice(0, 5).map(async (id: number) => {
+        try {
+          const [infoResponse, portraitResponse] = await Promise.all([
+            fetch(`${ESI_BASE_URL}/characters/${id}/`),
+            fetch(`${ESI_BASE_URL}/characters/${id}/portrait/`)
+          ]);
+
+          if (!infoResponse.ok || !portraitResponse.ok) return null;
+
+          const info = await infoResponse.json();
+          const portrait = await portraitResponse.json();
+
+          return {
+            character_id: id,
+            name: info.name,
+            portrait_url: portrait.px64x64
+          };
+        } catch (error) {
+          console.error(`Failed to fetch character details for ID ${id}:`, error);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(characterPromises);
+      return results
+        .filter((result): result is EVECharacterSearchResult => result !== null)
+        .sort((a, b) => {
+          // Sort exact matches first, then by name length
+          const aExact = a.name.toLowerCase() === query.toLowerCase();
+          const bExact = b.name.toLowerCase() === query.toLowerCase();
+          if (aExact && !bExact) return -1;
+          if (!aExact && bExact) return 1;
+          return a.name.length - b.name.length;
+        });
+    } catch (error) {
+      console.error('Character search failed:', error);
+      return [];
     }
-
-    const data = await response.json();
-    if (!data.character || !data.character.length) return [];
-
-    // Get character details and portraits for each result
-    const characterPromises = data.character.map(async (id: number) => {
-      const [infoResponse, portraitResponse] = await Promise.all([
-        fetch(`${ESI_BASE_URL}/characters/${id}/`),
-        fetch(`${ESI_BASE_URL}/characters/${id}/portrait/`),
-      ]);
-
-      if (!infoResponse.ok || !portraitResponse.ok) return null;
-
-      const info = await infoResponse.json();
-      const portrait = await portraitResponse.json();
-
-      return {
-        character_id: id,
-        name: info.name,
-        portrait_url: portrait.px64x64,
-      };
-    });
-
-    const results = await Promise.all(characterPromises);
-    return results.filter((result): result is EVECharacterSearchResult => result !== null);
   },
 
   async getCharacterPortrait(characterId: number): Promise<string | null> {

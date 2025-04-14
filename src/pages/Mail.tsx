@@ -137,39 +137,52 @@ const Mail: React.FC = () => {
 
   const handleReply = async (id: string) => {
     const mail = mails.find(m => m.id === id);
-    if (mail) {
-      try {
-        // Search for the character to get their ID and portrait
-        const searchResults = await eveMailService.searchCharacters(mail.from);
-        const recipientInfo = searchResults.find(char => char.name.toLowerCase() === mail.from.toLowerCase());
+    if (!mail) return;
+
+    try {
+      // Search for the character to get their ID and portrait
+      const searchResults = await eveMailService.searchCharacters(mail.from);
+      const recipientInfo = searchResults.find(char => char.name.toLowerCase() === mail.from.toLowerCase());
+      
+      if (recipientInfo) {
+        const formattedDate = new Date(mail.date).toLocaleString();
+        const replyContent = `\n\n-------- Original Message --------\nFrom: ${mail.from}\nDate: ${formattedDate}\nSubject: ${mail.subject}\n\n${mail.content}`;
         
-        if (recipientInfo) {
-          setReplyData({
-            to: mail.from,
-            subject: `Re: ${mail.subject}`,
-            content: `\n\n-------- Original Message --------\nFrom: ${mail.from}\nDate: ${new Date(mail.date).toLocaleString()}\nSubject: ${mail.subject}\n\n${mail.content}`,
-            recipientInfo: recipientInfo
-          });
-          setIsComposeOpen(true);
-        } else {
-          console.error('Could not find character info for:', mail.from);
-        }
-      } catch (error) {
-        console.error('Failed to get character info:', error);
+        setReplyData({
+          to: mail.from,
+          subject: `Re: ${mail.subject}`,
+          content: replyContent,
+          recipientInfo: recipientInfo
+        });
+        setIsComposeOpen(true);
+      } else {
+        console.error('Could not find character info for:', mail.from);
+        alert('Could not find the character to reply to. Please try again.');
       }
+    } catch (error) {
+      console.error('Failed to get character info:', error);
+      alert('Failed to prepare reply. Please try again.');
     }
   };
 
   const handleSendMail = async (data: { to: string; subject: string; content: string }) => {
-    if (!auth.characterId || !auth.accessToken) return;
+    if (!auth.characterId || !auth.accessToken) {
+      alert('You must be logged in to send mail.');
+      return;
+    }
 
     try {
+      const recipientId = parseInt(data.to);
+      if (isNaN(recipientId)) {
+        throw new Error('Invalid recipient ID');
+      }
+
       await eveMailService.sendMail(
         auth.characterId,
         auth.accessToken,
         data.subject,
         data.content,
-        [{ recipient_id: parseInt(data.to), recipient_type: 'character' }]
+        [{ recipient_id: recipientId, recipient_type: 'character' }]
       );
       
       // Add the sent mail to the local state
@@ -188,12 +201,9 @@ const Mail: React.FC = () => {
       
       setMails(prevMails => [...prevMails, newMail]);
       setIsComposeOpen(false);
-      
-      // Optionally refresh the mail list to get the server-side version
-      // fetchMails();
     } catch (error) {
       console.error('Failed to send mail:', error);
-      alert('Failed to send mail. Please try again.');
+      alert('Failed to send mail. Please make sure the recipient exists and try again.');
     }
   };
 

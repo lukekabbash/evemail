@@ -8,6 +8,18 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Fab } from '@mui/material';
 import { Resizable } from 're-resizable';
 
+interface ResizeData {
+  width: number;
+  height: number;
+}
+
+interface ResizeCallbackData {
+  size: ResizeData;
+  handle: string;
+  delta: ResizeData;
+  direction: string;
+}
+
 interface MailLayoutProps {
   children: React.ReactNode;
   onFolderSelect: (folder: string) => void;
@@ -42,7 +54,7 @@ const MailLayout: React.FC<MailLayoutProps> = ({
   const drawer = (
     <Resizable
       size={{ width: sidebarWidth, height: '100%' }}
-      onResizeStop={(e, direction, ref, d) => {
+      onResizeStop={(_e: MouseEvent | TouchEvent, _direction: string, _ref: HTMLElement, d: ResizeData) => {
         onSidebarResize(sidebarWidth + d.width);
       }}
       minWidth={200}
