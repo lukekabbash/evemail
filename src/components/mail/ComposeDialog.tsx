@@ -20,13 +20,13 @@ import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
 import { eveMailService } from '../../services/eveMailService';
 import debounce from 'lodash/debounce';
 
-interface RecipientInfo {
+export interface RecipientInfo {
   id: number;
   name: string;
   portrait?: string;
 }
 
-interface ReplyData {
+export interface ReplyData {
   to?: string;
   subject: string;
   content: string;

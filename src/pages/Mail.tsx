@@ -5,9 +5,19 @@ import { Resizable, ResizeCallback } from 're-resizable';
 import MailLayout from '../components/mail/MailLayout';
 import MailList from '../components/mail/MailList';
 import MailView from '../components/mail/MailView';
-import ComposeDialog from '../components/mail/ComposeDialog';
+import ComposeDialog, { type ReplyData } from '../components/mail/ComposeDialog';
 import { useAuth } from '../contexts/AuthContext';
 import { eveMailService } from '../services/eveMailService';
+
+// Add helper function to strip HTML and handle line breaks
+const formatPreview = (html: string): string => {
+  // Replace <br>, <br/>, <br /> with newlines
+  const withLineBreaks = html.replace(/<br\s*\/?>/gi, '\n');
+  // Strip remaining HTML tags
+  const withoutTags = withLineBreaks.replace(/<[^>]+>/g, '');
+  // Normalize whitespace and trim
+  return withoutTags.replace(/\s+/g, ' ').trim();
+};
 
 // Temporary interface until we integrate with EVE API
 interface Mail {
@@ -32,9 +42,9 @@ const Mail: React.FC = () => {
   const [mails, setMails] = useState<Mail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [replyData, setReplyData] = useState<{ to: string; subject: string; content: string; recipientInfo?: any } | null>(null);
+  const [replyData, setReplyData] = useState<ReplyData | undefined>(undefined);
   const [mailListWidth, setMailListWidth] = useState(400);
-  const [sidebarWidth, setSidebarWidth] = useState(240);  // Add state for sidebar width
+  const [sidebarWidth, setSidebarWidth] = useState(240);
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -77,7 +87,7 @@ const Mail: React.FC = () => {
               id: header.mail_id.toString(),
               from: characterNames.get(header.from) || `Character #${header.from}`,
               subject: header.subject,
-              preview: content.body.substring(0, 100) + '...',
+              preview: formatPreview(content.body).substring(0, 100) + '...',
               content: content.body,
               date: header.timestamp,
               isRead: header.is_read,
@@ -140,7 +150,6 @@ const Mail: React.FC = () => {
     if (!mail) return;
 
     try {
-      // Get the character info directly since we have their name
       const searchResults = await eveMailService.searchCharacters(mail.from);
       const recipientInfo = searchResults.find(char => char.name.toLowerCase() === mail.from.toLowerCase());
       
@@ -153,9 +162,9 @@ const Mail: React.FC = () => {
           subject: `Re: ${mail.subject}`,
           content: replyContent,
           recipientInfo: {
-            character_id: recipientInfo.character_id,
+            id: recipientInfo.character_id,
             name: recipientInfo.name,
-            portrait_url: recipientInfo.portrait_url
+            portrait: recipientInfo.portrait_url
           }
         });
         setIsComposeOpen(true);
@@ -179,8 +188,7 @@ const Mail: React.FC = () => {
     setReplyData({
       to: '',  // Empty to field for forward
       subject: `Fwd: ${mail.subject}`,
-      content: forwardContent,
-      recipientInfo: undefined  // No recipient info for forward
+      content: forwardContent
     });
     setIsComposeOpen(true);
   };
@@ -192,11 +200,16 @@ const Mail: React.FC = () => {
     }
 
     try {
-      const recipientId = parseInt(data.to);
-      if (isNaN(recipientId)) {
-        throw new Error('Invalid recipient ID');
+      // Get recipient ID from character search
+      const searchResults = await eveMailService.searchCharacters(data.to);
+      const recipient = searchResults.find(char => char.name.toLowerCase() === data.to.toLowerCase());
+      
+      if (!recipient) {
+        throw new Error('Recipient not found');
       }
 
+      const recipientId = recipient.character_id;
+      
       await eveMailService.sendMail(
         auth.characterId,
         auth.accessToken,
@@ -207,12 +220,12 @@ const Mail: React.FC = () => {
       
       // Add the sent mail to the local state
       const newMail = {
-        id: Date.now().toString(), // Temporary ID until we refresh
+        id: `temp_${Date.now()}`, // Temporary ID until we refresh
         from: auth.characterName || 'Me',
         to: data.to,
         subject: data.subject,
         content: data.content,
-        preview: data.content.substring(0, 100) + '...',
+        preview: formatPreview(data.content).substring(0, 100) + '...',
         date: new Date().toISOString(),
         isRead: true,
         isStarred: false,
@@ -221,6 +234,13 @@ const Mail: React.FC = () => {
       
       setMails(prevMails => [...prevMails, newMail]);
       setIsComposeOpen(false);
+      setReplyData(undefined);
+      
+      // If we're not in the sent folder, show a success message
+      if (selectedFolder !== 'sent') {
+        // You might want to add a toast/snackbar notification here
+        console.log('Mail sent successfully');
+      }
     } catch (error) {
       console.error('Failed to send mail:', error);
       alert('Failed to send mail. Please make sure the recipient exists and try again.');
@@ -231,7 +251,18 @@ const Mail: React.FC = () => {
     ? mails.find(mail => mail.id === selectedMail) || null
     : null;
 
-  const filteredMails = mails.filter(mail => mail.type === selectedFolder);
+  const filteredMails = mails.filter(mail => {
+    switch (selectedFolder) {
+      case 'sent':
+        return mail.type === 'sent' || mail.from === auth.characterName;
+      case 'inbox':
+        return mail.type === 'inbox' && mail.to === auth.characterName;
+      case 'trash':
+        return mail.type === 'trash';
+      default:
+        return false;
+    }
+  });
 
   if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
     return (
@@ -289,7 +320,7 @@ const Mail: React.FC = () => {
         selectedFolder={selectedFolder}
         onFolderSelect={setSelectedFolder}
         onComposeClick={() => {
-          setReplyData(null);  // Clear any reply/forward data
+          setReplyData(undefined);  // Clear any reply/forward data
           setIsComposeOpen(true);
         }}
         sidebarWidth={sidebarWidth}
@@ -364,7 +395,7 @@ const Mail: React.FC = () => {
         open={isComposeOpen}
         onClose={() => {
           setIsComposeOpen(false);
-          setReplyData(null);  // Clear reply/forward data when closing
+          setReplyData(undefined);  // Clear reply/forward data when closing
         }}
         onSend={handleSendMail}
         replyData={replyData}
