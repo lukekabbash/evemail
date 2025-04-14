@@ -11,20 +11,33 @@ import {
   Avatar,
   Typography,
   Paper,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
 import { eveMailService } from '../../services/eveMailService';
 import debounce from 'lodash/debounce';
+
+interface RecipientInfo {
+  id: number;
+  name: string;
+  portrait?: string;
+}
+
+interface ReplyData {
+  to?: string;
+  subject: string;
+  content: string;
+  recipientInfo?: RecipientInfo;
+}
 
 interface ComposeDialogProps {
   open: boolean;
   onClose: () => void;
   onSend: (data: { to: string; subject: string; content: string }) => void;
-  replyData?: { 
-    to: string; 
-    subject: string; 
-    content: string; 
-    recipientInfo?: CharacterOption;
-  } | null;
+  replyData?: ReplyData;
 }
 
 interface CharacterOption {
@@ -34,127 +47,159 @@ interface CharacterOption {
 }
 
 const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, replyData }) => {
-  const [recipient, setRecipient] = useState<CharacterOption | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [options, setOptions] = useState<RecipientInfo[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [options, setOptions] = useState<CharacterOption[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [recipientError, setRecipientError] = useState(false);
-  const [recipientValidated, setRecipientValidated] = useState(false);
+  const [validatedRecipient, setValidatedRecipient] = useState<RecipientInfo | null>(null);
+  const [selectedColor, setSelectedColor] = useState('#000000');
 
   useEffect(() => {
     if (replyData) {
-      setSearchQuery(replyData.to);
       setSubject(replyData.subject);
       setContent(replyData.content);
+      
       if (replyData.recipientInfo) {
-        setRecipient(replyData.recipientInfo);
-        setRecipientValidated(true);
-        setRecipientError(false);
-      } else {
-        validateAndSearchCharacter(replyData.to);
+        setValidatedRecipient(replyData.recipientInfo);
+        setSearchQuery(replyData.recipientInfo.name);
+        setOptions([replyData.recipientInfo]);
+      } else if (replyData.to) {
+        setSearchQuery(replyData.to);
+        handleCharacterSearch(replyData.to);
       }
     }
   }, [replyData]);
 
-  const validateAndSearchCharacter = async (name: string) => {
-    if (!name) return;
-    
-    setLoading(true);
-    try {
-      const results = await eveMailService.searchCharacters(name);
-      const exactMatch = results.find(char => char.name.toLowerCase() === name.toLowerCase());
-      
-      if (exactMatch) {
-        setRecipient(exactMatch);
-        setRecipientValidated(true);
-        setRecipientError(false);
-        setSearchQuery(exactMatch.name);
-      } else {
-        setRecipient(null);
-        setRecipientValidated(false);
-        setRecipientError(true);
-      }
-    } catch (error) {
-      console.error('Failed to validate character:', error);
-      setRecipientError(true);
-      setRecipientValidated(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRecipientKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Tab' || event.key === 'Enter') {
-      event.preventDefault();
-      if (searchQuery) {
-        validateAndSearchCharacter(searchQuery);
-      }
-    }
-  };
-
-  const searchCharacters = debounce(async (query: string) => {
+  const handleCharacterSearch = debounce(async (query: string) => {
     if (!query) {
       setOptions([]);
       return;
     }
 
-    setLoading(true);
     try {
+      setLoading(true);
+      setError('');
       const results = await eveMailService.searchCharacters(query);
       setOptions(results);
-      
-      const exactMatch = results.find(char => char.name.toLowerCase() === query.toLowerCase());
-      if (exactMatch) {
-        setRecipient(exactMatch);
-        setRecipientValidated(true);
-        setRecipientError(false);
-      }
-    } catch (error) {
-      console.error('Failed to search characters:', error);
+    } catch (err) {
+      setError('Failed to search characters');
       setOptions([]);
     } finally {
       setLoading(false);
     }
   }, 300);
 
-  useEffect(() => {
-    searchCharacters(searchQuery);
-    return () => {
-      searchCharacters.cancel();
-    };
-  }, [searchQuery]);
+  const validateAndSearchCharacter = async (query: string) => {
+    if (!query) return;
+    
+    try {
+      setLoading(true);
+      setError('');
+      const results = await eveMailService.searchCharacters(query);
+      
+      const exactMatch = results.find(
+        (char) => char.name.toLowerCase() === query.toLowerCase()
+      );
 
-  const handleSend = () => {
-    if (!recipient) {
-      setRecipientError(true);
+      if (exactMatch) {
+        setValidatedRecipient(exactMatch);
+        setOptions([exactMatch]);
+        setError('');
+      } else {
+        setValidatedRecipient(null);
+        setOptions(results);
+        setError('Please select a valid character');
+      }
+    } catch (err) {
+      setError('Failed to validate character');
+      setValidatedRecipient(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+    setValidatedRecipient(null);
+    setError('');
+    handleCharacterSearch(query);
+  };
+
+  const handleOptionSelect = (recipient: RecipientInfo) => {
+    setValidatedRecipient(recipient);
+    setSearchQuery(recipient.name);
+    setOptions([recipient]);
+    setError('');
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab' && searchQuery && !validatedRecipient) {
+      event.preventDefault();
+      validateAndSearchCharacter(searchQuery);
+    }
+  };
+
+  const handleBlur = () => {
+    if (searchQuery && !validatedRecipient) {
+      validateAndSearchCharacter(searchQuery);
+    }
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    if (!validatedRecipient) {
+      setError('Please select a valid recipient');
       return;
     }
+
     if (!subject.trim()) {
-      alert('Please enter a subject');
+      setError('Subject is required');
       return;
     }
-    if (!content.trim()) {
-      alert('Please enter a message');
-      return;
-    }
-    onSend({ 
-      to: recipient.character_id.toString(),
+
+    onSend({
+      to: validatedRecipient.name,
       subject: subject.trim(),
       content: content.trim()
     });
-    handleClose();
+  };
+
+  const formatText = (format: 'bold' | 'italic' | 'color') => {
+    const textarea = document.querySelector('[name="message-content"]') as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+
+    let formattedText = '';
+    switch (format) {
+      case 'bold':
+        formattedText = `<b>${selectedText}</b>`;
+        break;
+      case 'italic':
+        formattedText = `<i>${selectedText}</i>`;
+        break;
+      case 'color':
+        formattedText = `<font color="${selectedColor}">${selectedText}</font>`;
+        break;
+    }
+
+    const newContent = content.substring(0, start) + formattedText + content.substring(end);
+    setContent(newContent);
   };
 
   const handleClose = () => {
-    setRecipient(null);
+    setValidatedRecipient(null);
     setSubject('');
     setContent('');
     setSearchQuery('');
     setOptions([]);
-    setRecipientError(false);
-    setRecipientValidated(false);
+    setError('');
     onClose();
   };
 
@@ -179,28 +224,22 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       <DialogContent sx={{ bgcolor: '#ffffff' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <Autocomplete
-            value={recipient}
+            value={validatedRecipient}
             onChange={(_, newValue) => {
-              setRecipient(newValue);
-              setRecipientValidated(!!newValue);
-              setRecipientError(!newValue);
+              setValidatedRecipient(newValue);
             }}
-            onInputChange={(_, newInputValue) => {
-              setSearchQuery(newInputValue);
-              setRecipientValidated(false);
-              setRecipientError(false);
-            }}
+            onInputChange={handleSearchChange}
             options={options}
             loading={loading}
             getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.character_id === value.character_id}
+            isOptionEqualToValue={(option, value) => option.name === value.name}
             renderOption={(props, option) => (
               <Box component="li" {...props} sx={{ 
                 '&:hover': { backgroundColor: 'rgba(0, 180, 255, 0.1)' }
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Avatar
-                    src={option.portrait_url}
+                    src={option.portrait}
                     alt={option.name}
                     sx={{ width: 32, height: 32 }}
                   />
@@ -215,37 +254,19 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
                 placeholder="Search character name..."
                 variant="outlined"
                 size="small"
-                onKeyDown={handleRecipientKeyDown}
-                error={recipientError}
+                onKeyDown={handleKeyDown}
+                onBlur={handleBlur}
+                error={error !== ''}
+                helperText={error}
                 InputProps={{
                   ...params.InputProps,
-                  startAdornment: recipient && (
+                  startAdornment: validatedRecipient && (
                     <Avatar
-                      src={recipient.portrait_url}
-                      alt={recipient.name}
+                      src={validatedRecipient.portrait}
+                      alt={validatedRecipient.name}
                       sx={{ width: 24, height: 24, mr: 1 }}
                     />
                   ),
-                  sx: {
-                    color: recipientValidated ? '#2e7d32' : (recipientError ? '#d32f2f' : '#000000'),
-                    '& input': {
-                      color: recipientValidated ? '#2e7d32' : (recipientError ? '#d32f2f' : '#000000'),
-                    },
-                  }
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#ffffff',
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: recipientValidated ? '#2e7d32' : (recipientError ? '#d32f2f' : 'rgba(0, 180, 255, 0.5)'),
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: recipientValidated ? '#2e7d32' : (recipientError ? '#d32f2f' : '#00b4ff'),
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'rgba(0, 0, 0, 0.7)',
-                  },
                 }}
               />
             )}
@@ -257,62 +278,41 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             fullWidth
             variant="outlined"
             size="small"
-            InputProps={{
-              sx: {
-                color: '#000000',
-                '& input': {
-                  color: '#000000',
-                },
-              },
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: '#ffffff',
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'rgba(0, 180, 255, 0.5)',
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#00b4ff',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'rgba(0, 0, 0, 0.7)',
-              },
-            }}
           />
+          <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+            <Tooltip title="Bold">
+              <IconButton onClick={() => formatText('bold')}>
+                <FormatBoldIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Italic">
+              <IconButton onClick={() => formatText('italic')}>
+                <FormatItalicIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Text Color">
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton onClick={() => formatText('color')}>
+                  <FormatColorTextIcon />
+                </IconButton>
+                <input
+                  type="color"
+                  value={selectedColor}
+                  onChange={(e) => setSelectedColor(e.target.value)}
+                  style={{ width: 30, height: 30, padding: 0, border: 'none' }}
+                />
+              </Box>
+            </Tooltip>
+          </Box>
           <TextField
+            name="message-content"
             label="Message"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             fullWidth
             multiline
-            rows={20}
+            rows={16}
             variant="outlined"
-            InputProps={{
-              sx: {
-                color: '#000000',
-                '& textarea': {
-                  color: '#000000',
-                  fontFamily: 'monospace',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                },
-              },
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: '#ffffff',
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'rgba(0, 180, 255, 0.5)',
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#00b4ff',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'rgba(0, 0, 0, 0.7)',
-              },
-            }}
           />
         </Box>
       </DialogContent>
@@ -321,30 +321,13 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         borderTop: '1px solid rgba(0, 0, 0, 0.1)',
         bgcolor: '#ffffff'
       }}>
-        <Button 
-          onClick={handleClose}
-          sx={{
-            color: 'rgba(0, 0, 0, 0.7)',
-            '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.05)',
-            },
-          }}
-        >
+        <Button onClick={handleClose}>
           Cancel
         </Button>
         <Button 
-          onClick={handleSend}
+          onClick={handleSubmit}
           variant="contained"
-          disabled={!recipient || !subject || !content}
-          sx={{
-            bgcolor: '#00b4ff',
-            '&:hover': {
-              bgcolor: '#007db2',
-            },
-            '&.Mui-disabled': {
-              bgcolor: 'rgba(0, 180, 255, 0.3)',
-            },
-          }}
+          disabled={!validatedRecipient || !subject || !content}
         >
           Send
         </Button>

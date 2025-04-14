@@ -26,20 +26,30 @@ const EVEMailContent: React.FC<EVEMailContentProps> = ({ content }) => {
       /<font([^>]+)>([^<]+)<\/font>/g,
       (match, attributes, content) => {
         const colorMatch = attributes.match(/color="#([^"]+)"/);
-        const color = colorMatch ? `#${colorMatch[1]}` : '#000000';
-        return `<span style="color: ${color}">${content}</span>`;
+        if (!colorMatch) return content;
+        
+        // Convert EVE color format to standard hex
+        let color = colorMatch[1];
+        if (color.length === 8) {
+          // Remove alpha channel if present
+          color = color.substring(2);
+        }
+        return `<span style="color: #${color}">${content}</span>`;
       }
     );
 
     // Convert line breaks
     text = text.replace(/<br>/g, '<br />');
 
+    // Remove any remaining EVE-specific tags
+    text = text.replace(/<loc>/g, '').replace(/<\/loc>/g, '');
+
     return text;
   };
 
   const sanitizedContent = DOMPurify.sanitize(processContent(content), {
-    ALLOWED_TAGS: ['span', 'a', 'br'],
-    ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
+    ALLOWED_TAGS: ['span', 'a', 'br', 'b', 'i', 'font'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style', 'color'],
   });
 
   return (
@@ -54,20 +64,24 @@ const EVEMailContent: React.FC<EVEMailContentProps> = ({ content }) => {
           },
         },
         '& a': {
-          color: '#ffffe4',
+          color: '#00b4ff',
           textDecoration: 'none',
           '&:hover': {
             textDecoration: 'underline',
           },
         },
         '& span': {
-          color: '#000000',
+          color: 'inherit',
         },
         backgroundColor: '#ffffff',
         color: '#000000',
         p: 2,
         borderRadius: 1,
         whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '14px',
+        lineHeight: 1.5,
         '& br': {
           display: 'block',
           content: '""',

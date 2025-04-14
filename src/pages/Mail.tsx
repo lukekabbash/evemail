@@ -140,7 +140,7 @@ const Mail: React.FC = () => {
     if (!mail) return;
 
     try {
-      // Search for the character to get their ID and portrait
+      // Get the character info directly since we have their name
       const searchResults = await eveMailService.searchCharacters(mail.from);
       const recipientInfo = searchResults.find(char => char.name.toLowerCase() === mail.from.toLowerCase());
       
@@ -149,10 +149,14 @@ const Mail: React.FC = () => {
         const replyContent = `\n\n-------- Original Message --------\nFrom: ${mail.from}\nDate: ${formattedDate}\nSubject: ${mail.subject}\n\n${mail.content}`;
         
         setReplyData({
-          to: mail.from,
+          to: recipientInfo.name,
           subject: `Re: ${mail.subject}`,
           content: replyContent,
-          recipientInfo: recipientInfo
+          recipientInfo: {
+            character_id: recipientInfo.character_id,
+            name: recipientInfo.name,
+            portrait_url: recipientInfo.portrait_url
+          }
         });
         setIsComposeOpen(true);
       } else {
@@ -163,6 +167,22 @@ const Mail: React.FC = () => {
       console.error('Failed to get character info:', error);
       alert('Failed to prepare reply. Please try again.');
     }
+  };
+
+  const handleForward = (id: string) => {
+    const mail = mails.find(m => m.id === id);
+    if (!mail) return;
+
+    const formattedDate = new Date(mail.date).toLocaleString();
+    const forwardContent = `\n\n-------- Forwarded Message --------\nFrom: ${mail.from}\nDate: ${formattedDate}\nSubject: ${mail.subject}\nTo: ${mail.to}\n\n${mail.content}`;
+    
+    setReplyData({
+      to: '',  // Empty to field for forward
+      subject: `Fwd: ${mail.subject}`,
+      content: forwardContent,
+      recipientInfo: undefined  // No recipient info for forward
+    });
+    setIsComposeOpen(true);
   };
 
   const handleSendMail = async (data: { to: string; subject: string; content: string }) => {
@@ -268,7 +288,10 @@ const Mail: React.FC = () => {
       <MailLayout
         selectedFolder={selectedFolder}
         onFolderSelect={setSelectedFolder}
-        onComposeClick={() => setIsComposeOpen(true)}
+        onComposeClick={() => {
+          setReplyData(null);  // Clear any reply/forward data
+          setIsComposeOpen(true);
+        }}
         sidebarWidth={sidebarWidth}
         onSidebarResize={(width: number) => setSidebarWidth(width)}
       >
@@ -279,7 +302,7 @@ const Mail: React.FC = () => {
         }}>
           <Resizable
             size={{ width: mailListWidth, height: '100%' }}
-            onResizeStop={(e: MouseEvent | TouchEvent, direction: string, ref: HTMLElement, d: { width: number; height: number }) => {
+            onResizeStop={(_e: MouseEvent | TouchEvent, _direction: string, _ref: HTMLElement, d: { width: number; height: number }) => {
               setMailListWidth(mailListWidth + d.width);
             }}
             minWidth={300}
@@ -326,12 +349,7 @@ const Mail: React.FC = () => {
             <MailView
               mail={selectedMailData}
               onReply={handleReply}
-              onForward={(id) => {
-                const mail = mails.find(m => m.id === id);
-                if (mail) {
-                  setIsComposeOpen(true);
-                }
-              }}
+              onForward={handleForward}
               onDelete={handleMailDelete}
               onStar={(id) => {
                 setMails(mails.map(mail =>
@@ -344,7 +362,10 @@ const Mail: React.FC = () => {
       </MailLayout>
       <ComposeDialog
         open={isComposeOpen}
-        onClose={() => setIsComposeOpen(false)}
+        onClose={() => {
+          setIsComposeOpen(false);
+          setReplyData(null);  // Clear reply/forward data when closing
+        }}
         onSend={handleSendMail}
         replyData={replyData}
       />
