@@ -20,6 +20,8 @@ import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
 import { eveMailService } from '../../services/eveMailService';
 import debounce from 'lodash/debounce';
 import { AutocompleteInputChangeReason } from '@mui/material/Autocomplete';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export interface RecipientInfo {
   id: number;
@@ -365,50 +367,32 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
               bgcolor: '#23243a',
             }}
           />
-          <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-            <Tooltip title="Bold">
-              <IconButton onClick={() => formatText('bold')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                <FormatBoldIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Italic">
-              <IconButton onClick={() => formatText('italic')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                <FormatItalicIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Text Color">
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <IconButton onClick={() => formatText('color')} sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                  <FormatColorTextIcon />
-                </IconButton>
-                <input
-                  type="color"
-                  value={selectedColor}
-                  onChange={(e) => setSelectedColor(e.target.value)}
-                  style={{ width: 30, height: 30, padding: 0, border: 'none', background: '#23243a' }}
-                />
-              </Box>
-            </Tooltip>
-          </Box>
-          <TextField
-            name="message-content"
-            label="Message"
+          <ReactQuill
+            theme="snow"
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            fullWidth
-            multiline
-            rows={16}
-            variant="outlined"
-            sx={{
-              '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
-              '& .MuiInputBase-input': { color: 'rgba(255,255,255,0.9)' },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                '&:hover fieldset': { borderColor: '#00b4ff' },
-                '&.Mui-focused fieldset': { borderColor: '#00b4ff' }
-              },
-              bgcolor: '#23243a',
+            onChange={setContent}
+            modules={{
+              toolbar: [
+                [{ 'header': [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['clean']
+              ]
             }}
+            formats={[
+              'header', 'bold', 'italic', 'underline', 'strike',
+              'color', 'background', 'link', 'list', 'bullet'
+            ]}
+            style={{
+              minHeight: 240,
+              background: '#23243a',
+              color: 'rgba(255,255,255,0.9)',
+              borderRadius: 8,
+              marginBottom: 8
+            }}
+            className="quill-editor bg-[#23243a] text-white rounded"
           />
         </Box>
       </DialogContent>
