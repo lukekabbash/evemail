@@ -487,6 +487,15 @@ const Mail: React.FC = () => {
               onStar={id => setMails(mails.map(mail => mail.id === id ? { ...mail, isStarred: !mail.isStarred } : mail))}
             />
           </Box>
+          <ComposeDialog
+            open={isComposeOpen}
+            onClose={() => {
+              setIsComposeOpen(false);
+              setReplyData(undefined);
+            }}
+            onSend={handleSendMail}
+            replyData={replyData}
+          />
         </Box>
       );
     }
