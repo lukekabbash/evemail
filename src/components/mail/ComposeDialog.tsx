@@ -41,6 +41,7 @@ interface ComposeDialogProps {
   onClose: () => void;
   onSend: (data: { to: string; subject: string; content: string; recipients: { recipient_id: number; recipient_type: string }[] }) => void;
   replyData?: ReplyData;
+  onDraftSave?: () => void;
 }
 
 interface CharacterOption {
@@ -49,7 +50,7 @@ interface CharacterOption {
   portrait_url: string;
 }
 
-const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, replyData }) => {
+const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, replyData, onDraftSave }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [options, setOptions] = useState<RecipientInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -72,8 +73,15 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
         setSearchQuery(replyData.to);
         handleCharacterSearch(replyData.to);
       }
+    } else if (open) {
+      setSubject('');
+      setContent('');
+      setValidatedRecipients([]);
+      setSearchQuery('');
+      setOptions([]);
+      setError('');
     }
-  }, [replyData]);
+  }, [replyData, open]);
 
   const handleCharacterSearch = debounce(async (query: string) => {
     if (!query) {
@@ -248,6 +256,21 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
     }
   };
 
+  const handleSaveDraft = () => {
+    const draft = {
+      to: validatedRecipients.map(r => r.name).join(', '),
+      recipients: validatedRecipients,
+      subject: subject.trim(),
+      content: content,
+      date: new Date().toISOString(),
+    };
+    const drafts = JSON.parse(localStorage.getItem('mailDrafts') || '[]');
+    drafts.push(draft);
+    localStorage.setItem('mailDrafts', JSON.stringify(drafts));
+    if (onDraftSave) onDraftSave();
+    handleClose();
+  };
+
   return (
     <Dialog 
       open={open} 
@@ -256,8 +279,8 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       fullWidth
       PaperProps={{
         sx: {
-          height: '80vh',
-          maxHeight: '800px',
+          height: '90vh',
+          maxHeight: '900px',
           backgroundColor: '#23243a',
           backgroundImage: 'none',
           color: 'rgba(255,255,255,0.9)',
@@ -267,8 +290,8 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       <DialogTitle sx={{ color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', bgcolor: '#23243a' }}>
         New Message
       </DialogTitle>
-      <DialogContent sx={{ bgcolor: '#23243a' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+      <DialogContent sx={{ bgcolor: '#23243a', display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1, flex: 1, minHeight: 0 }}>
           <Autocomplete
             freeSolo
             inputValue={searchQuery}
@@ -373,24 +396,25 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             onChange={setContent}
             modules={{
               toolbar: [
-                [{ 'header': [1, 2, false] }],
+                [{ 'header': [1, 2, 3, false] }],
+                [{ 'size': ['small', false, 'large', 'huge'] }],
                 ['bold', 'italic', 'underline', 'strike'],
-                [{ 'color': [] }, { 'background': [] }],
-                ['link'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['clean']
+                ['link']
               ]
             }}
             formats={[
-              'header', 'bold', 'italic', 'underline', 'strike',
-              'color', 'background', 'link', 'list', 'bullet'
+              'header', 'size', 'bold', 'italic', 'underline', 'strike', 'link'
             ]}
             style={{
-              minHeight: 240,
+              minHeight: 320,
+              height: '100%',
               background: '#23243a',
               color: 'rgba(255,255,255,0.9)',
               borderRadius: 8,
-              marginBottom: 8
+              marginBottom: 8,
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
             }}
             className="quill-editor bg-[#23243a] text-white rounded"
           />
@@ -403,6 +427,14 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
       }}>
         <Button onClick={handleClose} sx={{ color: 'rgba(255,255,255,0.7)' }}>
           Cancel
+        </Button>
+        <Button
+          onClick={handleSaveDraft}
+          variant="outlined"
+          sx={{ color: '#00b4ff', borderColor: '#00b4ff', mr: 1 }}
+          disabled={!subject && !content && !validatedRecipients.length}
+        >
+          Save to Draft
         </Button>
         <Button 
           onClick={handleSubmit}

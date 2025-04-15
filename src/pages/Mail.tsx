@@ -15,6 +15,11 @@ import MailHeader from '../components/mail/MailHeader';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ContactsModal, { Contact } from '../components/mail/ContactsModal';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 
 // Add helper function to strip HTML and handle line breaks
 const formatPreview = (html: string): string => {
@@ -61,6 +66,14 @@ const Mail: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [contactsLoading, setContactsLoading] = useState(true);
   const [contactsError, setContactsError] = useState<string | null>(null);
+  const [draftsModalOpen, setDraftsModalOpen] = useState(false);
+  const [drafts, setDrafts] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('mailDrafts') || '[]');
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
     if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
@@ -343,6 +356,33 @@ const Mail: React.FC = () => {
     fetchContacts();
   }, [contactsModalOpen, auth.characterId, auth.accessToken]);
 
+  // Helper to refresh drafts from localStorage
+  const refreshDrafts = () => {
+    setDrafts(JSON.parse(localStorage.getItem('mailDrafts') || '[]'));
+  };
+
+  // Open draft in compose dialog
+  const handleOpenDraft = (draft: any, idx: number) => {
+    setReplyData({
+      to: draft.to,
+      subject: draft.subject,
+      content: draft.content,
+      recipientInfo: draft.recipients && draft.recipients[0] ? draft.recipients[0] : undefined,
+    });
+    setIsComposeOpen(true);
+    setDraftsModalOpen(false);
+    // Remove draft from storage (optional: or keep until sent)
+    // handleDeleteDraft(idx);
+  };
+
+  // Delete draft
+  const handleDeleteDraft = (idx: number) => {
+    const newDrafts = drafts.slice();
+    newDrafts.splice(idx, 1);
+    setDrafts(newDrafts);
+    localStorage.setItem('mailDrafts', JSON.stringify(newDrafts));
+  };
+
   if (!auth.isAuthenticated || !auth.accessToken || !auth.characterId) {
     return (
       <Box sx={{ 
@@ -522,6 +562,7 @@ const Mail: React.FC = () => {
             });
             setIsComposeOpen(true);
           }}
+          onDraftsClick={() => setDraftsModalOpen(true)}
         />
         <MailLayout
           sidebarWidth={computedSidebarWidth}
@@ -607,6 +648,7 @@ const Mail: React.FC = () => {
           }}
           onSend={handleSendMail}
           replyData={replyData}
+          onDraftSave={refreshDrafts}
         />
         <ContactsModal
           open={contactsModalOpen}
@@ -631,6 +673,28 @@ const Mail: React.FC = () => {
           loading={contactsLoading}
           error={contactsError}
         />
+        <Dialog open={draftsModalOpen} onClose={() => setDraftsModalOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle sx={{ bgcolor: '#23243a', color: 'white' }}>Drafts</DialogTitle>
+          <DialogContent sx={{ bgcolor: '#23243a', color: 'white' }}>
+            {drafts.length === 0 ? (
+              <Typography sx={{ color: 'white', textAlign: 'center', py: 4 }}>No drafts saved.</Typography>
+            ) : (
+              drafts.map((draft: any, idx: number) => (
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, mb: 1, bgcolor: '#1a1a2e', borderRadius: 2 }}>
+                  <Box sx={{ flex: 1, cursor: 'pointer' }} onClick={() => handleOpenDraft(draft, idx)}>
+                    <Typography sx={{ fontWeight: 600 }}>{draft.subject || <span style={{ color: '#888' }}>(No subject)</span>}</Typography>
+                    <Typography sx={{ fontSize: 14, color: '#bbb' }}>{draft.to || '(No recipients)'}</Typography>
+                    <Typography sx={{ fontSize: 12, color: '#888' }}>{new Date(draft.date).toLocaleString()}</Typography>
+                  </Box>
+                  <Button onClick={() => handleDeleteDraft(idx)} sx={{ color: '#ff5555', ml: 2 }}>Delete</Button>
+                </Box>
+              ))
+            )}
+          </DialogContent>
+          <DialogActions sx={{ bgcolor: '#23243a' }}>
+            <Button onClick={() => setDraftsModalOpen(false)} sx={{ color: 'white' }}>Close</Button>
+          </DialogActions>
+        </Dialog>
       </>
     );
   }
@@ -718,6 +782,7 @@ const Mail: React.FC = () => {
         }}
         onSend={handleSendMail}
         replyData={replyData}
+        onDraftSave={refreshDrafts}
       />
       <ContactsModal
         open={contactsModalOpen}

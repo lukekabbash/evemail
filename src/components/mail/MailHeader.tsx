@@ -17,9 +17,10 @@ interface MailHeaderProps {
   onContactsClick?: () => void;
   contacts: { contact_id: number; name: string; portrait: string }[];
   onContactSelect: (contact: { contact_id: number; name: string; portrait: string }) => void;
+  onDraftsClick?: () => void;
 }
 
-const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, onContactsClick, contacts, onContactSelect }) => {
+const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, onContactsClick, contacts, onContactSelect, onDraftsClick }) => {
   const navigate = useNavigate();
   const { auth, logout, login } = useAuth();
   const [profileModalOpen, setProfileModalOpen] = React.useState(false);
@@ -69,6 +70,14 @@ const MailHeader: React.FC<MailHeaderProps> = ({ searchValue, onSearchChange, on
         >
           <PersonIcon className={styles.buttonIcon} />
           <span>Contacts</span>
+        </button>
+        <button
+          type="button"
+          className={styles.button}
+          aria-label="Open drafts modal"
+          onClick={onDraftsClick}
+        >
+          <span style={{ fontWeight: 600 }}>Drafts</span>
         </button>
         <button
           type="button"
