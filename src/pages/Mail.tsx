@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, CircularProgress, Typography, Select, MenuItem, FormControl, InputLabel, useTheme, useMediaQuery, IconButton, Fab } from '@mui/material';
+import { Box, CircularProgress, Typography, useTheme, useMediaQuery, IconButton, Fab } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Resizable, ResizeCallback } from 're-resizable';
 import MailLayout from '../components/mail/MailLayout';
@@ -436,36 +436,34 @@ const Mail: React.FC = () => {
       return (
         <Box sx={{ height: '100vh', bgcolor: '#1a1a2e', display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', height: '100vh' }}>
-            <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1 }} size="small">
-              <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)' }}>Folder</InputLabel>
-              <Select
-                labelId="folder-select-label"
-                id="folder-select"
-                value={selectedFolder}
-                label="Folder"
-                onChange={e => setSelectedFolder(e.target.value)}
-                sx={{
-                  color: 'rgba(255,255,255,0.9)',
-                  bgcolor: '#23243a',
-                  '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
-                  '.MuiSvgIcon-root': { color: '#00b4ff' },
-                }}
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      bgcolor: '#23243a',
-                      color: 'rgba(255,255,255,0.9)',
-                    },
-                  },
-                }}
-              >
-                <MenuItem value="inbox">Inbox</MenuItem>
-                <MenuItem value="sent">Sent</MenuItem>
-                <MenuItem value="trash">Trash</MenuItem>
-              </Select>
-            </FormControl>
+            <div className="w-full bg-[#23243a] px-2 pt-2 pb-1">
+              <div className="relative">
+                <select
+                  id="folder-select"
+                  value={selectedFolder}
+                  onChange={e => setSelectedFolder(e.target.value)}
+                  className="block w-full appearance-none bg-[#23243a] text-white/90 border border-white/20 rounded-md py-3 px-4 focus:outline-none focus:border-[#00b4ff] transition-colors peer"
+                  aria-label="Select folder"
+                  tabIndex={0}
+                >
+                  <option value="inbox">Inbox</option>
+                  <option value="sent">Sent</option>
+                  <option value="trash">Trash</option>
+                </select>
+                <label
+                  htmlFor="folder-select"
+                  className={
+                    `absolute left-4 top-1/2 -translate-y-1/2 bg-[#23243a] px-1 text-white/70 pointer-events-none transition-all duration-200 ` +
+                    (selectedFolder !== '' ? 'text-xs -top-2.5 left-2 bg-[#23243a] px-1' : 'text-base')
+                  }
+                >
+                  Folder
+                </label>
+                <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00b4ff]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
             <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#888', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
               <MailList
                 mails={filteredMails}
@@ -572,39 +570,34 @@ const Mail: React.FC = () => {
           }}
           sidebar={
             <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
-              <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1 }} size="small">
-                <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'unset', left: 8, top: 2, background: 'transparent', px: 0.5 }}>
-                  Folder
-                </InputLabel>
-                <Select
-                  labelId="folder-select-label"
-                  id="folder-select"
-                  value={selectedFolder}
-                  label="Folder"
-                  onChange={e => setSelectedFolder(e.target.value)}
-                  fullWidth
-                  sx={{
-                    color: 'rgba(255,255,255,0.9)',
-                    bgcolor: '#23243a',
-                    '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
-                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
-                    '.MuiSvgIcon-root': { color: '#00b4ff' },
-                  }}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        bgcolor: '#23243a',
-                        color: 'rgba(255,255,255,0.9)',
-                      },
-                    },
-                  }}
-                >
-                  <MenuItem value="inbox">Inbox</MenuItem>
-                  <MenuItem value="sent">Sent</MenuItem>
-                  <MenuItem value="trash">Trash</MenuItem>
-                </Select>
-              </FormControl>
+              <div className="w-full bg-[#23243a] px-2 pt-2 pb-1">
+                <div className="relative">
+                  <select
+                    id="folder-select"
+                    value={selectedFolder}
+                    onChange={e => setSelectedFolder(e.target.value)}
+                    className="block w-full appearance-none bg-[#23243a] text-white/90 border border-white/20 rounded-md py-3 px-4 focus:outline-none focus:border-[#00b4ff] transition-colors peer"
+                    aria-label="Select folder"
+                    tabIndex={0}
+                  >
+                    <option value="inbox">Inbox</option>
+                    <option value="sent">Sent</option>
+                    <option value="trash">Trash</option>
+                  </select>
+                  <label
+                    htmlFor="folder-select"
+                    className={
+                      `absolute left-4 top-1/2 -translate-y-1/2 bg-[#23243a] px-1 text-white/70 pointer-events-none transition-all duration-200 ` +
+                      (selectedFolder !== '' ? 'text-xs -top-2.5 left-2 bg-[#23243a] px-1' : 'text-base')
+                    }
+                  >
+                    Folder
+                  </label>
+                  <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00b4ff]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
               <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#888', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
                 <MailList
                   mails={filteredMails}
@@ -709,36 +702,34 @@ const Mail: React.FC = () => {
         }}
         sidebar={
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
-            <FormControl fullWidth sx={{ bgcolor: '#23243a', px: 2, pt: 2, pb: 1 }} size="small">
-              <InputLabel id="folder-select-label" sx={{ color: 'rgba(255,255,255,0.7)' }}>Folder</InputLabel>
-              <Select
-                labelId="folder-select-label"
-                id="folder-select"
-                value={selectedFolder}
-                label="Folder"
-                onChange={e => setSelectedFolder(e.target.value)}
-                sx={{
-                  color: 'rgba(255,255,255,0.9)',
-                  bgcolor: '#23243a',
-                  '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#00b4ff' },
-                  '.MuiSvgIcon-root': { color: '#00b4ff' },
-                }}
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      bgcolor: '#23243a',
-                      color: 'rgba(255,255,255,0.9)',
-                    },
-                  },
-                }}
-              >
-                <MenuItem value="inbox">Inbox</MenuItem>
-                <MenuItem value="sent">Sent</MenuItem>
-                <MenuItem value="trash">Trash</MenuItem>
-              </Select>
-            </FormControl>
+            <div className="w-full bg-[#23243a] px-2 pt-2 pb-1">
+              <div className="relative">
+                <select
+                  id="folder-select"
+                  value={selectedFolder}
+                  onChange={e => setSelectedFolder(e.target.value)}
+                  className="block w-full appearance-none bg-[#23243a] text-white/90 border border-white/20 rounded-md py-3 px-4 focus:outline-none focus:border-[#00b4ff] transition-colors peer"
+                  aria-label="Select folder"
+                  tabIndex={0}
+                >
+                  <option value="inbox">Inbox</option>
+                  <option value="sent">Sent</option>
+                  <option value="trash">Trash</option>
+                </select>
+                <label
+                  htmlFor="folder-select"
+                  className={
+                    `absolute left-4 top-1/2 -translate-y-1/2 bg-[#23243a] px-1 text-white/70 pointer-events-none transition-all duration-200 ` +
+                    (selectedFolder !== '' ? 'text-xs -top-2.5 left-2 bg-[#23243a] px-1' : 'text-base')
+                  }
+                >
+                  Folder
+                </label>
+                <svg className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00b4ff]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
             <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', '::-webkit-scrollbar': { width: 8 }, '::-webkit-scrollbar-thumb': { bgcolor: '#888', borderRadius: 4 }, '::-webkit-scrollbar-track': { bgcolor: '#23243a' } }}>
               <MailList
                 mails={filteredMails}
