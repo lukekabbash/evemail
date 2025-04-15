@@ -396,14 +396,13 @@ const ComposeDialog: React.FC<ComposeDialogProps> = ({ open, onClose, onSend, re
             onChange={setContent}
             modules={{
               toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
                 [{ 'size': ['small', false, 'large', 'huge'] }],
                 ['bold', 'italic', 'underline', 'strike'],
                 ['link']
               ]
             }}
             formats={[
-              'header', 'size', 'bold', 'italic', 'underline', 'strike', 'link'
+              'size', 'bold', 'italic', 'underline', 'strike', 'link'
             ]}
             style={{
               minHeight: 320,
